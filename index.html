@@ -639,8 +639,7 @@
       <input type="text" id="hireManager" placeholder="e.g. Nell Thomas" />
     </div>
     <div class="actions">
-      <button onclick="saveAndApplyConfig()">Save & Apply</button>
-      <button class="secondary" onclick="copyShareLink()">🔗 Share link</button>
+      <button onclick="generatePlaybook()">🚀 Generate Playbook</button>
     </div>
     <div class="share-url" id="shareUrl"></div>
   </div>
@@ -1157,48 +1156,41 @@
     }
 
     // ── Mode detection ────────────────────────────────────────
+    // Base URL (no params) = clean generic template (editor)
+    // ?id=jane-smith       = editor with that person's data loaded
+    // ?id=jane-smith&view  = clean viewer mode for the new hire
     const params = new URLSearchParams(window.location.search);
     const isViewMode = params.has('view');
+    const hasId = params.has('id');
 
     function getConfigKey() {
-      return params.get('id') || 'default';
+      return params.get('id') || null;
     }
 
     function enterViewMode() {
       document.body.classList.add('view-mode');
-      // Show viewer footer, hide editor footer
       const vf = document.querySelector('.viewer-footer');
       if (vf) vf.style.display = 'inline';
-      // Hide remove buttons on contact cards
-      document.querySelectorAll('.contact-card button').forEach(b => b.style.display = 'none');
-      // Hide placeholder text in guides
-      document.querySelectorAll('.placeholder').forEach(el => {
-        if (el.textContent.startsWith('←')) el.style.display = 'none';
-      });
+      // Hide remove buttons on any cards that get loaded
+      setTimeout(() => {
+        document.querySelectorAll('.contact-card button').forEach(b => b.style.display = 'none');
+        document.querySelectorAll('.placeholder').forEach(el => {
+          if (el.textContent.startsWith('←')) el.style.display = 'none';
+        });
+      }, 600);
     }
 
     function applyConfig(config) {
-      if (!config) {
-        config = {
-          hireName: document.getElementById('hireName')?.value || '',
-          hireRole: document.getElementById('hireRole')?.value || '',
-          hireStart: document.getElementById('hireStart')?.value || '',
-          hireManager: document.getElementById('hireManager')?.value || '',
-        };
-      }
-
       const name = config.hireName;
       const role = config.hireRole;
       const manager = config.hireManager;
 
-      // Update header
       if (name) {
-        document.getElementById('headerTitle').innerHTML = `<span>${name}'s</span> Onboarding Playbook`;
+        document.getElementById('headerTitle').innerHTML = `<span>${esc(name)}'s</span> Onboarding Playbook`;
         document.getElementById('headerSubtitle').textContent = `Welcome to Shopify, ${name}! This playbook covers the most important information as you transition into your new role${role ? ` as ${role}` : ''}.`;
         document.title = `${name}'s Onboarding Playbook`;
       }
 
-      // Update manager field in guides
       if (manager) {
         const managerEl = document.querySelector('[data-field="managerName"]');
         if (managerEl) {
@@ -1208,7 +1200,7 @@
       }
     }
 
-    async function saveAndApplyConfig() {
+    async function generatePlaybook() {
       initDb();
       const name = document.getElementById('hireName').value.trim();
       if (!name) { alert('Please enter a name.'); return; }
@@ -1224,10 +1216,7 @@
         xfn: getGridData('xfnGrid'),
       };
 
-      // Apply immediately
-      applyConfig(config);
-
-      // Save
+      // Save to DB
       if (db) {
         try {
           const existing = await db.where({ configKey: key }).find();
@@ -1243,36 +1232,31 @@
         localStorage.setItem('playbook_' + key, JSON.stringify(config));
       }
 
-      // Update URL without reload
-      const newUrl = new URL(window.location);
-      newUrl.searchParams.set('id', key);
-      window.history.replaceState({}, '', newUrl);
-
-      // Show share link
-      const shareUrl = `${window.location.origin}${window.location.pathname}?id=${key}&view`;
+      // Build the share link and show it
+      const viewUrl = `${window.location.origin}${window.location.pathname}?id=${key}&view`;
+      const editUrl = `${window.location.origin}${window.location.pathname}?id=${key}`;
       const shareEl = document.getElementById('shareUrl');
-      shareEl.textContent = `Share with ${name}: ${shareUrl}`;
+      shareEl.innerHTML = `
+        ✅ Playbook saved for <strong>${esc(name)}</strong><br>
+        <span style="margin-top:0.4rem; display:inline-block;">
+          📤 <a href="${viewUrl}" target="_blank" style="color:var(--accent); text-decoration:underline;">Open their playbook</a>
+          &nbsp;·&nbsp;
+          <a href="#" onclick="navigator.clipboard.writeText('${viewUrl}'); this.textContent='Copied!'; return false;" style="color:var(--blue); text-decoration:underline;">Copy link to share</a>
+          &nbsp;·&nbsp;
+          <a href="${editUrl}" style="color:var(--text-dim); text-decoration:underline;">Edit later</a>
+        </span>
+      `;
       shareEl.classList.add('visible');
-      shareEl.style.cursor = 'pointer';
-      shareEl.onclick = () => { navigator.clipboard.writeText(shareUrl); shareEl.textContent = '✓ Copied to clipboard!'; setTimeout(() => { shareEl.textContent = `Share with ${name}: ${shareUrl}`; }, 2000); };
-    }
-
-    function copyShareLink() {
-      const key = getConfigKey();
-      if (key === 'default') { alert('Save first to generate a share link.'); return; }
-      const shareUrl = `${window.location.origin}${window.location.pathname}?id=${key}&view`;
-      navigator.clipboard.writeText(shareUrl);
-      const shareEl = document.getElementById('shareUrl');
-      shareEl.textContent = '✓ Link copied to clipboard!';
-      shareEl.classList.add('visible');
-      setTimeout(() => shareEl.classList.remove('visible'), 3000);
     }
 
     async function loadConfig() {
-      initDb();
       const key = getConfigKey();
+      if (!key) return; // No ?id= param → stay on clean generic template
+
+      initDb();
       let config;
 
+      // Try Quick DB first
       if (db) {
         try {
           const results = await db.where({ configKey: key }).find();
@@ -1280,6 +1264,7 @@
         } catch(e) {}
       }
 
+      // Fallback to localStorage
       if (!config) {
         const local = localStorage.getItem('playbook_' + key);
         if (local) config = JSON.parse(local);
@@ -1287,11 +1272,13 @@
 
       if (!config) return;
 
-      // Fill editor fields (if visible)
-      if (config.hireName && document.getElementById('hireName')) document.getElementById('hireName').value = config.hireName;
-      if (config.hireRole && document.getElementById('hireRole')) document.getElementById('hireRole').value = config.hireRole;
-      if (config.hireStart && document.getElementById('hireStart')) document.getElementById('hireStart').value = config.hireStart;
-      if (config.hireManager && document.getElementById('hireManager')) document.getElementById('hireManager').value = config.hireManager;
+      // Fill editor fields (only matters in editor mode)
+      if (!isViewMode) {
+        if (config.hireName && document.getElementById('hireName')) document.getElementById('hireName').value = config.hireName;
+        if (config.hireRole && document.getElementById('hireRole')) document.getElementById('hireRole').value = config.hireRole;
+        if (config.hireStart && document.getElementById('hireStart')) document.getElementById('hireStart').value = config.hireStart;
+        if (config.hireManager && document.getElementById('hireManager')) document.getElementById('hireManager').value = config.hireManager;
+      }
 
       if (config.leadership) renderGridData('leadershipGrid', config.leadership);
       if (config.team) renderGridData('teamGrid', config.team);
@@ -1527,10 +1514,13 @@
     // ── Auto-load config on page load ──────────────────────────
     window.addEventListener('DOMContentLoaded', () => {
       if (isViewMode) enterViewMode();
-      // Wait for quick.js to load, then try DB
-      setTimeout(() => loadConfig(), 500);
-      // Also try immediately for localStorage
-      loadConfig();
+      if (hasId) {
+        // Load immediately from localStorage
+        loadConfig();
+        // Retry after quick.js loads for DB
+        setTimeout(() => loadConfig(), 800);
+      }
+      // No ?id= → clean generic template, nothing to load
     });
   </script>
 </body>
