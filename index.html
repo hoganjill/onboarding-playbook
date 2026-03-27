@@ -613,8 +613,8 @@
     <p style="color: var(--text-dim); font-size: 0.85rem; margin-top: 0.5rem;" class="editor-only">
       Some links below are internal-only and require Shopify network access.
     </p>
-    <a class="edit-banner editor-only" href="https://github.com/hoganjill/onboarding-playbook" target="_blank">
-      ✏️ Fork on GitHub to customize
+    <a class="edit-banner editor-only" href="https://onboarding-playbook.quick.shopify.io" target="_blank" onclick="event.preventDefault(); navigator.clipboard.writeText('git clone https://onboarding-playbook.quick.shopify.io'); this.textContent='✓ Clone URL copied!'; setTimeout(() => this.textContent='📋 Clone to customize', 2000);">
+      📋 Clone to customize
     </a>
   </div>
 
@@ -1138,7 +1138,7 @@
   <!-- Footer                                                      -->
   <!-- ═══════════════════════════════════════════════════════════ -->
   <div class="footer">
-    <span class="editor-only">Built with ❤️ by the Data team · <a href="https://github.com/hoganjill/onboarding-playbook">View source on GitHub</a> · Powered by <a href="https://quick.shopify.io">Quick</a></span>
+    <span class="editor-only">Built with ❤️ by the Data team · <code style="font-size:0.75rem; background:var(--surface); padding:0.2rem 0.5rem; border-radius:4px;">git clone https://onboarding-playbook.quick.shopify.io</code> · Powered by <a href="https://quick.shopify.io">Quick</a></span>
     <span class="viewer-footer" style="display:none;">Built with ❤️ for your onboarding journey</span>
   </div>
 
