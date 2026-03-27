@@ -361,6 +361,95 @@
       font-size: 0.8rem;
     }
 
+    /* ── Autocomplete ──────────────────────────────────────────── */
+    .person-search-wrap {
+      position: relative;
+      margin-bottom: 0.75rem;
+    }
+    .person-search-wrap input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.6rem 1rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.95rem;
+    }
+    .person-search-wrap input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .person-search-wrap .dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+      max-height: 300px;
+      overflow-y: auto;
+      z-index: 100;
+      display: none;
+    }
+    .person-search-wrap .dropdown.open { display: block; }
+    .person-search-wrap .dropdown .item {
+      padding: 0.7rem 1rem;
+      cursor: pointer;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.1s;
+    }
+    .person-search-wrap .dropdown .item:hover { background: var(--surface-hover); }
+    .person-search-wrap .dropdown .item:last-child { border-bottom: none; }
+    .person-search-wrap .dropdown .item .item-name { font-weight: 600; font-size: 0.92rem; }
+    .person-search-wrap .dropdown .item .item-meta { color: var(--text-secondary); font-size: 0.82rem; margin-top: 0.15rem; }
+    .person-search-wrap .dropdown .loading {
+      padding: 0.7rem 1rem;
+      color: var(--text-dim);
+      font-size: 0.85rem;
+    }
+
+    /* ── Rich contact card ─────────────────────────────────────── */
+    .contact-card .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--accent-dim);
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+    .contact-card .card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 0.5rem;
+    }
+    .contact-card .vault-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      color: var(--blue);
+      font-size: 0.78rem;
+      text-decoration: none;
+      margin-top: 0.4rem;
+    }
+    .contact-card .vault-link:hover { text-decoration: underline; }
+    .contact-card .tenure-badge {
+      display: inline-block;
+      background: var(--accent-dim);
+      color: var(--accent);
+      padding: 0.1rem 0.5rem;
+      border-radius: 10px;
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+
     /* ── Reading list ──────────────────────────────────────────── */
     .reading-list a {
       display: flex;
@@ -695,7 +784,10 @@
         <div class="contact-grid" id="leadershipGrid">
           <!-- Populated by JS or edit HTML directly -->
         </div>
-        <button onclick="addLeadershipCard()" style="margin-top: 0.75rem; background: var(--surface); color: var(--accent); border: 1px dashed var(--accent); padding: 0.5rem 1rem; border-radius: var(--radius-sm); cursor: pointer; font-size: 0.85rem;">+ Add team member</button>
+        <div class="person-search-wrap" id="leadershipSearch">
+          <input type="text" placeholder="🔍 Search by name to add a team member…" oninput="personSearch(this, 'leadershipGrid')" onfocus="this.parentElement.querySelector('.dropdown').classList.add('open')" />
+          <div class="dropdown"></div>
+        </div>
       </div>
 
       <div style="margin-bottom: 1rem;">
@@ -704,7 +796,10 @@
         <div class="contact-grid" id="teamGrid">
           <!-- Populated by JS or edit HTML directly -->
         </div>
-        <button onclick="addTeamCard()" style="margin-top: 0.75rem; background: var(--surface); color: var(--accent); border: 1px dashed var(--accent); padding: 0.5rem 1rem; border-radius: var(--radius-sm); cursor: pointer; font-size: 0.85rem;">+ Add team member</button>
+        <div class="person-search-wrap" id="teamSearch">
+          <input type="text" placeholder="🔍 Search by name to add a team member…" oninput="personSearch(this, 'teamGrid')" onfocus="this.parentElement.querySelector('.dropdown').classList.add('open')" />
+          <div class="dropdown"></div>
+        </div>
       </div>
 
       <div>
@@ -713,7 +808,10 @@
         <div class="contact-grid" id="xfnGrid">
           <!-- Populated by JS or edit HTML directly -->
         </div>
-        <button onclick="addXfnCard()" style="margin-top: 0.75rem; background: var(--surface); color: var(--accent); border: 1px dashed var(--accent); padding: 0.5rem 1rem; border-radius: var(--radius-sm); cursor: pointer; font-size: 0.85rem;">+ Add partner</button>
+        <div class="person-search-wrap" id="xfnSearch">
+          <input type="text" placeholder="🔍 Search by name to add a partner…" oninput="personSearch(this, 'xfnGrid')" onfocus="this.parentElement.querySelector('.dropdown').classList.add('open')" />
+          <div class="dropdown"></div>
+        </div>
       </div>
     </div>
 
@@ -928,12 +1026,15 @@
   <!-- ═══════════════════════════════════════════════════════════ -->
   <!-- JavaScript                                                  -->
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <script src="/client/quick.js"></script>
+  <script src="/client/quick.js" async></script>
   <script>
     // ── Config persistence via Quick DB ────────────────────────
     const DB_COLLECTION = 'playbook_configs';
-    let db;
-    try { db = quick.db.collection(DB_COLLECTION); } catch(e) { db = null; }
+    let db = null;
+    function initDb() {
+      if (db) return;
+      try { if (typeof quick !== 'undefined' && quick.db) db = quick.db.collection(DB_COLLECTION); } catch(e) {}
+    }
 
     function getConfigKey() {
       const params = new URLSearchParams(window.location.search);
@@ -962,6 +1063,7 @@
     }
 
     async function saveConfig() {
+      initDb();
       const config = {
         hireName: document.getElementById('hireName').value,
         hireRole: document.getElementById('hireRole').value,
@@ -995,6 +1097,7 @@
     }
 
     async function loadConfig() {
+      initDb();
       const key = getConfigKey();
       let config;
 
@@ -1024,40 +1127,203 @@
       applyConfig();
     }
 
-    // ── Dynamic team grids ─────────────────────────────────────
-    function createContactCard(grid, name = '', role = '', notes = '') {
-      const card = document.createElement('div');
-      card.className = 'contact-card';
-      card.innerHTML = `
-        <input type="text" placeholder="Role / Title" value="${role}" class="card-role"
-          style="background:none; border:none; color:var(--text-dim); font-size:0.8rem; text-transform:uppercase; letter-spacing:0.03em; width:100%; margin-bottom:0.3rem;">
-        <input type="text" placeholder="Name" value="${name}" class="card-name"
-          style="background:none; border:none; color:var(--text); font-weight:600; font-size:1rem; width:100%; margin-bottom:0.4rem;">
-        <input type="text" placeholder="Notes" value="${notes}" class="card-notes"
-          style="background:none; border:none; color:var(--text-secondary); font-size:0.85rem; width:100%;">
-        <button onclick="this.parentElement.remove()" style="position:absolute; top:4px; right:8px; background:none; border:none; color:var(--text-dim); cursor:pointer; font-size:0.8rem;">✕</button>
-      `;
-      card.style.position = 'relative';
-      document.getElementById(grid).appendChild(card);
+    // ── Person search + autocomplete via BigQuery ─────────────
+    let dwReady = false;
+    let bqScopesGranted = false;
+    const BQ_SCOPES = ['https://www.googleapis.com/auth/bigquery'];
+    const searchCache = {};
+    let searchDebounce = null;
+
+    async function initDw() {
+      if (dwReady) return true;
+      try {
+        if (typeof quick !== 'undefined' && quick.auth && quick.dw) {
+          await quick.auth.requestScopes(BQ_SCOPES);
+          bqScopesGranted = true;
+          dwReady = true;
+          return true;
+        }
+      } catch(e) { console.warn('BQ auth failed:', e); }
+      return false;
     }
 
-    function addLeadershipCard() { createContactCard('leadershipGrid'); }
-    function addTeamCard() { createContactCard('teamGrid'); }
-    function addXfnCard() { createContactCard('xfnGrid'); }
+    async function searchPeople(query) {
+      if (query.length < 2) return [];
+      const cacheKey = query.toLowerCase();
+      if (searchCache[cacheKey]) return searchCache[cacheKey];
 
+      if (!await initDw()) return [];
+
+      try {
+        const sql = `
+          SELECT
+            worker_full_name AS name,
+            worker_email AS email,
+            job_title_end AS title,
+            vault_team_end AS team,
+            group_name_end AS group_name,
+            tenure,
+            worker_id
+          FROM \`shopify-dw.people.worker_daily_snapshot_v1\`
+          WHERE is_active_end = true
+            AND effective_on = CURRENT_DATE()
+            AND LOWER(worker_full_name) LIKE LOWER('%${query.replace(/'/g, "''")}%')
+          ORDER BY worker_full_name
+          LIMIT 15
+        `;
+        const results = await quick.dw.querySync(sql);
+        const people = (results.rows || results || []).map(r => ({
+          name: r.name || r[0],
+          email: r.email || r[1],
+          title: r.title || r[2],
+          team: r.team || r[3],
+          groupName: r.group_name || r.groupName || r[4],
+          tenure: r.tenure || r[5],
+          workerId: r.worker_id || r.workerId || r[6],
+        }));
+        searchCache[cacheKey] = people;
+        return people;
+      } catch(e) {
+        console.warn('BQ search failed:', e);
+        return [];
+      }
+    }
+
+    function tenureText(days) {
+      if (!days) return '';
+      const d = parseInt(days);
+      if (isNaN(d)) return '';
+      const years = Math.floor(d / 365);
+      const months = Math.floor((d % 365) / 30);
+      if (years >= 1) return `${years}y ${months}m at Shopify`;
+      return `${months}m at Shopify`;
+    }
+
+    function getInitials(name) {
+      return name.split(' ').map(p => p[0]).join('').toUpperCase().slice(0, 2);
+    }
+
+    function vaultUserUrl(email) {
+      // Vault user URLs: vault.shopify.io/users/ID-Name or search
+      const handle = email.split('@')[0].replace('.', '-');
+      return `https://vault.shopify.io/search?q=${encodeURIComponent(email.split('@')[0])}`;
+    }
+
+    function personSearch(input, gridId) {
+      const query = input.value.trim();
+      const wrap = input.parentElement;
+      const dropdown = wrap.querySelector('.dropdown');
+
+      if (query.length < 2) {
+        dropdown.classList.remove('open');
+        return;
+      }
+
+      clearTimeout(searchDebounce);
+      searchDebounce = setTimeout(async () => {
+        dropdown.innerHTML = '<div class="loading">Searching…</div>';
+        dropdown.classList.add('open');
+
+        const results = await searchPeople(query);
+
+        if (results.length === 0) {
+          dropdown.innerHTML = `<div class="loading">No results. <a href="#" onclick="addManualCard('${gridId}', '${query.replace(/'/g, "\\'")}'); return false;" style="color:var(--accent);">Add manually</a></div>`;
+          return;
+        }
+
+        dropdown.innerHTML = results.map((p, i) => `
+          <div class="item" onclick="addPersonCard('${gridId}', ${i}, '${query.replace(/'/g, "\\'")}')">
+            <div class="item-name">${esc(p.name)}</div>
+            <div class="item-meta">${esc(p.title || 'No title')} · ${esc(p.team || 'No team')}${p.tenure ? ' · ' + tenureText(p.tenure) : ''}</div>
+          </div>
+        `).join('');
+      }, 300);
+    }
+
+    function esc(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+
+    // Store last search results for retrieval by index
+    function addPersonCard(gridId, resultIndex, query) {
+      const cacheKey = query.toLowerCase();
+      const results = searchCache[cacheKey];
+      if (!results || !results[resultIndex]) return;
+      const p = results[resultIndex];
+      createRichContactCard(gridId, p);
+
+      // Clear search
+      const wrap = document.getElementById(gridId).parentElement;
+      const searchInput = wrap.querySelector('.person-search-wrap input');
+      const dropdown = wrap.querySelector('.dropdown');
+      if (searchInput) searchInput.value = '';
+      if (dropdown) dropdown.classList.remove('open');
+    }
+
+    function createRichContactCard(gridId, person) {
+      const card = document.createElement('div');
+      card.className = 'contact-card';
+      card.dataset.person = JSON.stringify(person);
+      card.style.position = 'relative';
+
+      const tenure = tenureText(person.tenure);
+      const initials = getInitials(person.name || '?');
+      const profileUrl = vaultUserUrl(person.email || '');
+
+      card.innerHTML = `
+        <div class="card-header">
+          <div class="avatar">${initials}</div>
+          <div>
+            <div class="name">${esc(person.name)}</div>
+            <div class="role">${esc(person.title || 'No title')}</div>
+          </div>
+        </div>
+        <div class="desc">${esc(person.team || '')}${person.groupName && person.groupName !== person.team ? ' · ' + esc(person.groupName) : ''}</div>
+        ${tenure ? `<span class="tenure-badge">${tenure}</span>` : ''}
+        <a class="vault-link" href="${profileUrl}" target="_blank">🔗 View on Vault</a>
+        <button onclick="this.parentElement.remove()" style="position:absolute; top:8px; right:8px; background:none; border:none; color:var(--text-dim); cursor:pointer; font-size:0.9rem;" title="Remove">✕</button>
+      `;
+      document.getElementById(gridId).appendChild(card);
+    }
+
+    function addManualCard(gridId, prefill) {
+      createRichContactCard(gridId, {
+        name: prefill || '',
+        email: '',
+        title: '',
+        team: '',
+        groupName: '',
+        tenure: '',
+        workerId: '',
+      });
+      // Close dropdown
+      const wrap = document.getElementById(gridId).parentElement;
+      const dropdown = wrap.querySelector('.dropdown');
+      if (dropdown) dropdown.classList.remove('open');
+    }
+
+    // ── Grid data helpers for save/load ─────────────────────────
     function getGridData(gridId) {
       const cards = document.getElementById(gridId).querySelectorAll('.contact-card');
-      return Array.from(cards).map(card => ({
-        role: card.querySelector('.card-role')?.value || '',
-        name: card.querySelector('.card-name')?.value || '',
-        notes: card.querySelector('.card-notes')?.value || '',
-      })).filter(c => c.name || c.role);
+      return Array.from(cards).map(card => {
+        try { return JSON.parse(card.dataset.person); } catch(e) {}
+        return {
+          name: card.querySelector('.name')?.textContent || '',
+          title: card.querySelector('.role')?.textContent || '',
+          team: card.querySelector('.desc')?.textContent || '',
+        };
+      }).filter(c => c.name);
     }
 
     function renderGridData(gridId, data) {
       document.getElementById(gridId).innerHTML = '';
-      data.forEach(d => createContactCard(gridId, d.name, d.role, d.notes));
+      data.forEach(d => createRichContactCard(gridId, d));
     }
+
+    // Close dropdowns on outside click
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.person-search-wrap')) {
+        document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('open'));
+      }
+    });
 
     // ── Sticky nav highlight ───────────────────────────────────
     const sections = document.querySelectorAll('.section');
