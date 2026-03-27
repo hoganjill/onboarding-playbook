@@ -39,10 +39,14 @@
       min-height: 100vh;
     }
 
+    /* ── View mode — hide editor-only elements ───────────────── */
+    body.view-mode .editor-only { display: none !important; }
+    body.view-mode .sidebar { padding-top: 1rem; }
+
     /* ── Header ───────────────────────────────────────────────── */
     .header {
       background: linear-gradient(135deg, #1a2a1a 0%, #0a1a2a 100%);
-      border-bottom: 1px solid var(--border);
+      border-bottom: none;
       padding: 3rem 2rem;
       text-align: center;
     }
@@ -75,36 +79,38 @@
     }
     .header .edit-banner:hover { background: rgba(150, 191, 72, 0.25); }
 
-    /* ── Editable fields ──────────────────────────────────────── */
+    /* ── Config bar ───────────────────────────────────────────── */
     .config-bar {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 1rem 2rem;
+      background: linear-gradient(135deg, #141e14 0%, #0e1620 100%);
+      padding: 1.2rem 2rem;
       display: flex;
       flex-wrap: wrap;
       gap: 1rem;
-      align-items: center;
+      align-items: flex-end;
       justify-content: center;
     }
+    .config-bar .field { display: flex; flex-direction: column; gap: 0.25rem; }
     .config-bar label {
       color: var(--text-dim);
-      font-size: 0.8rem;
+      font-size: 0.7rem;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.06em;
     }
     .config-bar input {
-      background: var(--bg);
-      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
       color: var(--text);
-      padding: 0.4rem 0.8rem;
+      padding: 0.45rem 0.8rem;
       border-radius: var(--radius-sm);
-      font-size: 0.9rem;
-      width: 180px;
+      font-size: 0.88rem;
+      width: 175px;
     }
     .config-bar input:focus {
       outline: none;
       border-color: var(--accent);
+      background: rgba(255,255,255,0.1);
     }
+    .config-bar .actions { display: flex; gap: 0.4rem; align-items: flex-end; }
     .config-bar button {
       background: var(--accent);
       color: #000;
@@ -112,11 +118,30 @@
       padding: 0.45rem 1rem;
       border-radius: var(--radius-sm);
       font-weight: 600;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       cursor: pointer;
-      transition: opacity 0.15s;
+      transition: all 0.15s;
     }
     .config-bar button:hover { opacity: 0.85; }
+    .config-bar button.secondary {
+      background: rgba(255,255,255,0.06);
+      color: var(--text-secondary);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .config-bar .share-url {
+      display: none;
+      background: rgba(150, 191, 72, 0.1);
+      border: 1px solid rgba(150, 191, 72, 0.2);
+      border-radius: var(--radius-sm);
+      padding: 0.4rem 0.8rem;
+      color: var(--accent);
+      font-size: 0.8rem;
+      width: 100%;
+      max-width: 500px;
+      text-align: center;
+      margin-top: 0.5rem;
+    }
+    .config-bar .share-url.visible { display: block; }
 
     /* ── Layout ────────────────────────────────────────────────── */
     .page-layout {
@@ -134,55 +159,55 @@
 
     /* ── Sidebar Nav ──────────────────────────────────────────── */
     .sidebar {
-      width: 200px;
+      width: 190px;
       flex-shrink: 0;
       position: sticky;
       top: 0;
       height: 100vh;
-      background: var(--surface);
-      border-right: 1px solid var(--border);
+      background: var(--bg);
+      border-right: none;
       padding: 1.5rem 0;
       overflow-y: auto;
       z-index: 20;
     }
     .sidebar .sidebar-label {
       color: var(--text-dim);
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-      padding: 0 1.2rem;
-      margin-bottom: 0.5rem;
+      letter-spacing: 0.1em;
+      padding: 0.8rem 1.2rem 0.3rem;
     }
     .sidebar a {
       display: flex;
       align-items: center;
-      gap: 0.6rem;
-      color: var(--text-secondary);
+      gap: 0.55rem;
+      color: var(--text-dim);
       text-decoration: none;
-      padding: 0.5rem 1.2rem;
-      font-size: 0.85rem;
+      padding: 0.45rem 1.2rem;
+      font-size: 0.84rem;
       transition: all 0.12s;
-      border-left: 3px solid transparent;
+      border-left: 2px solid transparent;
+      margin: 1px 0;
     }
     .sidebar a:hover {
       color: var(--text);
-      background: var(--surface-hover);
+      background: rgba(255,255,255,0.03);
     }
     .sidebar a.active {
       color: var(--accent);
-      background: var(--accent-dim);
+      background: rgba(150, 191, 72, 0.06);
       border-left-color: var(--accent);
     }
     .sidebar a .nav-icon {
-      font-size: 0.9rem;
-      width: 20px;
+      font-size: 0.85rem;
+      width: 18px;
       text-align: center;
       flex-shrink: 0;
     }
     .sidebar .sidebar-divider {
       height: 1px;
-      background: var(--border);
-      margin: 0.75rem 1.2rem;
+      background: rgba(255,255,255,0.04);
+      margin: 0.6rem 1.2rem;
     }
 
     /* Mobile sidebar toggle */
@@ -582,40 +607,42 @@
   <!-- ═══════════════════════════════════════════════════════════ -->
   <!-- Header                                                     -->
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <div class="header">
-    <h1><span>Onboarding</span> Playbook</h1>
-    <p>Welcome to Shopify! This playbook covers the most important information as you transition into your new role.</p>
-    <p style="color: var(--text-dim); font-size: 0.85rem; margin-top: 0.5rem;">
+  <div class="header" id="header">
+    <h1 id="headerTitle"><span>Onboarding</span> Playbook</h1>
+    <p id="headerSubtitle">Welcome to Shopify! This playbook covers the most important information as you transition into your new role.</p>
+    <p style="color: var(--text-dim); font-size: 0.85rem; margin-top: 0.5rem;" class="editor-only">
       Some links below are internal-only and require Shopify network access.
     </p>
-    <a class="edit-banner" href="https://github.com/hoganjill/onboarding-playbook" target="_blank">
+    <a class="edit-banner editor-only" href="https://github.com/hoganjill/onboarding-playbook" target="_blank">
       ✏️ Fork on GitHub to customize
     </a>
   </div>
 
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <!-- Config bar — personalize for specific hire                 -->
+  <!-- Config bar — editor only                                    -->
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <div class="config-bar" id="configBar">
-    <div>
-      <label>New hire name</label><br>
+  <div class="config-bar editor-only" id="configBar">
+    <div class="field">
+      <label>New hire name</label>
       <input type="text" id="hireName" placeholder="e.g. Jane Smith" />
     </div>
-    <div>
-      <label>Role / Title</label><br>
+    <div class="field">
+      <label>Role / Title</label>
       <input type="text" id="hireRole" placeholder="e.g. Director, Data" />
     </div>
-    <div>
-      <label>Start date</label><br>
+    <div class="field">
+      <label>Start date</label>
       <input type="date" id="hireStart" />
     </div>
-    <div>
-      <label>Manager</label><br>
+    <div class="field">
+      <label>Manager</label>
       <input type="text" id="hireManager" placeholder="e.g. Nell Thomas" />
     </div>
-    <button onclick="applyConfig()">Apply</button>
-    <button onclick="saveConfig()" style="background: var(--blue);">💾 Save</button>
-    <button onclick="loadConfig()" style="background: var(--surface); color: var(--text); border: 1px solid var(--border);">Load</button>
+    <div class="actions">
+      <button onclick="saveAndApplyConfig()">Save & Apply</button>
+      <button class="secondary" onclick="copyShareLink()">🔗 Share link</button>
+    </div>
+    <div class="share-url" id="shareUrl"></div>
   </div>
 
   <!-- ═══════════════════════════════════════════════════════════ -->
@@ -871,11 +898,11 @@
 
       <div style="margin-bottom: 1rem;">
         <h3 style="font-size: 1rem; margin-bottom: 0.75rem; color: var(--text-dim);">Leadership Team</h3>
-        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.75rem;">Add your org's leadership team here. For each person, include their name, role, and any EP support notes.</p>
+        <p class="editor-only" style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.75rem;">Add your org's leadership team here. For each person, include their name, role, and any EP support notes.</p>
         <div class="contact-grid" id="leadershipGrid">
           <!-- Populated by JS or edit HTML directly -->
         </div>
-        <div class="person-search-wrap" id="leadershipSearch">
+        <div class="person-search-wrap editor-only" id="leadershipSearch">
           <input type="text" placeholder="🔍 Search by name to add a team member…" oninput="personSearch(this, 'leadershipGrid')" onfocus="this.parentElement.querySelector('.dropdown').classList.add('open')" />
           <div class="dropdown"></div>
         </div>
@@ -883,11 +910,11 @@
 
       <div style="margin-bottom: 1rem;">
         <h3 style="font-size: 1rem; margin-bottom: 0.75rem; color: var(--text-dim);">Direct Reports & Team</h3>
-        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.75rem;">Add direct reports and key team members here.</p>
+        <p class="editor-only" style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.75rem;">Add direct reports and key team members here.</p>
         <div class="contact-grid" id="teamGrid">
           <!-- Populated by JS or edit HTML directly -->
         </div>
-        <div class="person-search-wrap" id="teamSearch">
+        <div class="person-search-wrap editor-only" id="teamSearch">
           <input type="text" placeholder="🔍 Search by name to add a team member…" oninput="personSearch(this, 'teamGrid')" onfocus="this.parentElement.querySelector('.dropdown').classList.add('open')" />
           <div class="dropdown"></div>
         </div>
@@ -895,11 +922,11 @@
 
       <div>
         <h3 style="font-size: 1rem; margin-bottom: 0.75rem; color: var(--text-dim);">Cross-Functional Partners</h3>
-        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.75rem;">Product & engineering leadership the new hire should meet.</p>
+        <p class="editor-only" style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.75rem;">Product & engineering leadership the new hire should meet.</p>
         <div class="contact-grid" id="xfnGrid">
           <!-- Populated by JS or edit HTML directly -->
         </div>
-        <div class="person-search-wrap" id="xfnSearch">
+        <div class="person-search-wrap editor-only" id="xfnSearch">
           <input type="text" placeholder="🔍 Search by name to add a partner…" oninput="personSearch(this, 'xfnGrid')" onfocus="this.parentElement.querySelector('.dropdown').classList.add('open')" />
           <div class="dropdown"></div>
         </div>
@@ -1112,7 +1139,8 @@
   <!-- Footer                                                      -->
   <!-- ═══════════════════════════════════════════════════════════ -->
   <div class="footer">
-    Built with ❤️ by the Data team · <a href="https://github.com/hoganjill/onboarding-playbook">View source on GitHub</a> · Powered by <a href="https://quick.shopify.io">Quick</a>
+    <span class="editor-only">Built with ❤️ by the Data team · <a href="https://github.com/hoganjill/onboarding-playbook">View source on GitHub</a> · Powered by <a href="https://quick.shopify.io">Quick</a></span>
+    <span class="viewer-footer" style="display:none;">Built with ❤️ for your onboarding journey</span>
   </div>
 
   <!-- ═══════════════════════════════════════════════════════════ -->
@@ -1128,20 +1156,46 @@
       try { if (typeof quick !== 'undefined' && quick.db) db = quick.db.collection(DB_COLLECTION); } catch(e) {}
     }
 
+    // ── Mode detection ────────────────────────────────────────
+    const params = new URLSearchParams(window.location.search);
+    const isViewMode = params.has('view');
+
     function getConfigKey() {
-      const params = new URLSearchParams(window.location.search);
       return params.get('id') || 'default';
     }
 
-    function applyConfig() {
-      const name = document.getElementById('hireName').value;
-      const role = document.getElementById('hireRole').value;
-      const manager = document.getElementById('hireManager').value;
+    function enterViewMode() {
+      document.body.classList.add('view-mode');
+      // Show viewer footer, hide editor footer
+      const vf = document.querySelector('.viewer-footer');
+      if (vf) vf.style.display = 'inline';
+      // Hide remove buttons on contact cards
+      document.querySelectorAll('.contact-card button').forEach(b => b.style.display = 'none');
+      // Hide placeholder text in guides
+      document.querySelectorAll('.placeholder').forEach(el => {
+        if (el.textContent.startsWith('←')) el.style.display = 'none';
+      });
+    }
+
+    function applyConfig(config) {
+      if (!config) {
+        config = {
+          hireName: document.getElementById('hireName')?.value || '',
+          hireRole: document.getElementById('hireRole')?.value || '',
+          hireStart: document.getElementById('hireStart')?.value || '',
+          hireManager: document.getElementById('hireManager')?.value || '',
+        };
+      }
+
+      const name = config.hireName;
+      const role = config.hireRole;
+      const manager = config.hireManager;
 
       // Update header
       if (name) {
-        document.querySelector('.header h1').innerHTML = `<span>Onboarding</span> Playbook`;
-        document.querySelector('.header p').textContent = `Welcome to Shopify, ${name}! This playbook covers the most important information as you transition into your new role${role ? ` as ${role}` : ''}.`;
+        document.getElementById('headerTitle').innerHTML = `<span>${name}'s</span> Onboarding Playbook`;
+        document.getElementById('headerSubtitle').textContent = `Welcome to Shopify, ${name}! This playbook covers the most important information as you transition into your new role${role ? ` as ${role}` : ''}.`;
+        document.title = `${name}'s Onboarding Playbook`;
       }
 
       // Update manager field in guides
@@ -1154,10 +1208,14 @@
       }
     }
 
-    async function saveConfig() {
+    async function saveAndApplyConfig() {
       initDb();
+      const name = document.getElementById('hireName').value.trim();
+      if (!name) { alert('Please enter a name.'); return; }
+
+      const key = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
       const config = {
-        hireName: document.getElementById('hireName').value,
+        hireName: name,
         hireRole: document.getElementById('hireRole').value,
         hireStart: document.getElementById('hireStart').value,
         hireManager: document.getElementById('hireManager').value,
@@ -1166,8 +1224,11 @@
         xfn: getGridData('xfnGrid'),
       };
 
+      // Apply immediately
+      applyConfig(config);
+
+      // Save
       if (db) {
-        const key = getConfigKey();
         try {
           const existing = await db.where({ configKey: key }).find();
           if (existing.length > 0) {
@@ -1175,17 +1236,36 @@
           } else {
             await db.create({ ...config, configKey: key });
           }
-          alert('Saved! Share this URL with ?id=' + key + ' to load this config.');
         } catch(e) {
-          // Fallback to localStorage
           localStorage.setItem('playbook_' + key, JSON.stringify(config));
-          alert('Saved locally.');
         }
       } else {
-        const key = getConfigKey();
         localStorage.setItem('playbook_' + key, JSON.stringify(config));
-        alert('Saved locally.');
       }
+
+      // Update URL without reload
+      const newUrl = new URL(window.location);
+      newUrl.searchParams.set('id', key);
+      window.history.replaceState({}, '', newUrl);
+
+      // Show share link
+      const shareUrl = `${window.location.origin}${window.location.pathname}?id=${key}&view`;
+      const shareEl = document.getElementById('shareUrl');
+      shareEl.textContent = `Share with ${name}: ${shareUrl}`;
+      shareEl.classList.add('visible');
+      shareEl.style.cursor = 'pointer';
+      shareEl.onclick = () => { navigator.clipboard.writeText(shareUrl); shareEl.textContent = '✓ Copied to clipboard!'; setTimeout(() => { shareEl.textContent = `Share with ${name}: ${shareUrl}`; }, 2000); };
+    }
+
+    function copyShareLink() {
+      const key = getConfigKey();
+      if (key === 'default') { alert('Save first to generate a share link.'); return; }
+      const shareUrl = `${window.location.origin}${window.location.pathname}?id=${key}&view`;
+      navigator.clipboard.writeText(shareUrl);
+      const shareEl = document.getElementById('shareUrl');
+      shareEl.textContent = '✓ Link copied to clipboard!';
+      shareEl.classList.add('visible');
+      setTimeout(() => shareEl.classList.remove('visible'), 3000);
     }
 
     async function loadConfig() {
@@ -1207,16 +1287,17 @@
 
       if (!config) return;
 
-      if (config.hireName) document.getElementById('hireName').value = config.hireName;
-      if (config.hireRole) document.getElementById('hireRole').value = config.hireRole;
-      if (config.hireStart) document.getElementById('hireStart').value = config.hireStart;
-      if (config.hireManager) document.getElementById('hireManager').value = config.hireManager;
+      // Fill editor fields (if visible)
+      if (config.hireName && document.getElementById('hireName')) document.getElementById('hireName').value = config.hireName;
+      if (config.hireRole && document.getElementById('hireRole')) document.getElementById('hireRole').value = config.hireRole;
+      if (config.hireStart && document.getElementById('hireStart')) document.getElementById('hireStart').value = config.hireStart;
+      if (config.hireManager && document.getElementById('hireManager')) document.getElementById('hireManager').value = config.hireManager;
 
       if (config.leadership) renderGridData('leadershipGrid', config.leadership);
       if (config.team) renderGridData('teamGrid', config.team);
       if (config.xfn) renderGridData('xfnGrid', config.xfn);
 
-      applyConfig();
+      applyConfig(config);
     }
 
     // ── Person search + autocomplete via BigQuery ─────────────
@@ -1371,7 +1452,7 @@
         <div class="desc">${esc(person.team || '')}${person.groupName && person.groupName !== person.team ? ' · ' + esc(person.groupName) : ''}</div>
         ${tenure ? `<span class="tenure-badge">${tenure}</span>` : ''}
         <a class="vault-link" href="${profileUrl}" target="_blank">🔗 View on Vault</a>
-        <button onclick="this.parentElement.remove()" style="position:absolute; top:8px; right:8px; background:none; border:none; color:var(--text-dim); cursor:pointer; font-size:0.9rem;" title="Remove">✕</button>
+        <button class="editor-only" onclick="this.parentElement.remove()" style="position:absolute; top:8px; right:8px; background:none; border:none; color:var(--text-dim); cursor:pointer; font-size:0.9rem;" title="Remove">✕</button>
       `;
       document.getElementById(gridId).appendChild(card);
     }
@@ -1445,6 +1526,10 @@
 
     // ── Auto-load config on page load ──────────────────────────
     window.addEventListener('DOMContentLoaded', () => {
+      if (isViewMode) enterViewMode();
+      // Wait for quick.js to load, then try DB
+      setTimeout(() => loadConfig(), 500);
+      // Also try immediately for localStorage
       loadConfig();
     });
   </script>
