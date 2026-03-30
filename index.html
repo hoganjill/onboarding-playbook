@@ -86,18 +86,17 @@
     .step:hover .remove-card { opacity: 1; }
 
     /* ── Schedule ──────────────────────────────────────────────── */
-    .sched-week { margin-bottom: 1rem; position: relative; }
-    .sched-week-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
-    .sched-week-header input { background: none; border: none; color: var(--accent); font-weight: 700; font-size: 0.9rem; width: 120px; }
-    .sched-week-header input:focus { outline: 1px solid var(--accent); border-radius: 3px; }
-    .sched-week-header .remove-week { background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 0.8rem; opacity: 0; transition: opacity 0.15s; }
-    .sched-week:hover .remove-week { opacity: 1; }
-    .sched-days { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px; background: var(--border); border-radius: var(--radius-sm); overflow: hidden; }
-    .sched-day { background: var(--surface); padding: 0.5rem; min-height: 70px; font-size: 0.82rem; }
-    .sched-day-label { color: var(--text-dim); font-size: 0.7rem; text-transform: uppercase; margin-bottom: 0.3rem; letter-spacing: 0.05em; }
-    .sched-event { padding: 0.2rem 0.5rem; border-radius: 4px; margin-bottom: 0.25rem; font-size: 0.78rem; display: flex; align-items: center; justify-content: space-between; gap: 0.3rem; }
+    .sched-grid { display: grid; grid-template-columns: 80px repeat(5, 1fr); gap: 1px; background: var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 0.75rem; font-size: 0.85rem; }
+    .sched-grid .cell { background: var(--surface); padding: 0.6rem; min-height: 75px; }
+    .sched-grid .cell.header { background: #1a1a1a; font-weight: 600; color: var(--text); text-align: center; min-height: unset; padding: 0.5rem; font-size: 0.8rem; }
+    .sched-grid .cell.week-label { background: var(--accent-dim); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.3rem; padding: 0.4rem; }
+    .sched-grid .cell.week-label input { background: none; border: none; color: var(--accent); font-weight: 700; font-size: 0.82rem; width: 60px; text-align: center; }
+    .sched-grid .cell.week-label input:focus { outline: 1px solid var(--accent); border-radius: 3px; }
+    .sched-grid .cell.week-label .remove-week { background: none; border: none; color: var(--accent); cursor: pointer; font-size: 0.65rem; opacity: 0; transition: opacity 0.15s; }
+    .sched-grid .cell.week-label:hover .remove-week { opacity: 1; }
+    .sched-event { padding: 0.2rem 0.45rem; border-radius: 4px; margin-bottom: 0.25rem; font-size: 0.76rem; display: flex; align-items: center; gap: 0.2rem; }
     .sched-event span { flex: 1; }
-    .sched-event .remove-event { background: none; border: none; color: inherit; cursor: pointer; opacity: 0; font-size: 0.7rem; padding: 0; }
+    .sched-event .remove-event { background: none; border: none; color: inherit; cursor: pointer; opacity: 0; font-size: 0.65rem; padding: 0; }
     .sched-event:hover .remove-event { opacity: 0.7; }
     .sched-event[contenteditable=true]:focus { outline: 1px solid rgba(255,255,255,0.2); }
     .sched-event.general { background: var(--blue-dim); color: var(--blue); }
@@ -105,8 +104,8 @@
     .sched-event.data { background: var(--teal-dim); color: var(--teal); }
     .sched-event.irl { background: var(--orange-dim); color: var(--orange); }
     .sched-event.custom { background: var(--accent-dim); color: var(--accent); }
-    .add-event-btn { background: none; border: 1px dashed rgba(255,255,255,0.1); color: var(--text-dim); padding: 0.15rem; border-radius: 3px; cursor: pointer; font-size: 0.7rem; width: 100%; margin-top: 0.2rem; text-align: center; opacity: 0; transition: opacity 0.15s; }
-    .sched-day:hover .add-event-btn { opacity: 1; }
+    .add-event-btn { background: none; border: 1px dashed rgba(255,255,255,0.08); color: var(--text-dim); padding: 0.15rem; border-radius: 3px; cursor: pointer; font-size: 0.65rem; width: 100%; margin-top: 0.2rem; text-align: center; opacity: 0; transition: opacity 0.15s; }
+    .sched-grid .cell:hover .add-event-btn { opacity: 1; }
     .cat-picker { display: flex; gap: 2px; margin-top: 0.3rem; }
     .cat-dot { width: 14px; height: 14px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: border-color 0.1s; }
     .cat-dot:hover, .cat-dot.active { border-color: white; }
@@ -176,7 +175,8 @@
       .header { padding: 2rem 1rem; }
       .header h1 { font-size: 1.8rem; }
       .container { padding: 1rem; }
-      .sched-days { grid-template-columns: 1fr; }
+      .sched-grid { grid-template-columns: 1fr; }
+      .sched-grid .cell.header { display: none; }
     }
 
     .footer { text-align: center; padding: 2rem; color: var(--text-dim); font-size: 0.8rem; border-top: 1px solid var(--border); margin-top: 2rem; }
@@ -376,27 +376,32 @@
 
     function renderSchedule(data) {
       const container = document.getElementById('scheduleContainer');
-      container.innerHTML = '';
-      (data || defaultSchedule).forEach((week, wi) => {
-        const div = document.createElement('div');
-        div.className = 'sched-week';
-        div.innerHTML = `
-          <div class="sched-week-header">
-            <input value="${week.label}" onchange="this.closest('.sched-week').dataset.label=this.value" />
-            <button class="remove-week editor-only" onclick="this.closest('.sched-week').remove()">✕ remove week</button>
-          </div>
-          <div class="sched-days">
-            ${week.days.map((events, di) => `
-              <div class="sched-day" data-day="${di}">
-                <div class="sched-day-label">${dayNames[di]}</div>
-                ${events.map(ev => renderEvent(ev.t, ev.c)).join('')}
-                <button class="add-event-btn editor-only" onclick="addEvent(this)">+ event</button>
-              </div>
-            `).join('')}
-          </div>
-        `;
-        container.appendChild(div);
+      // Build one unified grid: header row + week rows
+      let html = '<div class="sched-grid">';
+      html += '<div class="cell header"></div>';
+      dayNames.forEach(d => html += `<div class="cell header">${d}</div>`);
+      (data || defaultSchedule).forEach(week => {
+        html += `<div class="cell week-label"><input value="${week.label}" /><button class="remove-week editor-only" onclick="removeWeekRow(this)">✕</button></div>`;
+        week.days.forEach((events, di) => {
+          html += `<div class="cell" data-day="${di}">`;
+          events.forEach(ev => html += renderEvent(ev.t, ev.c));
+          html += `<button class="add-event-btn editor-only" onclick="addEvent(this)">+</button></div>`;
+        });
       });
+      html += '</div>';
+      container.innerHTML = html;
+    }
+
+    function removeWeekRow(btn) {
+      const grid = btn.closest('.sched-grid');
+      const cell = btn.closest('.cell.week-label');
+      // Find index of this week-label among all week-labels
+      const labels = Array.from(grid.querySelectorAll('.cell.week-label'));
+      const idx = labels.indexOf(cell);
+      // Each week = 1 label + 5 day cells = 6 cells. Header row = 6 cells.
+      const startIdx = 6 + (idx * 6); // skip header row
+      const cells = Array.from(grid.children);
+      for (let i = 0; i < 6; i++) cells[startIdx + i]?.remove();
     }
 
     function renderEvent(text, cat) {
@@ -425,35 +430,32 @@
     }
 
     function addWeek() {
-      const container = document.getElementById('scheduleContainer');
-      const num = container.querySelectorAll('.sched-week').length + 1;
-      const week = { label: 'Wk ' + num, days: [[],[],[],[],[]] };
-      const temp = document.createElement('div');
-      temp.innerHTML = 'x'; // force render
-      // Just reuse renderSchedule by appending
-      const div = document.createElement('div');
-      div.className = 'sched-week';
-      div.innerHTML = `
-        <div class="sched-week-header">
-          <input value="${week.label}" />
-          <button class="remove-week editor-only" onclick="this.closest('.sched-week').remove()">✕ remove week</button>
-        </div>
-        <div class="sched-days">
-          ${dayNames.map((d, di) => `<div class="sched-day" data-day="${di}"><div class="sched-day-label">${d}</div><button class="add-event-btn editor-only" onclick="addEvent(this)">+ event</button></div>`).join('')}
-        </div>`;
-      container.appendChild(div);
+      const grid = document.querySelector('.sched-grid');
+      if (!grid) return;
+      const num = grid.querySelectorAll('.cell.week-label').length + 1;
+      let html = `<div class="cell week-label"><input value="Wk ${num}" /><button class="remove-week editor-only" onclick="removeWeekRow(this)">✕</button></div>`;
+      for (let i = 0; i < 5; i++) html += `<div class="cell" data-day="${i}"><button class="add-event-btn editor-only" onclick="addEvent(this)">+</button></div>`;
+      grid.insertAdjacentHTML('beforeend', html);
     }
 
     function getScheduleData() {
-      return Array.from(document.querySelectorAll('.sched-week')).map(week => ({
-        label: week.querySelector('input').value,
-        days: Array.from(week.querySelectorAll('.sched-day')).map(day =>
-          Array.from(day.querySelectorAll('.sched-event')).map(ev => ({
-            t: ev.querySelector('span')?.textContent || ev.textContent.replace('✕','').trim(),
-            c: ev.dataset.cat || 'general'
-          }))
-        )
-      }));
+      const grid = document.querySelector('.sched-grid');
+      if (!grid) return [];
+      const labels = Array.from(grid.querySelectorAll('.cell.week-label'));
+      const cells = Array.from(grid.children).slice(6); // skip header row
+      return labels.map((label, wi) => {
+        const start = wi * 6;
+        const dayCells = cells.slice(start + 1, start + 6); // skip label cell
+        return {
+          label: label.querySelector('input')?.value || 'Wk',
+          days: dayCells.map(cell =>
+            Array.from(cell.querySelectorAll('.sched-event')).map(ev => ({
+              t: ev.querySelector('span')?.textContent || ev.textContent.replace('✕','').trim(),
+              c: ev.dataset.cat || 'general'
+            }))
+          )
+        };
+      });
     }
 
     // ── Person search (BQ → Vault data) ──────────────────────────
@@ -465,30 +467,53 @@
     async function tryConnectSearch(inputEl) {
       if (searchReady) return;
       inputEl.dataset.connecting = '1';
+      console.log('[search] Attempting to connect...');
+      console.log('[search] quick defined:', typeof quick !== 'undefined');
+      console.log('[search] quick.auth:', typeof quick?.auth);
+      console.log('[search] quick.dw:', typeof quick?.dw);
       try {
-        if (typeof quick === 'undefined' || !quick.auth || !quick.dw) return;
+        if (typeof quick === 'undefined' || !quick.auth || !quick.dw) {
+          console.log('[search] Quick not loaded yet, waiting...');
+          await new Promise(r => setTimeout(r, 1500));
+          console.log('[search] After wait - quick:', typeof quick !== 'undefined', 'auth:', typeof quick?.auth, 'dw:', typeof quick?.dw);
+          if (typeof quick === 'undefined' || !quick.dw) { console.log('[search] Still no Quick DW'); return; }
+        }
+        console.log('[search] Requesting BQ scopes...');
         const auth = await quick.auth.requestScopes(['https://www.googleapis.com/auth/bigquery']);
+        console.log('[search] Auth result:', JSON.stringify(auth));
         if (auth && auth.hasRequiredScopes) {
           searchReady = true;
-          console.log('[search] Connected to BigQuery');
+          console.log('[search] ✅ Connected to BigQuery!');
+        } else {
+          console.log('[search] ❌ Scopes not granted');
         }
-      } catch(e) { console.warn('[search] Auth failed:', e); }
+      } catch(e) { console.error('[search] Auth error:', e.message, e); }
     }
 
     async function searchPeople(query) {
       if (query.length < 2) return [];
-      const key = query.toLowerCase();
-      if (searchCache[key]) return searchCache[key];
-      if (!searchReady) return [];
+      const cacheKey = query.toLowerCase();
+      if (searchCache[cacheKey]) return searchCache[cacheKey];
+      if (!searchReady) { console.log('[search] not ready'); return []; }
       try {
-        const sql = "SELECT worker_full_name AS name, worker_email AS email, job_title_end AS title, vault_team_end AS team, group_name_end AS group_name, tenure, worker_id FROM `shopify-dw.people.worker_daily_snapshot_v1` WHERE is_active_end = true AND effective_on = CURRENT_DATE() AND LOWER(worker_full_name) LIKE LOWER(@q) ORDER BY worker_full_name LIMIT 15";
-        const result = await quick.dw.querySync(sql, { q: '%' + query + '%' });
-        console.log('[search] BQ result:', result);
-        const rows = result.results || result.rows || [];
+        // Escape single quotes for SQL safety
+        const safe = query.replace(/'/g, "''");
+        const sql = "SELECT worker_full_name AS name, worker_email AS email, job_title_end AS title, vault_team_end AS team, group_name_end AS group_name, tenure, worker_id FROM `shopify-dw.people.worker_daily_snapshot_v1` WHERE is_active_end = true AND effective_on = CURRENT_DATE() AND LOWER(worker_full_name) LIKE '%" + safe.toLowerCase() + "%' ORDER BY worker_full_name LIMIT 15";
+        console.log('[search] Running query for:', query);
+        const result = await quick.dw.querySync(sql);
+        console.log('[search] Raw result:', JSON.stringify(result).slice(0, 500));
+        console.log('[search] Result keys:', Object.keys(result || {}));
+        // Try every possible shape
+        let rows = [];
+        if (Array.isArray(result)) rows = result;
+        else if (result?.results && Array.isArray(result.results)) rows = result.results;
+        else if (result?.rows && Array.isArray(result.rows)) rows = result.rows;
+        else if (result?.data && Array.isArray(result.data)) rows = result.data;
+        console.log('[search] Rows found:', rows.length, 'First:', JSON.stringify(rows[0])?.slice(0, 200));
         const people = rows.map(r => ({ name:r.name||'', email:r.email||'', title:r.title||'', team:r.team||'', groupName:r.group_name||'', tenure:r.tenure||'', workerId:r.worker_id||'' }));
-        searchCache[key] = people;
+        searchCache[cacheKey] = people;
         return people;
-      } catch(e) { console.error('[search] Query failed:', e); return []; }
+      } catch(e) { console.error('[search] Query error:', e.message, e); return []; }
     }
 
     // Wire up ALL search inputs
