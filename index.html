@@ -367,6 +367,7 @@
       margin-bottom: 0.3rem;
       display: block;
     }
+    .schedule-grid .cell[contenteditable=true]:focus { outline: 1px solid rgba(150,191,72,0.3); outline-offset: -2px; }
     .schedule-grid .cell .event.startup { background: var(--purple-dim); color: var(--purple); }
     .schedule-grid .cell .event.data-onb { background: var(--teal-dim); color: var(--teal); }
     .schedule-grid .cell .event.irl { background: var(--orange-dim); color: var(--orange); }
@@ -772,7 +773,7 @@
         Customize this schedule by editing the HTML or forking the repo. Dates shown are placeholders — update <strong>Week 1 start</strong> in the config bar above.
       </p>
 
-      <div class="schedule-grid">
+      <div class="schedule-grid" id="scheduleGrid">
         <div class="cell header"></div>
         <div class="cell header">Mon</div>
         <div class="cell header">Tue</div>
@@ -780,82 +781,35 @@
         <div class="cell header">Thu</div>
         <div class="cell header">Fri</div>
 
-        <!-- Week 1 -->
-        <div class="cell week-label">Wk 1</div>
-        <div class="cell">
-          <span class="event custom">Start booking 1:1s</span>
-          <span class="event">IT Support Session</span>
-          <span class="event custom">Meet & Greet</span>
-        </div>
-        <div class="cell">
-          <span class="event">Monthly Team Meeting</span>
-          <span class="event startup">Startup Foundations</span>
-          <span class="event custom">Meet & Greet w/ Manager</span>
-          <span class="event">Business of Today</span>
-          <span class="event custom">Mid-Week Check-in</span>
-        </div>
-        <div class="cell">
-          <span class="event startup">Manager Onboarding (self-paced)</span>
-          <p>Set up 1:1 meet & greets</p>
-        </div>
-        <div class="cell">
-          <span class="event startup">Manager Onboarding (self-paced)</span>
-          <p>Set up 1:1 meet & greets</p>
-        </div>
-        <div class="cell">
-          <span class="event custom">End of Week Check-in</span>
-          <p>Set up 1:1 meet & greets</p>
-        </div>
+        <div class="cell week-label" contenteditable="true">Wk 1</div>
+        <div class="cell" contenteditable="true"><span class="event custom">Start booking 1:1s</span><span class="event">IT Support Session</span><span class="event custom">Meet &amp; Greet</span></div>
+        <div class="cell" contenteditable="true"><span class="event">Monthly Team Meeting</span><span class="event startup">Startup Foundations</span><span class="event custom">Meet &amp; Greet w/ Manager</span><span class="event">Business of Today</span><span class="event custom">Mid-Week Check-in</span></div>
+        <div class="cell" contenteditable="true"><span class="event startup">Manager Onboarding (self-paced)</span>Set up 1:1 meet &amp; greets</div>
+        <div class="cell" contenteditable="true"><span class="event startup">Manager Onboarding (self-paced)</span>Set up 1:1 meet &amp; greets</div>
+        <div class="cell" contenteditable="true"><span class="event custom">End of Week Check-in</span>Set up 1:1 meet &amp; greets</div>
 
-        <!-- Week 2 -->
-        <div class="cell week-label">Wk 2</div>
-        <div class="cell">
-          <span class="event startup">Welcome to Shopify (live)</span>
-          <span class="event startup">Startup (self-paced)</span>
-        </div>
-        <div class="cell">
-          <span class="event startup">Field Guide Debrief (live)</span>
-          <span class="event startup">Startup (self-paced)</span>
-        </div>
-        <div class="cell">
-          <span class="event data-onb">Data & Eng Onboarding Kick Off</span>
-          <span class="event custom">Check-in w/ Manager</span>
-          <span class="event data-onb">Data onboarding (self-paced)</span>
-        </div>
-        <div class="cell">
-          <span class="event data-onb">Data Onboarding: Tech Stack</span>
-          <span class="event data-onb">Data onboarding (self-paced)</span>
-        </div>
-        <div class="cell">
-          <span class="event data-onb">Data Onboarding: Codebase</span>
-          <span class="event data-onb">Data onboarding (self-paced)</span>
-        </div>
+        <div class="cell week-label" contenteditable="true">Wk 2</div>
+        <div class="cell" contenteditable="true"><span class="event startup">Welcome to Shopify (live)</span><span class="event startup">Startup (self-paced)</span></div>
+        <div class="cell" contenteditable="true"><span class="event startup">Field Guide Debrief (live)</span><span class="event startup">Startup (self-paced)</span></div>
+        <div class="cell" contenteditable="true"><span class="event data-onb">Data &amp; Eng Onboarding Kick Off</span><span class="event custom">Check-in w/ Manager</span><span class="event data-onb">Data onboarding (self-paced)</span></div>
+        <div class="cell" contenteditable="true"><span class="event data-onb">Data Onboarding: Tech Stack</span><span class="event data-onb">Data onboarding (self-paced)</span></div>
+        <div class="cell" contenteditable="true"><span class="event data-onb">Data Onboarding: Codebase</span><span class="event data-onb">Data onboarding (self-paced)</span></div>
 
-        <!-- Week 3 -->
-        <div class="cell week-label">Wk 3</div>
-        <div class="cell">
-          <span class="event data-onb">Tend to the Commons (live)</span>
-          <span class="event data-onb">Data onboarding (self-paced)</span>
-        </div>
-        <div class="cell"><p>Continue 1:1s</p></div>
-        <div class="cell"><p>Continue 1:1s</p></div>
-        <div class="cell"><p>Continue 1:1s</p></div>
-        <div class="cell"><p>Continue 1:1s</p></div>
+        <div class="cell week-label" contenteditable="true">Wk 3</div>
+        <div class="cell" contenteditable="true"><span class="event data-onb">Tend to the Commons (live)</span><span class="event data-onb">Data onboarding (self-paced)</span></div>
+        <div class="cell" contenteditable="true">Continue 1:1s</div>
+        <div class="cell" contenteditable="true">Continue 1:1s</div>
+        <div class="cell" contenteditable="true">Continue 1:1s</div>
+        <div class="cell" contenteditable="true">Continue 1:1s</div>
 
-        <!-- Week 4 -->
-        <div class="cell week-label">Wk 4</div>
-        <div class="cell">
-          <span class="event custom">Continue leadership 1:1s</span>
-        </div>
-        <div class="cell"><p></p></div>
-        <div class="cell">
-          <span class="event irl">Startup Connections (IRL)</span>
-        </div>
-        <div class="cell">
-          <span class="event irl">Startup Connections (IRL)</span>
-        </div>
-        <div class="cell"><p></p></div>
+        <div class="cell week-label" contenteditable="true">Wk 4</div>
+        <div class="cell" contenteditable="true"><span class="event custom">Continue leadership 1:1s</span></div>
+        <div class="cell" contenteditable="true"></div>
+        <div class="cell" contenteditable="true"><span class="event irl">Startup Connections (IRL)</span></div>
+        <div class="cell" contenteditable="true"><span class="event irl">Startup Connections (IRL)</span></div>
+        <div class="cell" contenteditable="true"></div>
       </div>
+      <button class="add-btn editor-only" onclick="addWeek()">+ Add week</button>
 
       <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 0.5rem;">
         <span style="font-size: 0.78rem; display: flex; align-items: center; gap: 0.35rem;"><span class="event" style="margin:0; display:inline-block; padding: 0.15rem 0.5rem;">■</span> General</span>
@@ -877,28 +831,28 @@
       <div class="contact-grid">
         <div class="contact-card">
           <div class="role">Onboarding Coach</div>
-          <div class="name placeholder" data-field="coachName">← Add name</div>
-          <div class="desc">Accelerates your time to impact. Helps you define success in your new role, understand your leadership style, build trusted relationships, and navigate Shopify's culture.</div>
+          <div class="name" contenteditable="true" data-field="coachName" style="min-height:1.2em;">← Add name</div>
+          <div class="desc" contenteditable="true">Accelerates your time to impact. Helps you define success in your new role, understand your leadership style, build trusted relationships, and navigate Shopify's culture.</div>
         </div>
         <div class="contact-card">
-          <div class="role">HR Business Partner</div>
-          <div class="name placeholder" data-field="hrbpName">← Add name</div>
-          <div class="desc">Provides talent support — performance programs, org structure advice, headcount decisions, internal movement processes.</div>
+          <div class="role" contenteditable="true">HR Business Partner</div>
+          <div class="name" contenteditable="true" data-field="hrbpName" style="min-height:1.2em;">← Add name</div>
+          <div class="desc" contenteditable="true">Provides talent support — performance programs, org structure advice, headcount decisions, internal movement processes.</div>
         </div>
         <div class="contact-card">
-          <div class="role">IT Support</div>
-          <div class="name"><a href="https://shopify.slack.com/archives/C030RF71R">#help-IT</a></div>
-          <div class="desc">Laptop issues, program/software access, cell phone setup.</div>
+          <div class="role" contenteditable="true">IT Support</div>
+          <div class="name" contenteditable="true"><a href="https://shopify.slack.com/archives/C030RF71R">#help-IT</a></div>
+          <div class="desc" contenteditable="true">Laptop issues, program/software access, cell phone setup.</div>
         </div>
         <div class="contact-card">
-          <div class="role">Manager</div>
-          <div class="name placeholder" data-field="managerName">← Add name</div>
-          <div class="desc">Your direct manager. Sets up recurring 1:1s and weekly check-ins during onboarding.</div>
+          <div class="role" contenteditable="true">Manager</div>
+          <div class="name" contenteditable="true" data-field="managerName" style="min-height:1.2em;">← Add name</div>
+          <div class="desc" contenteditable="true">Your direct manager. Sets up recurring 1:1s and weekly check-ins during onboarding.</div>
         </div>
         <div class="contact-card">
-          <div class="role">Product Ops / EP</div>
-          <div class="name placeholder" data-field="epName">← Add name</div>
-          <div class="desc">Your Embedded Partner (EP) — helps coordinate across product, engineering, and data leadership.</div>
+          <div class="role" contenteditable="true">Product Ops / EP</div>
+          <div class="name" contenteditable="true" data-field="epName" style="min-height:1.2em;">← Add name</div>
+          <div class="desc" contenteditable="true">Your Embedded Partner (EP) — helps coordinate across product, engineering, and data leadership.</div>
         </div>
       </div>
       <button class="add-btn editor-only" onclick="addGuide()">+ Add guide</button>
@@ -1402,6 +1356,16 @@
       section.insertBefore(card, btn);
     }
 
+    function addWeek() {
+      const grid = document.getElementById('scheduleGrid');
+      const weekNum = Math.floor((grid.querySelectorAll('.cell.week-label').length)) + 1;
+      const cells = [
+        `<div class="cell week-label" contenteditable="true">Wk ${weekNum}</div>`,
+        ...Array(5).fill('<div class="cell" contenteditable="true"></div>')
+      ];
+      grid.insertAdjacentHTML('beforeend', cells.join(''));
+    }
+
     function addReadingLink() {
       const list = document.querySelector('#reading .reading-list');
       const link = document.createElement('a');
@@ -1443,9 +1407,18 @@
 
       clearTimeout(searchDebounce);
       searchDebounce = setTimeout(async () => {
-        dropdown.innerHTML = '<div class="loading">Searching…</div>';
         dropdown.classList.add('open');
 
+        if (!searchReady) {
+          dropdown.innerHTML = `<div class="loading">Connecting to Vault… <a href="#" onclick="addManualCard('${gridId}', '${query.replace(/'/g, "\\'")}'); return false;" style="color:var(--accent);">Add manually instead</a></div>`;
+          await initSearch();
+          if (!searchReady) {
+            dropdown.innerHTML = `<div class="loading">Could not connect to search. <a href="#" onclick="addManualCard('${gridId}', '${query.replace(/'/g, "\\'")}'); return false;" style="color:var(--accent);">Add manually →</a></div>`;
+            return;
+          }
+        }
+
+        dropdown.innerHTML = '<div class="loading">Searching…</div>';
         const results = await searchPeople(query);
 
         if (results.length === 0) {
@@ -1458,8 +1431,8 @@
             <div class="item-name">${esc(p.name)}</div>
             <div class="item-meta">${esc(p.title || 'No title')} · ${esc(p.team || 'No team')}${p.tenure ? ' · ' + tenureText(p.tenure) : ''}</div>
           </div>
-        `).join('');
-      }, 300);
+        `).join('') + `<div class="item" onclick="addManualCard('${gridId}', '${query.replace(/'/g, "\\'")}')"><div class="item-name" style="color:var(--text-dim);">+ Add "${esc(query)}" manually</div></div>`;
+      }, 400);
     }
 
     function esc(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
@@ -1507,19 +1480,29 @@
     }
 
     function addManualCard(gridId, prefill) {
-      createRichContactCard(gridId, {
-        name: prefill || '',
-        email: '',
-        title: '',
-        team: '',
-        groupName: '',
-        tenure: '',
-        workerId: '',
-      });
-      // Close dropdown
+      const card = document.createElement('div');
+      card.className = 'contact-card';
+      card.style.position = 'relative';
+      card.dataset.person = JSON.stringify({ name: prefill || '', email: '', title: '', team: '', groupName: '', tenure: '' });
+      card.innerHTML = `
+        <div class="card-header">
+          <div class="avatar">${getInitials(prefill || '??')}</div>
+          <div style="flex:1;">
+            <div class="name" contenteditable="true">${esc(prefill || 'Name')}</div>
+            <div class="role" contenteditable="true">Title</div>
+          </div>
+        </div>
+        <div class="desc" contenteditable="true">Team</div>
+        <button class="editor-only" onclick="this.parentElement.remove()" style="position:absolute; top:8px; right:8px; background:none; border:none; color:var(--text-dim); cursor:pointer; font-size:0.9rem;" title="Remove">✕</button>
+      `;
+      document.getElementById(gridId).appendChild(card);
+
+      // Close dropdown and clear search
       const wrap = document.getElementById(gridId).parentElement;
       const dropdown = wrap.querySelector('.dropdown');
+      const searchInput = wrap.querySelector('.person-search-wrap input');
       if (dropdown) dropdown.classList.remove('open');
+      if (searchInput) searchInput.value = '';
     }
 
     // ── Grid data helpers for save/load ─────────────────────────
