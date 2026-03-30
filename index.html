@@ -560,31 +560,7 @@
       outline-offset: 2px;
     }
 
-    /* Search connect banner */
-    .search-connect {
-      background: rgba(150, 191, 72, 0.04);
-      border: 1px dashed rgba(150, 191, 72, 0.2);
-      border-radius: var(--radius-sm);
-      padding: 0.7rem 1rem;
-      text-align: center;
-      margin-bottom: 0.75rem;
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-    }
-    .search-connect button {
-      background: var(--accent);
-      color: #000;
-      border: none;
-      padding: 0.35rem 0.9rem;
-      border-radius: var(--radius-sm);
-      font-weight: 600;
-      font-size: 0.82rem;
-      cursor: pointer;
-      margin-left: 0.5rem;
-    }
-    .search-connect.connected { border-color: var(--accent); background: rgba(150,191,72,0.06); }
-    .search-connect.connected .connect-prompt { display: none; }
-    .search-connect .status { font-size: 0.8rem; color: var(--accent); }
+
 
     /* ── Responsive ────────────────────────────────────────────── */
     @media (max-width: 900px) {
@@ -919,12 +895,6 @@
       <div class="card">
         <p>Get to know the people in your space and the current project landscape. The relationships you build will help you develop context, trust, and inspire success.</p>
         <p style="margin-top: 0.75rem; font-weight: 600;">Book 1:1s with the folks below!</p>
-      </div>
-
-      <!-- Connect to Vault/BQ for person search -->
-      <div class="search-connect editor-only" id="searchConnect">
-        <span class="connect-prompt">🔌 Connect to search Shopify people <button onclick="connectSearch()">Connect</button></span>
-        <span class="status" id="searchStatus"></span>
       </div>
 
       <div style="margin-bottom: 1rem;">
@@ -1327,43 +1297,28 @@
     }
 
     // ── Person search via BigQuery (Vault data) ───────────────
-    let searchConnected = false;
+    let searchReady = false;
+    let searchConnecting = false;
     const searchCache = {};
     let searchDebounce = null;
 
-    async function connectSearch() {
-      const statusEl = document.getElementById('searchStatus');
-      const connectEl = document.getElementById('searchConnect');
-      statusEl.textContent = 'Connecting…';
-
+    async function ensureSearch() {
+      if (searchReady) return true;
+      if (searchConnecting) return false;
+      searchConnecting = true;
       try {
         if (typeof quick === 'undefined' || !quick.auth || !quick.dw) {
-          statusEl.textContent = '⏳ Waiting for Quick to load…';
-          await new Promise(r => setTimeout(r, 1500));
-          if (typeof quick === 'undefined' || !quick.dw) {
-            statusEl.textContent = '❌ Quick APIs not available. Try refreshing.';
-            return;
-          }
+          await new Promise(r => setTimeout(r, 1000));
         }
-
-        const auth = await quick.auth.requestScopes(['https://www.googleapis.com/auth/bigquery']);
-        if (!auth || !auth.hasRequiredScopes) {
-          statusEl.textContent = '❌ BigQuery access not granted. Please allow the popup.';
-          return;
-        }
-
-        // Test query to verify it works
-        const test = await quick.dw.querySync("SELECT 1 AS ok");
-        if (test && (test.results || test.rows)) {
-          searchConnected = true;
-          connectEl.classList.add('connected');
-          statusEl.textContent = '✅ Connected — you can now search people by name';
-        } else {
-          statusEl.textContent = '❌ Query test failed. Check BQ permissions.';
-        }
+        if (typeof quick === 'undefined' || !quick.dw) return false;
+        await quick.auth.requestScopes(['https://www.googleapis.com/auth/bigquery']);
+        searchReady = true;
+        return true;
       } catch(e) {
-        console.error('Connect failed:', e);
-        statusEl.textContent = '❌ ' + (e.message || 'Connection failed');
+        console.warn('Search init failed:', e);
+        return false;
+      } finally {
+        searchConnecting = false;
       }
     }
 
@@ -1372,7 +1327,7 @@
       const cacheKey = query.toLowerCase();
       if (searchCache[cacheKey]) return searchCache[cacheKey];
 
-      if (!searchConnected) return [];
+      if (!await ensureSearch()) return [];
 
       try {
         const sql = `
@@ -1405,7 +1360,7 @@
         searchCache[cacheKey] = people;
         return people;
       } catch(e) {
-        console.warn('BQ search failed:', e);
+        console.warn('Search failed:', e);
         return [];
       }
     }
@@ -1437,12 +1392,6 @@
 
       if (query.length < 2) {
         dropdown.classList.remove('open');
-        return;
-      }
-
-      if (!searchConnected) {
-        dropdown.innerHTML = `<div class="loading">Click <strong>Connect</strong> above first to enable search. <a href="#" onclick="addManualCard('${gridId}', '${query.replace(/'/g, "\\'")}'); return false;" style="color:var(--accent);">Or add manually →</a></div>`;
-        dropdown.classList.add('open');
         return;
       }
 
