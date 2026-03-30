@@ -28,654 +28,181 @@
       --radius: 10px;
       --radius-sm: 6px;
     }
-
     * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      min-height: 100vh;
-    }
-
-    /* ── View mode — hide editor-only elements ───────────────── */
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh; }
     body.view-mode .editor-only { display: none !important; }
-    body.view-mode .sidebar { padding-top: 1rem; }
+    body.view-mode [contenteditable] { cursor: default; }
 
-    /* ── Header ───────────────────────────────────────────────── */
-    .header {
-      background: var(--bg);
-      border-bottom: none;
-      padding: 2.5rem 2rem 1.5rem;
-      text-align: center;
-    }
-    .header h1 {
-      font-size: 2.4rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-      letter-spacing: -0.02em;
-    }
+    .header { background: var(--bg); padding: 2.5rem 2rem 1.5rem; text-align: center; }
+    .header h1 { font-size: 2.4rem; font-weight: 700; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
     .header h1 span { color: var(--accent); }
-    .header p {
-      color: var(--text-secondary);
-      font-size: 1.1rem;
-      max-width: 600px;
-      margin: 0 auto;
-    }
-    .header .edit-banner {
-      margin-top: 1.2rem;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      background: var(--accent-dim);
-      color: var(--accent);
-      padding: 0.4rem 1rem;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      text-decoration: none;
-      border: 1px solid rgba(150, 191, 72, 0.25);
-      transition: background 0.15s;
-    }
-    .header .edit-banner:hover { background: rgba(150, 191, 72, 0.25); }
+    .header p { color: var(--text-secondary); font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
+    .header .edit-banner { margin-top: 1.2rem; display: inline-flex; align-items: center; gap: 0.5rem; background: var(--accent-dim); color: var(--accent); padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.85rem; text-decoration: none; border: 1px solid rgba(150, 191, 72, 0.25); }
 
-    /* ── Config bar ───────────────────────────────────────────── */
-    .config-bar {
-      background: var(--bg);
-      padding: 0 2rem 1.5rem;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      align-items: flex-end;
-      justify-content: center;
-    }
+    .config-bar { background: var(--bg); padding: 0 2rem 1.5rem; display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-end; justify-content: center; }
     .config-bar .field { display: flex; flex-direction: column; gap: 0.25rem; }
-    .config-bar label {
-      color: var(--text-dim);
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
-    .config-bar input {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.08);
-      color: var(--text);
-      padding: 0.45rem 0.8rem;
-      border-radius: var(--radius-sm);
-      font-size: 0.88rem;
-      width: 175px;
-    }
-    .config-bar input:focus {
-      outline: none;
-      border-color: var(--accent);
-      background: rgba(255,255,255,0.1);
-    }
+    .config-bar label { color: var(--text-dim); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; }
+    .config-bar input { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); color: var(--text); padding: 0.45rem 0.8rem; border-radius: var(--radius-sm); font-size: 0.88rem; width: 175px; }
+    .config-bar input:focus { outline: none; border-color: var(--accent); background: rgba(255,255,255,0.1); }
     .config-bar .actions { display: flex; gap: 0.4rem; align-items: flex-end; }
-    .config-bar button {
-      background: var(--accent);
-      color: #000;
-      border: none;
-      padding: 0.45rem 1rem;
-      border-radius: var(--radius-sm);
-      font-weight: 600;
-      font-size: 0.82rem;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-    .config-bar button:hover { opacity: 0.85; }
-    .config-bar button.secondary {
-      background: rgba(255,255,255,0.06);
-      color: var(--text-secondary);
-      border: 1px solid rgba(255,255,255,0.08);
-    }
-    .config-bar .share-url {
-      display: none;
-      background: rgba(150, 191, 72, 0.1);
-      border: 1px solid rgba(150, 191, 72, 0.2);
-      border-radius: var(--radius-sm);
-      padding: 0.4rem 0.8rem;
-      color: var(--accent);
-      font-size: 0.8rem;
-      width: 100%;
-      max-width: 500px;
-      text-align: center;
-      margin-top: 0.5rem;
-    }
+    .config-bar button { background: var(--accent); color: #000; border: none; padding: 0.45rem 1rem; border-radius: var(--radius-sm); font-weight: 600; font-size: 0.82rem; cursor: pointer; }
+    .config-bar .share-url { display: none; background: rgba(150,191,72,0.1); border: 1px solid rgba(150,191,72,0.2); border-radius: var(--radius-sm); padding: 0.4rem 0.8rem; color: var(--accent); font-size: 0.8rem; width: 100%; max-width: 500px; text-align: center; margin-top: 0.5rem; }
     .config-bar .share-url.visible { display: block; }
 
-    /* ── Layout ────────────────────────────────────────────────── */
-    .page-layout {
-      display: flex;
-      min-height: calc(100vh - 200px);
-    }
+    .page-layout { display: flex; min-height: calc(100vh - 200px); }
+    .container { max-width: 1000px; margin: 0 auto; padding: 2rem; flex: 1; min-width: 0; }
 
-    .container {
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: 2rem;
-      flex: 1;
-      min-width: 0;
-    }
-
-    /* ── Sidebar Nav ──────────────────────────────────────────── */
-    .sidebar {
-      width: 190px;
-      flex-shrink: 0;
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      background: var(--bg);
-      border-right: none;
-      padding: 1.5rem 0;
-      overflow-y: auto;
-      z-index: 20;
-    }
-    .sidebar .sidebar-label {
-      color: var(--text-dim);
-      font-size: 0.65rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      padding: 0.8rem 1.2rem 0.3rem;
-    }
-    .sidebar a {
-      display: flex;
-      align-items: center;
-      gap: 0.55rem;
-      color: var(--text-dim);
-      text-decoration: none;
-      padding: 0.45rem 1.2rem;
-      font-size: 0.84rem;
-      transition: all 0.12s;
-      border-left: 2px solid transparent;
-      margin: 1px 0;
-    }
-    .sidebar a:hover {
-      color: var(--text);
-      background: rgba(255,255,255,0.03);
-    }
-    .sidebar a.active {
-      color: var(--accent);
-      background: rgba(150, 191, 72, 0.06);
-      border-left-color: var(--accent);
-    }
-    .sidebar a .nav-icon {
-      font-size: 0.85rem;
-      width: 18px;
-      text-align: center;
-      flex-shrink: 0;
-    }
-    .sidebar .sidebar-divider {
-      height: 1px;
-      background: rgba(255,255,255,0.04);
-      margin: 0.6rem 1.2rem;
-    }
-
-    /* Mobile sidebar toggle */
-    .sidebar-toggle {
-      display: none;
-      position: fixed;
-      bottom: 1.5rem;
-      left: 1.5rem;
-      z-index: 30;
-      background: var(--accent);
-      color: #000;
-      border: none;
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      font-size: 1.2rem;
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-    }
-
-    /* Legacy .nav (hidden — replaced by sidebar) */
+    .sidebar { width: 190px; flex-shrink: 0; position: sticky; top: 0; height: 100vh; background: var(--bg); padding: 1.5rem 0; overflow-y: auto; z-index: 20; }
+    .sidebar .sidebar-label { color: var(--text-dim); font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; padding: 0.8rem 1.2rem 0.3rem; }
+    .sidebar a { display: flex; align-items: center; gap: 0.55rem; color: var(--text-dim); text-decoration: none; padding: 0.45rem 1.2rem; font-size: 0.84rem; transition: all 0.12s; border-left: 2px solid transparent; margin: 1px 0; }
+    .sidebar a:hover { color: var(--text); background: rgba(255,255,255,0.03); }
+    .sidebar a.active { color: var(--accent); background: rgba(150,191,72,0.06); border-left-color: var(--accent); }
+    .sidebar a .nav-icon { font-size: 0.85rem; width: 18px; text-align: center; flex-shrink: 0; }
+    .sidebar .sidebar-divider { height: 1px; background: rgba(255,255,255,0.04); margin: 0.6rem 1.2rem; }
+    .sidebar-toggle { display: none; position: fixed; bottom: 1.5rem; left: 1.5rem; z-index: 30; background: var(--accent); color: #000; border: none; width: 44px; height: 44px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
     .nav { display: none; }
 
-    /* ── Sections ──────────────────────────────────────────────── */
-    .section {
-      margin-bottom: 3rem;
-      scroll-margin-top: 1.5rem;
-    }
-    .section h2 {
-      font-size: 1.5rem;
-      font-weight: 700;
-      margin-bottom: 1.2rem;
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-    }
-    .section h2 .icon {
-      width: 32px;
-      height: 32px;
-      border-radius: var(--radius-sm);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1rem;
-      flex-shrink: 0;
-    }
+    .section { margin-bottom: 3rem; scroll-margin-top: 1.5rem; }
+    .section h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.6rem; }
+    .section h2 .icon { width: 32px; height: 32px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
 
-    /* ── Cards ─────────────────────────────────────────────────── */
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1.5rem;
-      margin-bottom: 1rem;
-      transition: border-color 0.15s;
-    }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1rem; transition: border-color 0.15s; position: relative; }
     .card:hover { border-color: #3a3a3a; }
-    .card h3 {
-      font-size: 1.05rem;
-      margin-bottom: 0.6rem;
-      color: var(--text);
-    }
-    .card p, .card li {
-      color: var(--text-secondary);
-      font-size: 0.92rem;
-      line-height: 1.7;
-    }
+    .card h3 { font-size: 1.05rem; margin-bottom: 0.6rem; }
+    .card p, .card li { color: var(--text-secondary); font-size: 0.92rem; line-height: 1.7; }
     .card ul { padding-left: 1.2rem; }
     .card li { margin-bottom: 0.3rem; }
-    .card a {
-      color: var(--blue);
-      text-decoration: none;
-    }
+    .card a { color: var(--blue); text-decoration: none; }
     .card a:hover { text-decoration: underline; }
+    .card .remove-card { position: absolute; top: 8px; right: 10px; background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 0.85rem; opacity: 0; transition: opacity 0.15s; }
+    .card:hover .remove-card { opacity: 1; }
 
-    /* ── Step cards ────────────────────────────────────────────── */
     .steps { counter-reset: step; }
-    .step {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1.2rem 1.5rem;
-      margin-bottom: 0.75rem;
-      display: flex;
-      gap: 1rem;
-      align-items: flex-start;
-    }
-    .step::before {
-      counter-increment: step;
-      content: counter(step);
-      background: var(--accent-dim);
-      color: var(--accent);
-      min-width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 0.85rem;
-      flex-shrink: 0;
-      margin-top: 0.1rem;
-    }
-    .step h3 {
-      font-size: 0.95rem;
-      margin-bottom: 0.25rem;
-    }
-    .step p {
-      color: var(--text-secondary);
-      font-size: 0.88rem;
-    }
+    .step { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.2rem 1.5rem; margin-bottom: 0.75rem; display: flex; gap: 1rem; align-items: flex-start; position: relative; }
+    .step::before { counter-increment: step; content: counter(step); background: var(--accent-dim); color: var(--accent); min-width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; flex-shrink: 0; margin-top: 0.1rem; }
+    .step h3 { font-size: 0.95rem; margin-bottom: 0.25rem; }
+    .step p { color: var(--text-secondary); font-size: 0.88rem; }
+    .step .remove-card { position: absolute; top: 8px; right: 10px; background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 0.85rem; opacity: 0; transition: opacity 0.15s; }
+    .step:hover .remove-card { opacity: 1; }
 
-    /* ── Schedule table ────────────────────────────────────────── */
-    .schedule-grid {
-      display: grid;
-      grid-template-columns: 80px repeat(5, 1fr);
-      gap: 1px;
-      background: var(--border);
-      border-radius: var(--radius);
-      overflow: hidden;
-      margin-bottom: 1rem;
-      font-size: 0.85rem;
-    }
-    .schedule-grid .cell {
-      background: var(--surface);
-      padding: 0.8rem;
-      min-height: 80px;
-    }
-    .schedule-grid .cell.header {
-      background: #1a1a1a;
-      font-weight: 600;
-      color: var(--text);
-      text-align: center;
-      min-height: unset;
-      padding: 0.6rem;
-    }
-    .schedule-grid .cell.week-label {
-      background: var(--accent-dim);
-      color: var(--accent);
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.8rem;
-    }
-    .schedule-grid .cell p {
-      color: var(--text-secondary);
-      font-size: 0.82rem;
-      margin-bottom: 0.3rem;
-    }
-    .schedule-grid .cell .event {
-      background: var(--blue-dim);
-      color: var(--blue);
-      padding: 0.25rem 0.5rem;
-      border-radius: 4px;
-      font-size: 0.78rem;
-      margin-bottom: 0.3rem;
-      display: block;
-    }
-    .schedule-grid .cell[contenteditable=true]:focus { outline: 1px solid rgba(150,191,72,0.3); outline-offset: -2px; }
-    .schedule-grid .cell .event.startup { background: var(--purple-dim); color: var(--purple); }
-    .schedule-grid .cell .event.data-onb { background: var(--teal-dim); color: var(--teal); }
-    .schedule-grid .cell .event.irl { background: var(--orange-dim); color: var(--orange); }
-    .schedule-grid .cell .event.custom { background: var(--accent-dim); color: var(--accent); }
+    /* ── Schedule ──────────────────────────────────────────────── */
+    .sched-week { margin-bottom: 1rem; position: relative; }
+    .sched-week-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+    .sched-week-header input { background: none; border: none; color: var(--accent); font-weight: 700; font-size: 0.9rem; width: 120px; }
+    .sched-week-header input:focus { outline: 1px solid var(--accent); border-radius: 3px; }
+    .sched-week-header .remove-week { background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 0.8rem; opacity: 0; transition: opacity 0.15s; }
+    .sched-week:hover .remove-week { opacity: 1; }
+    .sched-days { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px; background: var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+    .sched-day { background: var(--surface); padding: 0.5rem; min-height: 70px; font-size: 0.82rem; }
+    .sched-day-label { color: var(--text-dim); font-size: 0.7rem; text-transform: uppercase; margin-bottom: 0.3rem; letter-spacing: 0.05em; }
+    .sched-event { padding: 0.2rem 0.5rem; border-radius: 4px; margin-bottom: 0.25rem; font-size: 0.78rem; display: flex; align-items: center; justify-content: space-between; gap: 0.3rem; }
+    .sched-event span { flex: 1; }
+    .sched-event .remove-event { background: none; border: none; color: inherit; cursor: pointer; opacity: 0; font-size: 0.7rem; padding: 0; }
+    .sched-event:hover .remove-event { opacity: 0.7; }
+    .sched-event[contenteditable=true]:focus { outline: 1px solid rgba(255,255,255,0.2); }
+    .sched-event.general { background: var(--blue-dim); color: var(--blue); }
+    .sched-event.startup { background: var(--purple-dim); color: var(--purple); }
+    .sched-event.data { background: var(--teal-dim); color: var(--teal); }
+    .sched-event.irl { background: var(--orange-dim); color: var(--orange); }
+    .sched-event.custom { background: var(--accent-dim); color: var(--accent); }
+    .add-event-btn { background: none; border: 1px dashed rgba(255,255,255,0.1); color: var(--text-dim); padding: 0.15rem; border-radius: 3px; cursor: pointer; font-size: 0.7rem; width: 100%; margin-top: 0.2rem; text-align: center; opacity: 0; transition: opacity 0.15s; }
+    .sched-day:hover .add-event-btn { opacity: 1; }
+    .cat-picker { display: flex; gap: 2px; margin-top: 0.3rem; }
+    .cat-dot { width: 14px; height: 14px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: border-color 0.1s; }
+    .cat-dot:hover, .cat-dot.active { border-color: white; }
+    .cat-dot.c-general { background: var(--blue); }
+    .cat-dot.c-startup { background: var(--purple); }
+    .cat-dot.c-data { background: var(--teal); }
+    .cat-dot.c-irl { background: var(--orange); }
+    .cat-dot.c-custom { background: var(--accent); }
 
-    /* ── Contact cards ────────────────────────────────────────── */
-    .contact-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 0.75rem;
-    }
-    .contact-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1.2rem;
-    }
-    .contact-card .role {
-      color: var(--text-dim);
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.03em;
-      margin-bottom: 0.3rem;
-    }
-    .contact-card .name {
-      font-weight: 600;
-      font-size: 1rem;
-      margin-bottom: 0.4rem;
-    }
-    .contact-card .name.placeholder {
-      color: var(--text-dim);
-      font-style: italic;
-    }
-    .contact-card .desc {
-      color: var(--text-secondary);
-      font-size: 0.85rem;
-    }
-
-    /* ── Channel list ──────────────────────────────────────────── */
-    .channel-list {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 0.5rem;
-    }
-    .channel {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 0.7rem 1rem;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-    .channel .ch-icon {
-      color: var(--accent);
-      font-size: 1rem;
-      flex-shrink: 0;
-    }
-    .channel .ch-name {
-      font-weight: 600;
-      font-size: 0.88rem;
-    }
-    .channel .ch-tool {
-      color: var(--text-dim);
-      font-size: 0.78rem;
-      margin-left: auto;
-    }
-    .channel .ch-note {
-      color: var(--text-secondary);
-      font-size: 0.8rem;
-    }
-
-    /* ── Autocomplete ──────────────────────────────────────────── */
-    .person-search-wrap {
-      position: relative;
-      margin-bottom: 0.75rem;
-    }
-    .person-search-wrap input {
-      width: 100%;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 0.6rem 1rem;
-      border-radius: var(--radius-sm);
-      font-size: 0.95rem;
-    }
-    .person-search-wrap input:focus {
-      outline: none;
-      border-color: var(--accent);
-    }
-    .person-search-wrap .dropdown {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      right: 0;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-top: none;
-      border-radius: 0 0 var(--radius-sm) var(--radius-sm);
-      max-height: 300px;
-      overflow-y: auto;
-      z-index: 100;
-      display: none;
-    }
-    .person-search-wrap .dropdown.open { display: block; }
-    .person-search-wrap .dropdown .item {
-      padding: 0.7rem 1rem;
-      cursor: pointer;
-      border-bottom: 1px solid var(--border);
-      transition: background 0.1s;
-    }
-    .person-search-wrap .dropdown .item:hover { background: var(--surface-hover); }
-    .person-search-wrap .dropdown .item:last-child { border-bottom: none; }
-    .person-search-wrap .dropdown .item .item-name { font-weight: 600; font-size: 0.92rem; }
-    .person-search-wrap .dropdown .item .item-meta { color: var(--text-secondary); font-size: 0.82rem; margin-top: 0.15rem; }
-    .person-search-wrap .dropdown .loading {
-      padding: 0.7rem 1rem;
-      color: var(--text-dim);
-      font-size: 0.85rem;
-    }
-
-    /* ── Rich contact card ─────────────────────────────────────── */
-    .contact-card .avatar {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background: var(--accent-dim);
-      color: var(--accent);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 0.85rem;
-      flex-shrink: 0;
-    }
-    .contact-card .card-header {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      margin-bottom: 0.5rem;
-    }
-    .contact-card .vault-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.3rem;
-      color: var(--blue);
-      font-size: 0.78rem;
-      text-decoration: none;
-      margin-top: 0.4rem;
-    }
+    .contact-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 0.75rem; }
+    .contact-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.2rem; position: relative; }
+    .contact-card .role { color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+    .contact-card .name { font-weight: 600; font-size: 1rem; margin-bottom: 0.4rem; min-height: 1.2em; }
+    .contact-card .desc { color: var(--text-secondary); font-size: 0.85rem; }
+    .contact-card .card-header { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem; }
+    .contact-card .avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--accent-dim); color: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; flex-shrink: 0; }
+    .contact-card .vault-link { display: inline-flex; align-items: center; gap: 0.3rem; color: var(--blue); font-size: 0.78rem; text-decoration: none; margin-top: 0.4rem; }
     .contact-card .vault-link:hover { text-decoration: underline; }
-    .contact-card .tenure-badge {
-      display: inline-block;
-      background: var(--accent-dim);
-      color: var(--accent);
-      padding: 0.1rem 0.5rem;
-      border-radius: 10px;
-      font-size: 0.72rem;
-      font-weight: 600;
-    }
+    .contact-card .tenure-badge { display: inline-block; background: var(--accent-dim); color: var(--accent); padding: 0.1rem 0.5rem; border-radius: 10px; font-size: 0.72rem; font-weight: 600; }
+    .contact-card .remove-card { position: absolute; top: 6px; right: 8px; background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 0.85rem; opacity: 0; transition: opacity 0.15s; }
+    .contact-card:hover .remove-card { opacity: 1; }
 
-    /* ── Reading list ──────────────────────────────────────────── */
-    .reading-list a {
-      display: flex;
-      align-items: center;
-      gap: 0.8rem;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 0.8rem 1rem;
-      margin-bottom: 0.5rem;
-      text-decoration: none;
-      color: var(--text);
-      transition: border-color 0.15s;
-    }
+    .channel-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 0.5rem; }
+    .channel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.7rem 1rem; display: flex; align-items: center; gap: 0.75rem; position: relative; }
+    .channel .ch-icon { color: var(--accent); font-size: 1rem; flex-shrink: 0; }
+    .channel .ch-name { font-weight: 600; font-size: 0.88rem; }
+    .channel .ch-tool { color: var(--text-dim); font-size: 0.78rem; margin-left: auto; }
+    .channel .ch-note { color: var(--text-secondary); font-size: 0.8rem; }
+    .channel .remove-card { position: absolute; top: 4px; right: 6px; background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 0.75rem; opacity: 0; }
+    .channel:hover .remove-card { opacity: 1; }
+
+    .reading-list a { display: flex; align-items: center; gap: 0.8rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.8rem 1rem; margin-bottom: 0.5rem; text-decoration: none; color: var(--text); transition: border-color 0.15s; position: relative; }
     .reading-list a:hover { border-color: var(--blue); }
     .reading-list a .link-icon { color: var(--blue); flex-shrink: 0; }
     .reading-list a .link-desc { color: var(--text-secondary); font-size: 0.82rem; }
 
-    /* ── Add buttons ──────────────────────────────────────────── */
-    .add-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      margin-top: 0.75rem;
-      background: none;
-      color: var(--accent);
-      border: 1px dashed rgba(150, 191, 72, 0.3);
-      padding: 0.45rem 1rem;
-      border-radius: var(--radius-sm);
-      cursor: pointer;
-      font-size: 0.82rem;
-      transition: all 0.15s;
-    }
+    .person-search-wrap { position: relative; margin-bottom: 0.75rem; }
+    .person-search-wrap input { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 0.6rem 1rem; border-radius: var(--radius-sm); font-size: 0.95rem; }
+    .person-search-wrap input:focus { outline: none; border-color: var(--accent); }
+    .person-search-wrap .dropdown { position: absolute; top: 100%; left: 0; right: 0; background: var(--surface); border: 1px solid var(--border); border-top: none; border-radius: 0 0 var(--radius-sm) var(--radius-sm); max-height: 300px; overflow-y: auto; z-index: 100; display: none; }
+    .person-search-wrap .dropdown.open { display: block; }
+    .person-search-wrap .dropdown .item { padding: 0.7rem 1rem; cursor: pointer; border-bottom: 1px solid var(--border); }
+    .person-search-wrap .dropdown .item:hover { background: var(--surface-hover); }
+    .person-search-wrap .dropdown .item:last-child { border-bottom: none; }
+    .person-search-wrap .dropdown .item .item-name { font-weight: 600; font-size: 0.92rem; }
+    .person-search-wrap .dropdown .item .item-meta { color: var(--text-secondary); font-size: 0.82rem; margin-top: 0.15rem; }
+    .person-search-wrap .dropdown .loading { padding: 0.7rem 1rem; color: var(--text-dim); font-size: 0.85rem; }
+
+    [contenteditable=true] { transition: background 0.15s; border-radius: 4px; }
+    body:not(.view-mode) [contenteditable=true]:hover { background: rgba(150,191,72,0.04); }
+    body:not(.view-mode) [contenteditable=true]:focus { background: rgba(150,191,72,0.07); outline: 1px solid rgba(150,191,72,0.25); outline-offset: 2px; }
+
+    .add-btn { display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 0.75rem; background: none; color: var(--accent); border: 1px dashed rgba(150,191,72,0.3); padding: 0.45rem 1rem; border-radius: var(--radius-sm); cursor: pointer; font-size: 0.82rem; transition: all 0.15s; }
     .add-btn:hover { background: var(--accent-dim); border-color: var(--accent); }
 
-    /* ── Inline editable content ──────────────────────────────── */
-    [contenteditable=true] {
-      transition: background 0.15s;
-      border-radius: 4px;
-    }
-    [contenteditable=true]:hover {
-      background: rgba(150, 191, 72, 0.04);
-    }
-    [contenteditable=true]:focus {
-      background: rgba(150, 191, 72, 0.07);
-      outline: 1px solid rgba(150, 191, 72, 0.25);
-      outline-offset: 2px;
-    }
+    .sched-legend { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 0.75rem; }
+    .sched-legend span { font-size: 0.78rem; display: flex; align-items: center; gap: 0.35rem; }
+    .sched-legend .dot { width: 10px; height: 10px; border-radius: 50%; }
 
-
-
-    /* ── Responsive ────────────────────────────────────────────── */
     @media (max-width: 900px) {
-      .sidebar {
-        position: fixed;
-        left: -220px;
-        top: 0;
-        height: 100vh;
-        transition: left 0.25s ease;
-        box-shadow: 4px 0 20px rgba(0,0,0,0.5);
-      }
+      .sidebar { position: fixed; left: -220px; top: 0; height: 100vh; transition: left 0.25s ease; box-shadow: 4px 0 20px rgba(0,0,0,0.5); }
       .sidebar.open { left: 0; }
       .sidebar-toggle { display: flex; align-items: center; justify-content: center; }
-      .sidebar-overlay {
-        display: none;
-        position: fixed;
-        inset: 0;
-        background: rgba(0,0,0,0.5);
-        z-index: 15;
-      }
+      .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 15; }
       .sidebar-overlay.open { display: block; }
       .page-layout { display: block; }
       .header { padding: 2rem 1rem; }
       .header h1 { font-size: 1.8rem; }
       .container { padding: 1rem; }
-      .schedule-grid { grid-template-columns: 1fr; }
-      .schedule-grid .cell.header { display: none; }
-      .schedule-grid .cell.week-label { justify-content: flex-start; padding-left: 1rem; }
+      .sched-days { grid-template-columns: 1fr; }
     }
 
-    /* ── Footer ────────────────────────────────────────────────── */
-    .footer {
-      text-align: center;
-      padding: 2rem;
-      color: var(--text-dim);
-      font-size: 0.8rem;
-      border-top: 1px solid var(--border);
-      margin-top: 2rem;
-    }
+    .footer { text-align: center; padding: 2rem; color: var(--text-dim); font-size: 0.8rem; border-top: 1px solid var(--border); margin-top: 2rem; }
     .footer a { color: var(--accent); text-decoration: none; }
-    .footer a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
-
-  <!-- ═══════════════════════════════════════════════════════════ -->
-  <!-- Header                                                     -->
-  <!-- ═══════════════════════════════════════════════════════════ -->
   <div class="header" id="header">
     <h1 id="headerTitle"><span>Onboarding</span> Playbook</h1>
     <p id="headerSubtitle">Welcome to Shopify! This playbook covers the most important information as you transition into your new role.</p>
-    <p style="color: var(--text-dim); font-size: 0.85rem; margin-top: 0.5rem;" class="editor-only">
-      Some links below are internal-only and require Shopify network access.
-    </p>
-    <a class="edit-banner editor-only" href="https://onboarding-playbook.quick.shopify.io" target="_blank" onclick="event.preventDefault(); navigator.clipboard.writeText('git clone https://onboarding-playbook.quick.shopify.io'); this.textContent='✓ Clone URL copied!'; setTimeout(() => this.textContent='📋 Clone to customize', 2000);">
-      📋 Clone to customize
-    </a>
+    <a class="edit-banner editor-only" href="https://onboarding-playbook.quick.shopify.io" target="_blank" onclick="event.preventDefault(); navigator.clipboard.writeText('git clone https://onboarding-playbook.quick.shopify.io'); this.textContent='✓ Copied!'; setTimeout(() => this.textContent='📋 Clone to customize', 2000);">📋 Clone to customize</a>
   </div>
 
-  <!-- ═══════════════════════════════════════════════════════════ -->
-  <!-- Config bar — editor only                                    -->
-  <!-- ═══════════════════════════════════════════════════════════ -->
   <div class="config-bar editor-only" id="configBar">
-    <div class="field">
-      <label>New hire name</label>
-      <input type="text" id="hireName" placeholder="e.g. Jane Smith" />
-    </div>
-    <div class="field">
-      <label>Role / Title</label>
-      <input type="text" id="hireRole" placeholder="e.g. Director, Data" />
-    </div>
-    <div class="field">
-      <label>Start date</label>
-      <input type="date" id="hireStart" />
-    </div>
-    <div class="field">
-      <label>Manager</label>
-      <input type="text" id="hireManager" placeholder="e.g. Nell Thomas" />
-    </div>
-    <div class="actions">
-      <button onclick="generatePlaybook()">🚀 Generate Playbook</button>
-    </div>
+    <div class="field"><label>New hire name</label><input type="text" id="hireName" placeholder="e.g. Jane Smith" /></div>
+    <div class="field"><label>Role / Title</label><input type="text" id="hireRole" placeholder="e.g. Director, Data" /></div>
+    <div class="field"><label>Start date</label><input type="date" id="hireStart" /></div>
+    <div class="field"><label>Manager</label><input type="text" id="hireManager" placeholder="e.g. Nell Thomas" /></div>
+    <div class="actions"><button onclick="generatePlaybook()">🚀 Generate Playbook</button></div>
     <div class="share-url" id="shareUrl"></div>
   </div>
 
-  <!-- ═══════════════════════════════════════════════════════════ -->
-  <!-- Nav                                                        -->
-  <!-- ═══════════════════════════════════════════════════════════ -->
-  <!-- Mobile sidebar overlay -->
   <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
   <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">☰</button>
 
   <div class="page-layout">
-
-    <!-- ═══════════════════════════════════════════════════════════ -->
-    <!-- Sidebar Nav                                                -->
-    <!-- ═══════════════════════════════════════════════════════════ -->
     <nav class="sidebar" id="sidebar">
       <div class="sidebar-label">Onboarding</div>
       <a href="#day1" onclick="closeSidebar()"><span class="nav-icon">🚀</span> Day 1</a>
@@ -692,918 +219,454 @@
       <a href="#reading" onclick="closeSidebar()"><span class="nav-icon">📚</span> Reading</a>
     </nav>
 
-    <!-- Old nav (hidden via CSS) -->
-    <nav class="nav" id="nav">
-      <a href="#day1">Day 1</a>
-    </nav>
-
   <div class="container">
 
-    <!-- ═══════════════════════════════════════════════════════════ -->
-    <!-- Day 1                                                      -->
-    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- DAY 1 -->
     <div class="section" id="day1">
-      <h2>
-        <span class="icon" style="background: var(--accent-dim); color: var(--accent);">🚀</span>
-        What to Expect on Day 1
-      </h2>
-      <div class="steps">
-        <div class="step">
-          <div>
-            <h3>Okta Activation</h3>
-            <p>At approximately 8–9 AM local time, you'll receive your Okta activation email. Okta is Shopify's single sign-on and authentication tool. See the Day 1 setup instructions bookmarked in <strong>#help-it-onboarding</strong>.</p>
-          </div>
-        </div>
-        <div class="step">
-          <div>
-            <h3>Access Your Apps</h3>
-            <p>Once Okta is set up, access Shopify's internal apps (Gmail, Slack, etc.) through the Okta dashboard.</p>
-          </div>
-        </div>
-        <div class="step">
-          <div>
-            <h3>Open Google Calendar</h3>
-            <p>Your calendar is the source of truth for onboarding. On Day 1 you'll have a <strong>Start Here 🚀</strong> invite with a Figjam link. The Figjam board opens the morning of your start date.</p>
-          </div>
-        </div>
-        <div class="step">
-          <div>
-            <h3>Follow the Figjam Board</h3>
-            <p>The rest of your day is self-paced learning in the Startup Figjam board. You'll connect with your onboarding cohort and facilitator on Slack and attend any live sessions on your calendar.</p>
-          </div>
-        </div>
+      <h2><span class="icon" style="background: var(--accent-dim); color: var(--accent);">🚀</span> What to Expect on Day 1</h2>
+      <div class="steps" id="stepsContainer">
+        <div class="step"><div><h3 contenteditable="true">Okta Activation</h3><p contenteditable="true">At approximately 8–9 AM local time, you'll receive your Okta activation email. Okta is Shopify's single sign-on and authentication tool. See the Day 1 setup instructions bookmarked in <strong>#help-it-onboarding</strong>.</p></div><button class="remove-card editor-only" onclick="this.closest('.step').remove()">✕</button></div>
+        <div class="step"><div><h3 contenteditable="true">Access Your Apps</h3><p contenteditable="true">Once Okta is set up, access Shopify's internal apps (Gmail, Slack, etc.) through the Okta dashboard.</p></div><button class="remove-card editor-only" onclick="this.closest('.step').remove()">✕</button></div>
+        <div class="step"><div><h3 contenteditable="true">Open Google Calendar</h3><p contenteditable="true">Your calendar is the source of truth for onboarding. On Day 1 you'll have a <strong>Start Here 🚀</strong> invite with a Figjam link.</p></div><button class="remove-card editor-only" onclick="this.closest('.step').remove()">✕</button></div>
+        <div class="step"><div><h3 contenteditable="true">Follow the Figjam Board</h3><p contenteditable="true">The rest of your day is self-paced learning in the Startup Figjam board. You'll connect with your onboarding cohort and facilitator on Slack.</p></div><button class="remove-card editor-only" onclick="this.closest('.step').remove()">✕</button></div>
       </div>
       <button class="add-btn editor-only" onclick="addStep()">+ Add step</button>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════ -->
-    <!-- Startup Onboarding                                         -->
-    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- STARTUP -->
     <div class="section" id="startup">
-      <h2>
-        <span class="icon" style="background: var(--purple-dim); color: var(--purple);">🎓</span>
-        Startup Onboarding
-      </h2>
-      <div class="card">
-        <h3>Startup Foundations (Remote)</h3>
-        <p>Spans 2 days — ~24–30 hours of async modules plus 2 live debrief sessions. You'll be added to <strong>#startup-onboarding</strong> on Slack once your hardware is set up and Okta is verified.</p>
-        <p style="margin-top: 0.5rem;"><a href="https://vault.shopify.io/page/Startup-Foundations~V8IB.md">📖 Startup Foundations on Vault</a></p>
+      <h2><span class="icon" style="background: var(--purple-dim); color: var(--purple);">🎓</span> Startup Onboarding</h2>
+      <div id="startupCards">
+        <div class="card"><h3 contenteditable="true">Startup Foundations (Remote)</h3><p contenteditable="true">Spans 2 days — ~24–30 hours of async modules plus 2 live debrief sessions. You'll be added to <strong>#startup-onboarding</strong> on Slack.</p><p style="margin-top:0.5rem"><a href="https://vault.shopify.io/page/Startup-Foundations~V8IB.md">📖 Startup Foundations on Vault</a></p><button class="remove-card editor-only" onclick="this.closest('.card').remove()">✕</button></div>
+        <div class="card"><h3 contenteditable="true">Startup Connections (In-Person)</h3><p contenteditable="true">An in-person onboarding experience. Meet fellow new hires, build your Shopify community, and connect with leadership. Mandatory for all full-time permanent hires.</p><p style="margin-top:0.5rem"><a href="https://vault.shopify.io/page/Startup-Connections~AkS0.md">📖 Startup Connections on Vault</a></p><button class="remove-card editor-only" onclick="this.closest('.card').remove()">✕</button></div>
       </div>
-      <div class="card">
-        <h3>Startup Connections (In-Person)</h3>
-        <p>An in-person onboarding experience — dive deeper into Foundations content, meet fellow new hires, build your Shopify community, and connect with leadership and local teams. Mandatory for all full-time permanent hires (except Merchant Support).</p>
-        <p style="margin-top: 0.5rem;"><a href="https://vault.shopify.io/page/Startup-Connections~AkS0.md">📖 Startup Connections on Vault</a> · <a href="https://vault.shopify.io/docs/shopifolk-essentials/338-Onboarding-at-Shopify/Startup-Connections">Travel & logistics</a></p>
-      </div>
-      <div class="card" style="border-color: var(--orange); border-style: dashed;">
-        <h3 style="color: var(--orange);">⚠️ Exceptions</h3>
-        <p>If your first week overlaps with a Burst, event, or product review, you'll still have access to Startup Foundations and can revisit in Week 2. Reach out to your onboarding facilitator in <strong>#startup-onboarding</strong> to join the next cohort.</p>
-      </div>
-      <button class="add-btn editor-only" onclick="addCard('startup')">+ Add card</button>
+      <button class="add-btn editor-only" onclick="addCard('startupCards')">+ Add card</button>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════ -->
-    <!-- Schedule                                                    -->
-    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- SCHEDULE -->
     <div class="section" id="schedule">
-      <h2>
-        <span class="icon" style="background: var(--blue-dim); color: var(--blue);">📅</span>
-        First Weeks Schedule
-      </h2>
-      <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.9rem;">
-        Customize this schedule by editing the HTML or forking the repo. Dates shown are placeholders — update <strong>Week 1 start</strong> in the config bar above.
-      </p>
-
-      <div class="schedule-grid" id="scheduleGrid">
-        <div class="cell header"></div>
-        <div class="cell header">Mon</div>
-        <div class="cell header">Tue</div>
-        <div class="cell header">Wed</div>
-        <div class="cell header">Thu</div>
-        <div class="cell header">Fri</div>
-
-        <div class="cell week-label" contenteditable="true">Wk 1</div>
-        <div class="cell" contenteditable="true"><span class="event custom">Start booking 1:1s</span><span class="event">IT Support Session</span><span class="event custom">Meet &amp; Greet</span></div>
-        <div class="cell" contenteditable="true"><span class="event">Monthly Team Meeting</span><span class="event startup">Startup Foundations</span><span class="event custom">Meet &amp; Greet w/ Manager</span><span class="event">Business of Today</span><span class="event custom">Mid-Week Check-in</span></div>
-        <div class="cell" contenteditable="true"><span class="event startup">Manager Onboarding (self-paced)</span>Set up 1:1 meet &amp; greets</div>
-        <div class="cell" contenteditable="true"><span class="event startup">Manager Onboarding (self-paced)</span>Set up 1:1 meet &amp; greets</div>
-        <div class="cell" contenteditable="true"><span class="event custom">End of Week Check-in</span>Set up 1:1 meet &amp; greets</div>
-
-        <div class="cell week-label" contenteditable="true">Wk 2</div>
-        <div class="cell" contenteditable="true"><span class="event startup">Welcome to Shopify (live)</span><span class="event startup">Startup (self-paced)</span></div>
-        <div class="cell" contenteditable="true"><span class="event startup">Field Guide Debrief (live)</span><span class="event startup">Startup (self-paced)</span></div>
-        <div class="cell" contenteditable="true"><span class="event data-onb">Data &amp; Eng Onboarding Kick Off</span><span class="event custom">Check-in w/ Manager</span><span class="event data-onb">Data onboarding (self-paced)</span></div>
-        <div class="cell" contenteditable="true"><span class="event data-onb">Data Onboarding: Tech Stack</span><span class="event data-onb">Data onboarding (self-paced)</span></div>
-        <div class="cell" contenteditable="true"><span class="event data-onb">Data Onboarding: Codebase</span><span class="event data-onb">Data onboarding (self-paced)</span></div>
-
-        <div class="cell week-label" contenteditable="true">Wk 3</div>
-        <div class="cell" contenteditable="true"><span class="event data-onb">Tend to the Commons (live)</span><span class="event data-onb">Data onboarding (self-paced)</span></div>
-        <div class="cell" contenteditable="true">Continue 1:1s</div>
-        <div class="cell" contenteditable="true">Continue 1:1s</div>
-        <div class="cell" contenteditable="true">Continue 1:1s</div>
-        <div class="cell" contenteditable="true">Continue 1:1s</div>
-
-        <div class="cell week-label" contenteditable="true">Wk 4</div>
-        <div class="cell" contenteditable="true"><span class="event custom">Continue leadership 1:1s</span></div>
-        <div class="cell" contenteditable="true"></div>
-        <div class="cell" contenteditable="true"><span class="event irl">Startup Connections (IRL)</span></div>
-        <div class="cell" contenteditable="true"><span class="event irl">Startup Connections (IRL)</span></div>
-        <div class="cell" contenteditable="true"></div>
-      </div>
+      <h2><span class="icon" style="background: var(--blue-dim); color: var(--blue);">📅</span> First Weeks Schedule</h2>
+      <div id="scheduleContainer"></div>
       <button class="add-btn editor-only" onclick="addWeek()">+ Add week</button>
-
-      <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 0.5rem;">
-        <span style="font-size: 0.78rem; display: flex; align-items: center; gap: 0.35rem;"><span class="event" style="margin:0; display:inline-block; padding: 0.15rem 0.5rem;">■</span> General</span>
-        <span style="font-size: 0.78rem; display: flex; align-items: center; gap: 0.35rem;"><span class="event startup" style="margin:0; display:inline-block; padding: 0.15rem 0.5rem;">■</span> Startup</span>
-        <span style="font-size: 0.78rem; display: flex; align-items: center; gap: 0.35rem;"><span class="event data-onb" style="margin:0; display:inline-block; padding: 0.15rem 0.5rem;">■</span> Data Onboarding</span>
-        <span style="font-size: 0.78rem; display: flex; align-items: center; gap: 0.35rem;"><span class="event irl" style="margin:0; display:inline-block; padding: 0.15rem 0.5rem;">■</span> In-Person</span>
-        <span style="font-size: 0.78rem; display: flex; align-items: center; gap: 0.35rem;"><span class="event custom" style="margin:0; display:inline-block; padding: 0.15rem 0.5rem;">■</span> Custom / Manager</span>
+      <div class="sched-legend">
+        <span><span class="dot" style="background:var(--blue)"></span> General</span>
+        <span><span class="dot" style="background:var(--purple)"></span> Startup</span>
+        <span><span class="dot" style="background:var(--teal)"></span> Data Onboarding</span>
+        <span><span class="dot" style="background:var(--orange)"></span> In-Person</span>
+        <span><span class="dot" style="background:var(--accent)"></span> Custom</span>
       </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════ -->
-    <!-- Key Guides                                                  -->
-    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- KEY GUIDES -->
     <div class="section" id="guides">
-      <h2>
-        <span class="icon" style="background: var(--orange-dim); color: var(--orange);">🧭</span>
-        Your Key Guides
-      </h2>
-      <div class="contact-grid">
-        <div class="contact-card">
-          <div class="role">Onboarding Coach</div>
-          <div class="name" contenteditable="true" data-field="coachName" style="min-height:1.2em;">← Add name</div>
-          <div class="desc" contenteditable="true">Accelerates your time to impact. Helps you define success in your new role, understand your leadership style, build trusted relationships, and navigate Shopify's culture.</div>
-        </div>
-        <div class="contact-card">
-          <div class="role" contenteditable="true">HR Business Partner</div>
-          <div class="name" contenteditable="true" data-field="hrbpName" style="min-height:1.2em;">← Add name</div>
-          <div class="desc" contenteditable="true">Provides talent support — performance programs, org structure advice, headcount decisions, internal movement processes.</div>
-        </div>
-        <div class="contact-card">
-          <div class="role" contenteditable="true">IT Support</div>
-          <div class="name" contenteditable="true"><a href="https://shopify.slack.com/archives/C030RF71R">#help-IT</a></div>
-          <div class="desc" contenteditable="true">Laptop issues, program/software access, cell phone setup.</div>
-        </div>
-        <div class="contact-card">
-          <div class="role" contenteditable="true">Manager</div>
-          <div class="name" contenteditable="true" data-field="managerName" style="min-height:1.2em;">← Add name</div>
-          <div class="desc" contenteditable="true">Your direct manager. Sets up recurring 1:1s and weekly check-ins during onboarding.</div>
-        </div>
-        <div class="contact-card">
-          <div class="role" contenteditable="true">Product Ops / EP</div>
-          <div class="name" contenteditable="true" data-field="epName" style="min-height:1.2em;">← Add name</div>
-          <div class="desc" contenteditable="true">Your Embedded Partner (EP) — helps coordinate across product, engineering, and data leadership.</div>
-        </div>
+      <h2><span class="icon" style="background: var(--orange-dim); color: var(--orange);">🧭</span> Your Key Guides</h2>
+      <div class="contact-grid" id="guidesGrid">
+        <div class="contact-card"><div class="role" contenteditable="true">Onboarding Coach</div><div class="name" contenteditable="true" data-field="coachName">← Click to add name</div><div class="desc" contenteditable="true">Accelerates your time to impact. Helps you define success, understand your leadership style, build relationships, and navigate Shopify's culture.</div><button class="remove-card editor-only" onclick="this.closest('.contact-card').remove()">✕</button></div>
+        <div class="contact-card"><div class="role" contenteditable="true">HR Business Partner</div><div class="name" contenteditable="true" data-field="hrbpName">← Click to add name</div><div class="desc" contenteditable="true">Provides talent support — performance programs, org structure advice, headcount decisions, internal movement processes.</div><button class="remove-card editor-only" onclick="this.closest('.contact-card').remove()">✕</button></div>
+        <div class="contact-card"><div class="role" contenteditable="true">IT Support</div><div class="name" contenteditable="true">#help-IT</div><div class="desc" contenteditable="true">Laptop issues, program/software access, cell phone setup.</div><button class="remove-card editor-only" onclick="this.closest('.contact-card').remove()">✕</button></div>
+        <div class="contact-card"><div class="role" contenteditable="true">Manager</div><div class="name" contenteditable="true" data-field="managerName">← Click to add name</div><div class="desc" contenteditable="true">Your direct manager. Sets up recurring 1:1s and weekly check-ins during onboarding.</div><button class="remove-card editor-only" onclick="this.closest('.contact-card').remove()">✕</button></div>
+        <div class="contact-card"><div class="role" contenteditable="true">Product Ops / EP</div><div class="name" contenteditable="true" data-field="epName">← Click to add name</div><div class="desc" contenteditable="true">Your Embedded Partner — helps coordinate across product, engineering, and data leadership.</div><button class="remove-card editor-only" onclick="this.closest('.contact-card').remove()">✕</button></div>
       </div>
       <button class="add-btn editor-only" onclick="addGuide()">+ Add guide</button>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════ -->
-    <!-- Team                                                        -->
-    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- TEAM -->
     <div class="section" id="team">
-      <h2>
-        <span class="icon" style="background: var(--teal-dim); color: var(--teal);">👥</span>
-        Your Team
-      </h2>
-      <div class="card">
-        <p>Get to know the people in your space and the current project landscape. The relationships you build will help you develop context, trust, and inspire success.</p>
-        <p style="margin-top: 0.75rem; font-weight: 600;">Book 1:1s with the folks below!</p>
-      </div>
+      <h2><span class="icon" style="background: var(--teal-dim); color: var(--teal);">👥</span> Your Team</h2>
+      <div class="card"><p contenteditable="true">Get to know the people in your space and the current project landscape. Book 1:1s with the folks below!</p></div>
 
-      <div style="margin-bottom: 1rem;">
-        <h3 style="font-size: 1rem; margin-bottom: 0.75rem; color: var(--text-dim);">Leadership Team</h3>
-        <p class="editor-only" style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.75rem;">Add your org's leadership team here. For each person, include their name, role, and any EP support notes.</p>
-        <div class="contact-grid" id="leadershipGrid">
-          <!-- Populated by JS or edit HTML directly -->
-        </div>
-        <div class="person-search-wrap editor-only" id="leadershipSearch">
-          <input type="text" placeholder="🔍 Search by name to add a team member…" oninput="personSearch(this, 'leadershipGrid')" onfocus="this.parentElement.querySelector('.dropdown').classList.add('open')" />
-          <div class="dropdown"></div>
-        </div>
-      </div>
+      <h3 style="font-size:1rem; margin:1rem 0 0.5rem; color:var(--text-dim);">Leadership Team</h3>
+      <div class="contact-grid" id="leadershipGrid"></div>
+      <div class="person-search-wrap editor-only"><input type="text" placeholder="🔍 Search by name to add…" data-grid="leadershipGrid" /><div class="dropdown"></div></div>
 
-      <div style="margin-bottom: 1rem;">
-        <h3 style="font-size: 1rem; margin-bottom: 0.75rem; color: var(--text-dim);">Direct Reports & Team</h3>
-        <p class="editor-only" style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.75rem;">Add direct reports and key team members here.</p>
-        <div class="contact-grid" id="teamGrid">
-          <!-- Populated by JS or edit HTML directly -->
-        </div>
-        <div class="person-search-wrap editor-only" id="teamSearch">
-          <input type="text" placeholder="🔍 Search by name to add a team member…" oninput="personSearch(this, 'teamGrid')" onfocus="this.parentElement.querySelector('.dropdown').classList.add('open')" />
-          <div class="dropdown"></div>
-        </div>
-      </div>
+      <h3 style="font-size:1rem; margin:1rem 0 0.5rem; color:var(--text-dim);">Direct Reports & Team</h3>
+      <div class="contact-grid" id="teamGrid"></div>
+      <div class="person-search-wrap editor-only"><input type="text" placeholder="🔍 Search by name to add…" data-grid="teamGrid" /><div class="dropdown"></div></div>
 
-      <div>
-        <h3 style="font-size: 1rem; margin-bottom: 0.75rem; color: var(--text-dim);">Cross-Functional Partners</h3>
-        <p class="editor-only" style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.75rem;">Product & engineering leadership the new hire should meet.</p>
-        <div class="contact-grid" id="xfnGrid">
-          <!-- Populated by JS or edit HTML directly -->
-        </div>
-        <div class="person-search-wrap editor-only" id="xfnSearch">
-          <input type="text" placeholder="🔍 Search by name to add a partner…" oninput="personSearch(this, 'xfnGrid')" onfocus="this.parentElement.querySelector('.dropdown').classList.add('open')" />
-          <div class="dropdown"></div>
-        </div>
-      </div>
+      <h3 style="font-size:1rem; margin:1rem 0 0.5rem; color:var(--text-dim);">Cross-Functional Partners</h3>
+      <div class="contact-grid" id="xfnGrid"></div>
+      <div class="person-search-wrap editor-only"><input type="text" placeholder="🔍 Search by name to add…" data-grid="xfnGrid" /><div class="dropdown"></div></div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════ -->
-    <!-- Channels                                                    -->
-    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- CHANNELS -->
     <div class="section" id="channels">
-      <h2>
-        <span class="icon" style="background: var(--blue-dim); color: var(--blue);">💬</span>
-        Communication Channels
-      </h2>
-      <div class="channel-list">
-        <div class="channel">
-          <span class="ch-icon">#</span>
-          <div>
-            <div class="ch-name">data-community</div>
-            <div class="ch-note">Open to join</div>
-          </div>
-          <span class="ch-tool">Slack</span>
-        </div>
-        <div class="channel">
-          <span class="ch-icon">#</span>
-          <div>
-            <div class="ch-name">data-leadership</div>
-            <div class="ch-note">Manager to add you</div>
-          </div>
-          <span class="ch-tool">Slack</span>
-        </div>
-        <div class="channel">
-          <span class="ch-icon">#</span>
-          <div>
-            <div class="ch-name">data-people-managers</div>
-            <div class="ch-note">EP/manager to add you</div>
-          </div>
-          <span class="ch-tool">Slack</span>
-        </div>
-        <div class="channel">
-          <span class="ch-icon">#</span>
-          <div>
-            <div class="ch-name">data-water-cooler</div>
-            <div class="ch-note">Fun & socializing — open to join</div>
-          </div>
-          <span class="ch-tool">Slack</span>
-        </div>
-        <div class="channel">
-          <span class="ch-icon">#</span>
-          <div>
-            <div class="ch-name">help-talent-support</div>
-            <div class="ch-note">If needed</div>
-          </div>
-          <span class="ch-tool">Slack</span>
-        </div>
-        <div class="channel">
-          <span class="ch-icon">#</span>
-          <div>
-            <div class="ch-name">help-IT</div>
-            <div class="ch-note">If needed</div>
-          </div>
-          <span class="ch-tool">Slack</span>
-        </div>
-        <div class="channel">
-          <span class="ch-icon">📺</span>
-          <div>
-            <div class="ch-name">Eng and Data Live</div>
-            <div class="ch-note">Auto-added</div>
-          </div>
-          <span class="ch-tool">Calendar</span>
-        </div>
-        <div class="channel">
-          <span class="ch-icon">📺</span>
-          <div>
-            <div class="ch-name">Data Townhall</div>
-            <div class="ch-note">Auto-added</div>
-          </div>
-          <span class="ch-tool">Calendar</span>
-        </div>
-        <div class="channel">
-          <span class="ch-icon">📢</span>
-          <div>
-            <div class="ch-name">Announcements</div>
-            <div class="ch-note">Auto-added</div>
-          </div>
-          <span class="ch-tool">Email</span>
-        </div>
-        <div class="channel">
-          <span class="ch-icon">📢</span>
-          <div>
-            <div class="ch-name">Town Hall</div>
-            <div class="ch-note">Auto-added</div>
-          </div>
-          <span class="ch-tool">Calendar</span>
-        </div>
+      <h2><span class="icon" style="background: var(--blue-dim); color: var(--blue);">💬</span> Communication Channels</h2>
+      <div class="channel-list" id="channelList">
+        <div class="channel"><span class="ch-icon">#</span><div><div class="ch-name" contenteditable="true">data-community</div><div class="ch-note" contenteditable="true">Open to join</div></div><span class="ch-tool" contenteditable="true">Slack</span><button class="remove-card editor-only" onclick="this.closest('.channel').remove()">✕</button></div>
+        <div class="channel"><span class="ch-icon">#</span><div><div class="ch-name" contenteditable="true">data-leadership</div><div class="ch-note" contenteditable="true">Manager to add you</div></div><span class="ch-tool" contenteditable="true">Slack</span><button class="remove-card editor-only" onclick="this.closest('.channel').remove()">✕</button></div>
+        <div class="channel"><span class="ch-icon">#</span><div><div class="ch-name" contenteditable="true">data-people-managers</div><div class="ch-note" contenteditable="true">EP/manager to add you</div></div><span class="ch-tool" contenteditable="true">Slack</span><button class="remove-card editor-only" onclick="this.closest('.channel').remove()">✕</button></div>
+        <div class="channel"><span class="ch-icon">#</span><div><div class="ch-name" contenteditable="true">data-water-cooler</div><div class="ch-note" contenteditable="true">Fun & socializing</div></div><span class="ch-tool" contenteditable="true">Slack</span><button class="remove-card editor-only" onclick="this.closest('.channel').remove()">✕</button></div>
+        <div class="channel"><span class="ch-icon">#</span><div><div class="ch-name" contenteditable="true">help-IT</div><div class="ch-note" contenteditable="true">If needed</div></div><span class="ch-tool" contenteditable="true">Slack</span><button class="remove-card editor-only" onclick="this.closest('.channel').remove()">✕</button></div>
+        <div class="channel"><span class="ch-icon">📺</span><div><div class="ch-name" contenteditable="true">Eng and Data Live</div><div class="ch-note" contenteditable="true">Auto-added</div></div><span class="ch-tool" contenteditable="true">Calendar</span><button class="remove-card editor-only" onclick="this.closest('.channel').remove()">✕</button></div>
+        <div class="channel"><span class="ch-icon">📺</span><div><div class="ch-name" contenteditable="true">Data Townhall</div><div class="ch-note" contenteditable="true">Auto-added</div></div><span class="ch-tool" contenteditable="true">Calendar</span><button class="remove-card editor-only" onclick="this.closest('.channel').remove()">✕</button></div>
       </div>
       <button class="add-btn editor-only" onclick="addChannel()">+ Add channel</button>
-      <p style="color: var(--text-dim); font-size: 0.82rem; margin-top: 0.75rem;">
-        💡 Ask your EP or manager to ensure you're added to all workstream-specific channels.
-      </p>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════ -->
-    <!-- Rituals                                                     -->
-    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- RITUALS -->
     <div class="section" id="rituals">
-      <h2>
-        <span class="icon" style="background: var(--accent-dim); color: var(--accent);">🔁</span>
-        Team Rituals
-      </h2>
-      <div class="card">
-        <h3>Manager / Team Rituals</h3>
-        <ul>
-          <li>Weekly (eventually biweekly) 1:1s with your manager</li>
-          <li>Monthly team syncs with direct reports</li>
-          <li>2× per year: Director bursts</li>
-          <li>Skip-level breakfasts (virtual) — cadence TBD</li>
-          <li>Monthly Coffee Chat Series (informal leadership showcases)</li>
-          <li>Weekly RnD reviews with senior leadership</li>
-        </ul>
-      </div>
-      <div class="card">
-        <h3>Data Rituals</h3>
-        <ul>
-          <li><a href="https://vault.shopify.io/tv/series/4-Data">Data Town Hall</a> — regular cadence</li>
-          <li><a href="https://vault.shopify.io/tv/series/2-Eng-Data-Live">Eng and Data Live</a></li>
-        </ul>
-      </div>
-      <div class="card">
-        <h3>Shopify-Wide Rituals</h3>
-        <ul>
-          <li>6-week RnD Reviews</li>
-          <li><a href="https://vault.shopify.io/docs/events-livestreams-and-multimedia/220-Events-at-Shopify/518-Summit/Summit-2026">Summit</a></li>
-          <li><a href="https://vault.shopify.io/tv/series/1-Shopify-Town-Hall/">Shopify Town Hall</a> — Monthly</li>
-        </ul>
+      <h2><span class="icon" style="background: var(--accent-dim); color: var(--accent);">🔁</span> Team Rituals</h2>
+      <div id="ritualsCards">
+        <div class="card"><h3 contenteditable="true">Manager / Team Rituals</h3><ul><li contenteditable="true">Weekly (eventually biweekly) 1:1s with your manager</li><li contenteditable="true">Monthly team syncs with direct reports</li><li contenteditable="true">2× per year: Director bursts</li><li contenteditable="true">Skip-level breakfasts (virtual) — cadence TBD</li><li contenteditable="true">Monthly Coffee Chat Series</li><li contenteditable="true">Weekly RnD reviews with senior leadership</li></ul><button class="remove-card editor-only" onclick="this.closest('.card').remove()">✕</button></div>
+        <div class="card"><h3 contenteditable="true">Data Rituals</h3><ul><li contenteditable="true"><a href="https://vault.shopify.io/tv/series/4-Data">Data Town Hall</a></li><li contenteditable="true"><a href="https://vault.shopify.io/tv/series/2-Eng-Data-Live">Eng and Data Live</a></li></ul><button class="remove-card editor-only" onclick="this.closest('.card').remove()">✕</button></div>
+        <div class="card"><h3 contenteditable="true">Shopify-Wide Rituals</h3><ul><li contenteditable="true">6-week RnD Reviews</li><li contenteditable="true"><a href="https://vault.shopify.io/docs/events-livestreams-and-multimedia/220-Events-at-Shopify/518-Summit/Summit-2026">Summit</a></li><li contenteditable="true"><a href="https://vault.shopify.io/tv/series/1-Shopify-Town-Hall/">Shopify Town Hall</a> — Monthly</li></ul><button class="remove-card editor-only" onclick="this.closest('.card').remove()">✕</button></div>
       </div>
       <button class="add-btn editor-only" onclick="addRitualCard()">+ Add ritual</button>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════ -->
-    <!-- Reading List                                                -->
-    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- READING -->
     <div class="section" id="reading">
-      <h2>
-        <span class="icon" style="background: var(--purple-dim); color: var(--purple);">📚</span>
-        Important Reads
-      </h2>
-      <div class="reading-list">
-        <a href="https://vault.shopify.io/disciplines/26-Data-Insights">
-          <span class="link-icon">📖</span>
-          <div>
-            <div>Data Insights Vault Page</div>
-            <div class="link-desc">Overview of the Data discipline at Shopify</div>
-          </div>
-        </a>
-        <a href="https://vault.shopify.io/page/AI-usage-is-now-a-baseline-expectation~ro4A.md">
-          <span class="link-icon">🤖</span>
-          <div>
-            <div>AI Usage at Shopify</div>
-            <div class="link-desc">AI usage is a baseline expectation</div>
-          </div>
-        </a>
-        <a href="https://vault.shopify.io/ai">
-          <span class="link-icon">🧠</span>
-          <div>
-            <div>AI Hub</div>
-            <div class="link-desc">Central hub for AI tools and resources</div>
-          </div>
-        </a>
-        <a href="https://vault.shopify.io/docs/get-to-know-shopify/221-GSD---How-We-Build-Product-at-Shopify">
-          <span class="link-icon">🏗️</span>
-          <div>
-            <div>GSD — How We Build Product</div>
-            <div class="link-desc">Shopify's product development framework</div>
-          </div>
-        </a>
-        <a href="https://vault.shopify.io/changelogs">
-          <span class="link-icon">📋</span>
-          <div>
-            <div>Vault Change Log</div>
-            <div class="link-desc">Latest updates across Shopify</div>
-          </div>
-        </a>
-        <a href="https://quick.shopify.io/">
-          <span class="link-icon">⚡</span>
-          <div>
-            <div>Learn about Quick</div>
-            <div class="link-desc">Internal static site hosting platform</div>
-          </div>
-        </a>
-        <a href="https://support.apple.com/en-ca/guide/macbook-pro/apd1f14ec646/mac">
-          <span class="link-icon">💻</span>
-          <div>
-            <div>New to Mac?</div>
-            <div class="link-desc">MacBook Pro getting started guide</div>
-          </div>
-        </a>
-        <a href="https://support.apple.com/en-us/HT204216">
-          <span class="link-icon">💻</span>
-          <div>
-            <div>Mac Tips for Windows Switchers</div>
-            <div class="link-desc">Keyboard shortcuts, gestures, and more</div>
-          </div>
-        </a>
+      <h2><span class="icon" style="background: var(--purple-dim); color: var(--purple);">📚</span> Important Reads</h2>
+      <div class="reading-list" id="readingList">
+        <a href="https://vault.shopify.io/disciplines/26-Data-Insights"><span class="link-icon">📖</span><div><div contenteditable="true">Data Insights Vault Page</div><div class="link-desc" contenteditable="true">Overview of the Data discipline at Shopify</div></div></a>
+        <a href="https://vault.shopify.io/page/AI-usage-is-now-a-baseline-expectation~ro4A.md"><span class="link-icon">🤖</span><div><div contenteditable="true">AI Usage at Shopify</div><div class="link-desc" contenteditable="true">AI usage is a baseline expectation</div></div></a>
+        <a href="https://vault.shopify.io/ai"><span class="link-icon">🧠</span><div><div contenteditable="true">AI Hub</div><div class="link-desc" contenteditable="true">Central hub for AI tools and resources</div></div></a>
+        <a href="https://vault.shopify.io/docs/get-to-know-shopify/221-GSD---How-We-Build-Product-at-Shopify"><span class="link-icon">🏗️</span><div><div contenteditable="true">GSD — How We Build Product</div><div class="link-desc" contenteditable="true">Shopify's product development framework</div></div></a>
+        <a href="https://vault.shopify.io/changelogs"><span class="link-icon">📋</span><div><div contenteditable="true">Vault Change Log</div><div class="link-desc" contenteditable="true">Latest updates across Shopify</div></div></a>
       </div>
       <button class="add-btn editor-only" onclick="addReadingLink()">+ Add link</button>
     </div>
 
-  </div><!-- /container -->
-  </div><!-- /page-layout -->
+  </div></div>
 
-  <!-- ═══════════════════════════════════════════════════════════ -->
-  <!-- Footer                                                      -->
-  <!-- ═══════════════════════════════════════════════════════════ -->
   <div class="footer">
-    <span class="editor-only">Built with ❤️ by the Data team · <code style="font-size:0.75rem; background:var(--surface); padding:0.2rem 0.5rem; border-radius:4px;">git clone https://onboarding-playbook.quick.shopify.io</code> · Powered by <a href="https://quick.shopify.io">Quick</a></span>
+    <span class="editor-only">Built with ❤️ by the Data team · Powered by <a href="https://quick.shopify.io">Quick</a></span>
     <span class="viewer-footer" style="display:none;">Built with ❤️ for your onboarding journey</span>
   </div>
 
-  <!-- ═══════════════════════════════════════════════════════════ -->
-  <!-- JavaScript                                                  -->
-  <!-- ═══════════════════════════════════════════════════════════ -->
   <script src="/client/quick.js" async></script>
   <script>
-    // ── Config persistence via Quick DB ────────────────────────
-    const DB_COLLECTION = 'playbook_configs';
+    const DB_COL = 'playbook_configs';
     let db = null;
-    function initDb() {
-      if (db) return;
-      try { if (typeof quick !== 'undefined' && quick.db) db = quick.db.collection(DB_COLLECTION); } catch(e) {}
-    }
+    function initDb() { if (!db) try { if (typeof quick !== 'undefined' && quick.db) db = quick.db.collection(DB_COL); } catch(e) {} }
 
-    // ── Mode detection ────────────────────────────────────────
-    // Base URL (no params) = clean generic template (editor)
-    // ?id=jane-smith       = editor with that person's data loaded
-    // ?id=jane-smith&view  = clean viewer mode for the new hire
     const params = new URLSearchParams(window.location.search);
     const isViewMode = params.has('view');
     const hasId = params.has('id');
+    function getConfigKey() { return params.get('id') || null; }
 
-    function getConfigKey() {
-      return params.get('id') || null;
+    // ── Schedule builder ─────────────────────────────────────────
+    const CATS = ['general','startup','data','irl','custom'];
+    const defaultSchedule = [
+      { label:'Wk 1', days:[
+        [{t:'Start booking 1:1s',c:'custom'},{t:'IT Support Session',c:'general'},{t:'Meet & Greet',c:'custom'}],
+        [{t:'Monthly Team Meeting',c:'general'},{t:'Startup Foundations',c:'startup'},{t:'Meet & Greet w/ Manager',c:'custom'}],
+        [{t:'Manager Onboarding (self-paced)',c:'startup'}],
+        [{t:'Manager Onboarding (self-paced)',c:'startup'}],
+        [{t:'End of Week Check-in',c:'custom'}]
+      ]},
+      { label:'Wk 2', days:[
+        [{t:'Welcome to Shopify (live)',c:'startup'}],
+        [{t:'Field Guide Debrief (live)',c:'startup'}],
+        [{t:'Data & Eng Onboarding Kick Off',c:'data'},{t:'Check-in w/ Manager',c:'custom'}],
+        [{t:'Data Onboarding: Tech Stack',c:'data'}],
+        [{t:'Data Onboarding: Codebase',c:'data'}]
+      ]},
+      { label:'Wk 3', days:[
+        [{t:'Tend to the Commons (live)',c:'data'}],
+        [{t:'Continue 1:1s',c:'general'}],[{t:'Continue 1:1s',c:'general'}],[{t:'Continue 1:1s',c:'general'}],[{t:'Continue 1:1s',c:'general'}]
+      ]},
+      { label:'Wk 4', days:[
+        [{t:'Continue leadership 1:1s',c:'custom'}],[],
+        [{t:'Startup Connections (IRL)',c:'irl'}],
+        [{t:'Startup Connections (IRL)',c:'irl'}],[]
+      ]}
+    ];
+    const dayNames = ['Mon','Tue','Wed','Thu','Fri'];
+
+    function renderSchedule(data) {
+      const container = document.getElementById('scheduleContainer');
+      container.innerHTML = '';
+      (data || defaultSchedule).forEach((week, wi) => {
+        const div = document.createElement('div');
+        div.className = 'sched-week';
+        div.innerHTML = `
+          <div class="sched-week-header">
+            <input value="${week.label}" onchange="this.closest('.sched-week').dataset.label=this.value" />
+            <button class="remove-week editor-only" onclick="this.closest('.sched-week').remove()">✕ remove week</button>
+          </div>
+          <div class="sched-days">
+            ${week.days.map((events, di) => `
+              <div class="sched-day" data-day="${di}">
+                <div class="sched-day-label">${dayNames[di]}</div>
+                ${events.map(ev => renderEvent(ev.t, ev.c)).join('')}
+                <button class="add-event-btn editor-only" onclick="addEvent(this)">+ event</button>
+              </div>
+            `).join('')}
+          </div>
+        `;
+        container.appendChild(div);
+      });
     }
 
+    function renderEvent(text, cat) {
+      return `<div class="sched-event ${cat}" contenteditable="true" data-cat="${cat}">
+        <span>${text}</span>
+        <button class="remove-event editor-only" onclick="event.stopPropagation();this.closest('.sched-event').remove()">✕</button>
+      </div>`;
+    }
+
+    function addEvent(btn) {
+      const day = btn.closest('.sched-day');
+      const html = `<div class="sched-event general" contenteditable="true" data-cat="general">
+        <span>New event</span>
+        <button class="remove-event editor-only" onclick="event.stopPropagation();this.closest('.sched-event').remove()">✕</button>
+      </div>
+      <div class="cat-picker editor-only">${CATS.map(c => `<div class="cat-dot c-${c}" onclick="setCat(this,'${c}')"></div>`).join('')}</div>`;
+      btn.insertAdjacentHTML('beforebegin', html);
+    }
+
+    function setCat(dot, cat) {
+      const picker = dot.closest('.cat-picker');
+      const ev = picker.previousElementSibling;
+      ev.className = 'sched-event ' + cat;
+      ev.dataset.cat = cat;
+      picker.remove();
+    }
+
+    function addWeek() {
+      const container = document.getElementById('scheduleContainer');
+      const num = container.querySelectorAll('.sched-week').length + 1;
+      const week = { label: 'Wk ' + num, days: [[],[],[],[],[]] };
+      const temp = document.createElement('div');
+      temp.innerHTML = 'x'; // force render
+      // Just reuse renderSchedule by appending
+      const div = document.createElement('div');
+      div.className = 'sched-week';
+      div.innerHTML = `
+        <div class="sched-week-header">
+          <input value="${week.label}" />
+          <button class="remove-week editor-only" onclick="this.closest('.sched-week').remove()">✕ remove week</button>
+        </div>
+        <div class="sched-days">
+          ${dayNames.map((d, di) => `<div class="sched-day" data-day="${di}"><div class="sched-day-label">${d}</div><button class="add-event-btn editor-only" onclick="addEvent(this)">+ event</button></div>`).join('')}
+        </div>`;
+      container.appendChild(div);
+    }
+
+    function getScheduleData() {
+      return Array.from(document.querySelectorAll('.sched-week')).map(week => ({
+        label: week.querySelector('input').value,
+        days: Array.from(week.querySelectorAll('.sched-day')).map(day =>
+          Array.from(day.querySelectorAll('.sched-event')).map(ev => ({
+            t: ev.querySelector('span')?.textContent || ev.textContent.replace('✕','').trim(),
+            c: ev.dataset.cat || 'general'
+          }))
+        )
+      }));
+    }
+
+    // ── Person search (BQ → Vault data) ──────────────────────────
+    let searchReady = false;
+    const searchCache = {};
+    let searchDebounce = null;
+
+    // Triggered on FIRST FOCUS of a search input (user gesture → popup allowed)
+    async function tryConnectSearch(inputEl) {
+      if (searchReady) return;
+      inputEl.dataset.connecting = '1';
+      try {
+        if (typeof quick === 'undefined' || !quick.auth || !quick.dw) return;
+        const auth = await quick.auth.requestScopes(['https://www.googleapis.com/auth/bigquery']);
+        if (auth && auth.hasRequiredScopes) {
+          searchReady = true;
+          console.log('[search] Connected to BigQuery');
+        }
+      } catch(e) { console.warn('[search] Auth failed:', e); }
+    }
+
+    async function searchPeople(query) {
+      if (query.length < 2) return [];
+      const key = query.toLowerCase();
+      if (searchCache[key]) return searchCache[key];
+      if (!searchReady) return [];
+      try {
+        const sql = "SELECT worker_full_name AS name, worker_email AS email, job_title_end AS title, vault_team_end AS team, group_name_end AS group_name, tenure, worker_id FROM `shopify-dw.people.worker_daily_snapshot_v1` WHERE is_active_end = true AND effective_on = CURRENT_DATE() AND LOWER(worker_full_name) LIKE LOWER(@q) ORDER BY worker_full_name LIMIT 15";
+        const result = await quick.dw.querySync(sql, { q: '%' + query + '%' });
+        console.log('[search] BQ result:', result);
+        const rows = result.results || result.rows || [];
+        const people = rows.map(r => ({ name:r.name||'', email:r.email||'', title:r.title||'', team:r.team||'', groupName:r.group_name||'', tenure:r.tenure||'', workerId:r.worker_id||'' }));
+        searchCache[key] = people;
+        return people;
+      } catch(e) { console.error('[search] Query failed:', e); return []; }
+    }
+
+    // Wire up ALL search inputs
+    document.addEventListener('focusin', (e) => {
+      if (e.target.matches('.person-search-wrap input') && !searchReady && !e.target.dataset.connecting) {
+        tryConnectSearch(e.target);
+      }
+    });
+    document.addEventListener('input', (e) => {
+      if (!e.target.matches('.person-search-wrap input')) return;
+      const input = e.target;
+      const gridId = input.dataset.grid;
+      const dropdown = input.parentElement.querySelector('.dropdown');
+      const query = input.value.trim();
+      if (query.length < 2) { dropdown.classList.remove('open'); return; }
+      clearTimeout(searchDebounce);
+      searchDebounce = setTimeout(async () => {
+        dropdown.classList.add('open');
+        if (!searchReady) {
+          dropdown.innerHTML = `<div class="loading">Connecting to Vault… (allow popup if prompted) <br><a href="#" onclick="addManualCard('${gridId}','${query.replace(/'/g,"\\'")}');return false" style="color:var(--accent)">+ Add "${query}" manually</a></div>`;
+          await tryConnectSearch(input);
+          if (!searchReady) {
+            dropdown.innerHTML = `<div class="loading">Could not connect. <a href="#" onclick="addManualCard('${gridId}','${query.replace(/'/g,"\\'")}');return false" style="color:var(--accent)">+ Add "${query}" manually</a></div>`;
+            return;
+          }
+        }
+        dropdown.innerHTML = '<div class="loading">Searching…</div>';
+        const results = await searchPeople(query);
+        const manualOpt = `<div class="item" onclick="addManualCard('${gridId}','${query.replace(/'/g,"\\'")}')"><div class="item-name" style="color:var(--text-dim)">+ Add "${esc(query)}" manually</div></div>`;
+        if (results.length === 0) {
+          dropdown.innerHTML = `<div class="loading">No results for "${esc(query)}"</div>` + manualOpt;
+          return;
+        }
+        dropdown.innerHTML = results.map((p,i) => `<div class="item" onclick="addPersonFromCache('${gridId}','${key(query)}',${i})"><div class="item-name">${esc(p.name)}</div><div class="item-meta">${esc(p.title||'No title')} · ${esc(p.team||'No team')}${p.tenure ? ' · '+tenureText(p.tenure) : ''}</div></div>`).join('') + manualOpt;
+      }, 400);
+    });
+    document.addEventListener('click', (e) => { if (!e.target.closest('.person-search-wrap')) document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('open')); });
+
+    function key(q) { return q.toLowerCase(); }
+    function esc(s) { const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
+    function tenureText(days) { const d=parseInt(days); if(isNaN(d))return''; const y=Math.floor(d/365),m=Math.floor((d%365)/30); return y>=1?`${y}y ${m}m`:`${m}m`; }
+    function getInitials(n) { return n.split(' ').map(p=>p[0]).join('').toUpperCase().slice(0,2); }
+
+    function addPersonFromCache(gridId, cacheKey, idx) {
+      const p = (searchCache[cacheKey]||[])[idx];
+      if (p) createRichCard(gridId, p);
+      closeSearch(gridId);
+    }
+    function addManualCard(gridId, prefill) {
+      createRichCard(gridId, { name:prefill||'', email:'', title:'', team:'', groupName:'', tenure:'' });
+      closeSearch(gridId);
+    }
+    function closeSearch(gridId) {
+      const wrap = document.getElementById(gridId)?.nextElementSibling;
+      if (wrap) { const inp=wrap.querySelector('input'); const dd=wrap.querySelector('.dropdown'); if(inp)inp.value=''; if(dd)dd.classList.remove('open'); }
+    }
+    function createRichCard(gridId, p) {
+      const card = document.createElement('div');
+      card.className = 'contact-card';
+      card.dataset.person = JSON.stringify(p);
+      const tenure = tenureText(p.tenure);
+      const vaultUrl = p.email ? `https://vault.shopify.io/search?q=${encodeURIComponent(p.email.split('@')[0])}` : '#';
+      card.innerHTML = `
+        <div class="card-header"><div class="avatar">${getInitials(p.name||'??')}</div><div style="flex:1"><div class="name" contenteditable="true">${esc(p.name||'Name')}</div><div class="role" contenteditable="true">${esc(p.title||'Title')}</div></div></div>
+        <div class="desc" contenteditable="true">${esc(p.team||'Team')}${p.groupName&&p.groupName!==p.team?' · '+esc(p.groupName):''}</div>
+        ${tenure?`<span class="tenure-badge">${tenure} at Shopify</span>`:''}
+        ${p.email?`<a class="vault-link" href="${vaultUrl}" target="_blank">🔗 View on Vault</a>`:''}
+        <button class="remove-card editor-only" onclick="this.closest('.contact-card').remove()">✕</button>`;
+      document.getElementById(gridId).appendChild(card);
+    }
+
+    // ── Section add helpers ───────────────────────────────────────
+    function addStep() { document.getElementById('stepsContainer').insertAdjacentHTML('beforeend', '<div class="step"><div><h3 contenteditable="true">New step</h3><p contenteditable="true">Description…</p></div><button class="remove-card editor-only" onclick="this.closest(\'.step\').remove()">✕</button></div>'); }
+    function addCard(containerId) { const c=document.getElementById(containerId); c.insertAdjacentHTML('beforeend', '<div class="card"><h3 contenteditable="true">New card</h3><p contenteditable="true">Description…</p><button class="remove-card editor-only" onclick="this.closest(\'.card\').remove()">✕</button></div>'); }
+    function addGuide() { document.getElementById('guidesGrid').insertAdjacentHTML('beforeend', '<div class="contact-card"><div class="role" contenteditable="true">Role</div><div class="name" contenteditable="true">Name</div><div class="desc" contenteditable="true">Description…</div><button class="remove-card editor-only" onclick="this.closest(\'.contact-card\').remove()">✕</button></div>'); }
+    function addChannel() { document.getElementById('channelList').insertAdjacentHTML('beforeend', '<div class="channel"><span class="ch-icon">#</span><div><div class="ch-name" contenteditable="true">channel-name</div><div class="ch-note" contenteditable="true">Notes</div></div><span class="ch-tool" contenteditable="true">Slack</span><button class="remove-card editor-only" onclick="this.closest(\'.channel\').remove()">✕</button></div>'); }
+    function addRitualCard() { document.getElementById('ritualsCards').insertAdjacentHTML('beforeend', '<div class="card"><h3 contenteditable="true">New ritual</h3><ul><li contenteditable="true">Item…</li></ul><button class="remove-card editor-only" onclick="this.closest(\'.card\').remove()">✕</button></div>'); }
+    function addReadingLink() { document.getElementById('readingList').insertAdjacentHTML('beforeend', '<a href="#"><span class="link-icon">📄</span><div><div contenteditable="true">Title</div><div class="link-desc" contenteditable="true">Description…</div></div></a>'); }
+
+    // ── View mode ─────────────────────────────────────────────────
     function enterViewMode() {
       document.body.classList.add('view-mode');
-      const vf = document.querySelector('.viewer-footer');
-      if (vf) vf.style.display = 'inline';
-      // Disable all editing
-      document.querySelectorAll('[contenteditable]').forEach(el => el.contentEditable = 'false');
-      // Hide editor elements after a delay (for dynamically loaded cards)
+      document.querySelector('.viewer-footer').style.display = 'inline';
       setTimeout(() => {
         document.querySelectorAll('[contenteditable]').forEach(el => el.contentEditable = 'false');
-        document.querySelectorAll('.contact-card button').forEach(b => b.style.display = 'none');
-        document.querySelectorAll('.placeholder').forEach(el => {
-          if (el.textContent.startsWith('←')) el.style.display = 'none';
-        });
-      }, 600);
+        document.querySelectorAll('.remove-card,.remove-week,.remove-event,.add-event-btn').forEach(el => el.style.display = 'none');
+      }, 500);
+    }
+
+    // ── Save / Load ───────────────────────────────────────────────
+    function getFullPageState() {
+      return {
+        sections: Array.from(document.querySelectorAll('.section')).map(s => ({ id: s.id, html: s.innerHTML })),
+        schedule: getScheduleData(),
+      };
     }
 
     function applyConfig(config) {
-      const name = config.hireName;
-      const role = config.hireRole;
-      const manager = config.hireManager;
-
-      if (name) {
-        document.getElementById('headerTitle').innerHTML = `<span>${esc(name)}'s</span> Onboarding Playbook`;
-        document.getElementById('headerSubtitle').textContent = `Welcome to Shopify, ${name}! This playbook covers the most important information as you transition into your new role${role ? ` as ${role}` : ''}.`;
-        document.title = `${name}'s Onboarding Playbook`;
+      if (config.hireName) {
+        document.getElementById('headerTitle').innerHTML = `<span>${esc(config.hireName)}'s</span> Onboarding Playbook`;
+        document.getElementById('headerSubtitle').textContent = `Welcome to Shopify, ${config.hireName}! This playbook covers the most important information as you transition into your new role${config.hireRole ? ' as ' + config.hireRole : ''}.`;
+        document.title = config.hireName + "'s Onboarding Playbook";
       }
-
-      if (manager) {
-        const managerEl = document.querySelector('[data-field="managerName"]');
-        if (managerEl) {
-          managerEl.textContent = manager;
-          managerEl.classList.remove('placeholder');
-        }
-      }
+      if (config.hireManager) { const el = document.querySelector('[data-field="managerName"]'); if (el) el.textContent = config.hireManager; }
     }
 
     async function generatePlaybook() {
       initDb();
       const name = document.getElementById('hireName').value.trim();
       if (!name) { alert('Please enter a name.'); return; }
-
-      const key = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      const k = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
       const config = {
-        hireName: name,
-        hireRole: document.getElementById('hireRole').value,
-        hireStart: document.getElementById('hireStart').value,
-        hireManager: document.getElementById('hireManager').value,
-        leadership: getGridData('leadershipGrid'),
-        team: getGridData('teamGrid'),
-        xfn: getGridData('xfnGrid'),
-        editedContent: getEditedContent(),
+        hireName: name, hireRole: document.getElementById('hireRole').value,
+        hireStart: document.getElementById('hireStart').value, hireManager: document.getElementById('hireManager').value,
+        schedule: getScheduleData(),
+        pageState: getFullPageState(),
+        leadership: getGridData('leadershipGrid'), team: getGridData('teamGrid'), xfn: getGridData('xfnGrid'),
       };
+      applyConfig(config);
+      if (db) { try { const ex = await db.where({configKey:k}).find(); if(ex.length>0) await db.update(ex[0].id,{...config,configKey:k}); else await db.create({...config,configKey:k}); } catch(e) { localStorage.setItem('pb_'+k, JSON.stringify(config)); } }
+      else localStorage.setItem('pb_'+k, JSON.stringify(config));
 
-      // Save to DB
-      if (db) {
-        try {
-          const existing = await db.where({ configKey: key }).find();
-          if (existing.length > 0) {
-            await db.update(existing[0].id, { ...config, configKey: key });
-          } else {
-            await db.create({ ...config, configKey: key });
-          }
-        } catch(e) {
-          localStorage.setItem('playbook_' + key, JSON.stringify(config));
-        }
-      } else {
-        localStorage.setItem('playbook_' + key, JSON.stringify(config));
-      }
-
-      // Build the share link and show it
-      const viewUrl = `${window.location.origin}${window.location.pathname}?id=${key}&view`;
-      const editUrl = `${window.location.origin}${window.location.pathname}?id=${key}`;
+      const viewUrl = `${location.origin}${location.pathname}?id=${k}&view`;
       const shareEl = document.getElementById('shareUrl');
-      shareEl.innerHTML = `
-        ✅ Playbook saved for <strong>${esc(name)}</strong><br>
-        <span style="margin-top:0.4rem; display:inline-block;">
-          📤 <a href="${viewUrl}" target="_blank" style="color:var(--accent); text-decoration:underline;">Open their playbook</a>
-          &nbsp;·&nbsp;
-          <a href="#" onclick="navigator.clipboard.writeText('${viewUrl}'); this.textContent='Copied!'; return false;" style="color:var(--blue); text-decoration:underline;">Copy link to share</a>
-          &nbsp;·&nbsp;
-          <a href="${editUrl}" style="color:var(--text-dim); text-decoration:underline;">Edit later</a>
-        </span>
-      `;
+      shareEl.innerHTML = `✅ Saved! <a href="${viewUrl}" target="_blank" style="color:var(--accent)">Open ${esc(name)}'s playbook</a> · <a href="#" onclick="navigator.clipboard.writeText('${viewUrl}');this.textContent='Copied!';return false" style="color:var(--blue)">Copy share link</a> · <a href="?id=${k}" style="color:var(--text-dim)">Edit later</a>`;
       shareEl.classList.add('visible');
     }
 
     async function loadConfig() {
-      const key = getConfigKey();
-      if (!key) return; // No ?id= param → stay on clean generic template
-
-      initDb();
-      let config;
-
-      // Try Quick DB first
-      if (db) {
-        try {
-          const results = await db.where({ configKey: key }).find();
-          if (results.length > 0) config = results[0];
-        } catch(e) {}
-      }
-
-      // Fallback to localStorage
-      if (!config) {
-        const local = localStorage.getItem('playbook_' + key);
-        if (local) config = JSON.parse(local);
-      }
-
+      const k = getConfigKey(); if (!k) return;
+      initDb(); let config;
+      if (db) try { const r = await db.where({configKey:k}).find(); if(r.length>0) config=r[0]; } catch(e) {}
+      if (!config) { const l=localStorage.getItem('pb_'+k); if(l) config=JSON.parse(l); }
       if (!config) return;
-
-      // Fill editor fields (only matters in editor mode)
       if (!isViewMode) {
-        if (config.hireName && document.getElementById('hireName')) document.getElementById('hireName').value = config.hireName;
-        if (config.hireRole && document.getElementById('hireRole')) document.getElementById('hireRole').value = config.hireRole;
-        if (config.hireStart && document.getElementById('hireStart')) document.getElementById('hireStart').value = config.hireStart;
-        if (config.hireManager && document.getElementById('hireManager')) document.getElementById('hireManager').value = config.hireManager;
+        if(config.hireName)document.getElementById('hireName').value=config.hireName;
+        if(config.hireRole)document.getElementById('hireRole').value=config.hireRole;
+        if(config.hireStart)document.getElementById('hireStart').value=config.hireStart;
+        if(config.hireManager)document.getElementById('hireManager').value=config.hireManager;
       }
-
-      if (config.leadership) renderGridData('leadershipGrid', config.leadership);
-      if (config.team) renderGridData('teamGrid', config.team);
-      if (config.xfn) renderGridData('xfnGrid', config.xfn);
-
-      // Restore any inline content edits
-      if (config.editedContent) restoreEditedContent(config.editedContent);
-
+      if (config.schedule) renderSchedule(config.schedule);
+      if (config.pageState) {
+        config.pageState.sections.forEach(s => {
+          const el = document.getElementById(s.id);
+          if (el && s.id !== 'schedule') el.innerHTML = s.html;
+        });
+      }
+      if(config.leadership) renderGrid('leadershipGrid', config.leadership);
+      if(config.team) renderGrid('teamGrid', config.team);
+      if(config.xfn) renderGrid('xfnGrid', config.xfn);
       applyConfig(config);
     }
 
-    // ── Person search via BigQuery (Vault data) ───────────────
-    let searchReady = false;
-    const searchCache = {};
-    let searchDebounce = null;
-
-    // Auto-connect on page load — request BQ scopes early
-    async function initSearch() {
-      try {
-        if (typeof quick === 'undefined' || !quick.auth || !quick.dw) return;
-        const auth = await quick.auth.requestScopes(['https://www.googleapis.com/auth/bigquery']);
-        if (auth && auth.hasRequiredScopes) searchReady = true;
-      } catch(e) { console.warn('Search init:', e); }
-    }
-
-    async function searchPeople(query) {
-      if (query.length < 2) return [];
-      const cacheKey = query.toLowerCase();
-      if (searchCache[cacheKey]) return searchCache[cacheKey];
-
-      // Try to connect if not ready yet
-      if (!searchReady) await initSearch();
-      if (!searchReady) return [];
-
-      try {
-        const sql = `SELECT worker_full_name AS name, worker_email AS email, job_title_end AS title, vault_team_end AS team, group_name_end AS group_name, tenure, worker_id FROM \`shopify-dw.people.worker_daily_snapshot_v1\` WHERE is_active_end = true AND effective_on = CURRENT_DATE() AND LOWER(worker_full_name) LIKE LOWER(@q) ORDER BY worker_full_name LIMIT 15`;
-        const data = await quick.dw.querySync(sql, { q: '%' + query + '%' });
-        const rows = data.results || data.rows || [];
-        const people = rows.map(r => ({
-          name: r.name || '', email: r.email || '', title: r.title || '',
-          team: r.team || '', groupName: r.group_name || '',
-          tenure: r.tenure || '', workerId: r.worker_id || '',
-        }));
-        searchCache[cacheKey] = people;
-        return people;
-      } catch(e) {
-        console.warn('Search failed:', e);
-        return [];
-      }
-    }
-
-    // ── Add buttons for every section ────────────────────────────
-    function addStep() {
-      const steps = document.querySelector('#day1 .steps');
-      const step = document.createElement('div');
-      step.className = 'step';
-      step.innerHTML = '<div><h3 contenteditable="true">New step</h3><p contenteditable="true">Description…</p></div>';
-      steps.appendChild(step);
-    }
-
-    function addCard(sectionId) {
-      const section = document.getElementById(sectionId);
-      const btn = section.querySelector('.add-btn');
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.innerHTML = '<h3 contenteditable="true">New card</h3><p contenteditable="true">Description…</p>';
-      section.insertBefore(card, btn);
-    }
-
-    function addGuide() {
-      const grid = document.querySelector('#guides .contact-grid');
-      const card = document.createElement('div');
-      card.className = 'contact-card';
-      card.innerHTML = `<div class="role" contenteditable="true">Role</div><div class="name" contenteditable="true">Name</div><div class="desc" contenteditable="true">Description…</div>`;
-      grid.appendChild(card);
-    }
-
-    function addChannel() {
-      const list = document.querySelector('#channels .channel-list');
-      const ch = document.createElement('div');
-      ch.className = 'channel';
-      ch.innerHTML = `<span class="ch-icon">#</span><div><div class="ch-name" contenteditable="true">channel-name</div><div class="ch-note" contenteditable="true">Notes</div></div><span class="ch-tool" contenteditable="true">Slack</span>`;
-      list.appendChild(ch);
-    }
-
-    function addRitualCard() {
-      const section = document.getElementById('rituals');
-      const btn = section.querySelector('.add-btn');
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.innerHTML = '<h3 contenteditable="true">New ritual</h3><ul><li contenteditable="true">Description…</li></ul>';
-      section.insertBefore(card, btn);
-    }
-
-    function addWeek() {
-      const grid = document.getElementById('scheduleGrid');
-      const weekNum = Math.floor((grid.querySelectorAll('.cell.week-label').length)) + 1;
-      const cells = [
-        `<div class="cell week-label" contenteditable="true">Wk ${weekNum}</div>`,
-        ...Array(5).fill('<div class="cell" contenteditable="true"></div>')
-      ];
-      grid.insertAdjacentHTML('beforeend', cells.join(''));
-    }
-
-    function addReadingLink() {
-      const list = document.querySelector('#reading .reading-list');
-      const link = document.createElement('a');
-      link.href = '#';
-      link.onclick = (e) => { if (link.querySelector('[contenteditable]')) e.preventDefault(); };
-      link.innerHTML = `<span class="link-icon">📄</span><div><div contenteditable="true">Title</div><div class="link-desc" contenteditable="true">Description…</div></div>`;
-      list.appendChild(link);
-    }
-
-    function tenureText(days) {
-      if (!days) return '';
-      const d = parseInt(days);
-      if (isNaN(d)) return '';
-      const years = Math.floor(d / 365);
-      const months = Math.floor((d % 365) / 30);
-      if (years >= 1) return `${years}y ${months}m at Shopify`;
-      return `${months}m at Shopify`;
-    }
-
-    function getInitials(name) {
-      return name.split(' ').map(p => p[0]).join('').toUpperCase().slice(0, 2);
-    }
-
-    function vaultUserUrl(email) {
-      // Vault user URLs: vault.shopify.io/users/ID-Name or search
-      const handle = email.split('@')[0].replace('.', '-');
-      return `https://vault.shopify.io/search?q=${encodeURIComponent(email.split('@')[0])}`;
-    }
-
-    function personSearch(input, gridId) {
-      const query = input.value.trim();
-      const wrap = input.parentElement;
-      const dropdown = wrap.querySelector('.dropdown');
-
-      if (query.length < 2) {
-        dropdown.classList.remove('open');
-        return;
-      }
-
-      clearTimeout(searchDebounce);
-      searchDebounce = setTimeout(async () => {
-        dropdown.classList.add('open');
-
-        if (!searchReady) {
-          dropdown.innerHTML = `<div class="loading">Connecting to Vault… <a href="#" onclick="addManualCard('${gridId}', '${query.replace(/'/g, "\\'")}'); return false;" style="color:var(--accent);">Add manually instead</a></div>`;
-          await initSearch();
-          if (!searchReady) {
-            dropdown.innerHTML = `<div class="loading">Could not connect to search. <a href="#" onclick="addManualCard('${gridId}', '${query.replace(/'/g, "\\'")}'); return false;" style="color:var(--accent);">Add manually →</a></div>`;
-            return;
-          }
-        }
-
-        dropdown.innerHTML = '<div class="loading">Searching…</div>';
-        const results = await searchPeople(query);
-
-        if (results.length === 0) {
-          dropdown.innerHTML = `<div class="loading">No results for "${esc(query)}". <a href="#" onclick="addManualCard('${gridId}', '${query.replace(/'/g, "\\'")}'); return false;" style="color:var(--accent);">Add manually</a></div>`;
-          return;
-        }
-
-        dropdown.innerHTML = results.map((p, i) => `
-          <div class="item" onclick="addPersonCard('${gridId}', ${i}, '${query.replace(/'/g, "\\'")}')">
-            <div class="item-name">${esc(p.name)}</div>
-            <div class="item-meta">${esc(p.title || 'No title')} · ${esc(p.team || 'No team')}${p.tenure ? ' · ' + tenureText(p.tenure) : ''}</div>
-          </div>
-        `).join('') + `<div class="item" onclick="addManualCard('${gridId}', '${query.replace(/'/g, "\\'")}')"><div class="item-name" style="color:var(--text-dim);">+ Add "${esc(query)}" manually</div></div>`;
-      }, 400);
-    }
-
-    function esc(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
-
-    // Store last search results for retrieval by index
-    function addPersonCard(gridId, resultIndex, query) {
-      const cacheKey = query.toLowerCase();
-      const results = searchCache[cacheKey];
-      if (!results || !results[resultIndex]) return;
-      const p = results[resultIndex];
-      createRichContactCard(gridId, p);
-
-      // Clear search
-      const wrap = document.getElementById(gridId).parentElement;
-      const searchInput = wrap.querySelector('.person-search-wrap input');
-      const dropdown = wrap.querySelector('.dropdown');
-      if (searchInput) searchInput.value = '';
-      if (dropdown) dropdown.classList.remove('open');
-    }
-
-    function createRichContactCard(gridId, person) {
-      const card = document.createElement('div');
-      card.className = 'contact-card';
-      card.dataset.person = JSON.stringify(person);
-      card.style.position = 'relative';
-
-      const tenure = tenureText(person.tenure);
-      const initials = getInitials(person.name || '?');
-      const profileUrl = vaultUserUrl(person.email || '');
-
-      card.innerHTML = `
-        <div class="card-header">
-          <div class="avatar">${initials}</div>
-          <div>
-            <div class="name">${esc(person.name)}</div>
-            <div class="role">${esc(person.title || 'No title')}</div>
-          </div>
-        </div>
-        <div class="desc">${esc(person.team || '')}${person.groupName && person.groupName !== person.team ? ' · ' + esc(person.groupName) : ''}</div>
-        ${tenure ? `<span class="tenure-badge">${tenure}</span>` : ''}
-        <a class="vault-link" href="${profileUrl}" target="_blank">🔗 View on Vault</a>
-        <button class="editor-only" onclick="this.parentElement.remove()" style="position:absolute; top:8px; right:8px; background:none; border:none; color:var(--text-dim); cursor:pointer; font-size:0.9rem;" title="Remove">✕</button>
-      `;
-      document.getElementById(gridId).appendChild(card);
-    }
-
-    function addManualCard(gridId, prefill) {
-      const card = document.createElement('div');
-      card.className = 'contact-card';
-      card.style.position = 'relative';
-      card.dataset.person = JSON.stringify({ name: prefill || '', email: '', title: '', team: '', groupName: '', tenure: '' });
-      card.innerHTML = `
-        <div class="card-header">
-          <div class="avatar">${getInitials(prefill || '??')}</div>
-          <div style="flex:1;">
-            <div class="name" contenteditable="true">${esc(prefill || 'Name')}</div>
-            <div class="role" contenteditable="true">Title</div>
-          </div>
-        </div>
-        <div class="desc" contenteditable="true">Team</div>
-        <button class="editor-only" onclick="this.parentElement.remove()" style="position:absolute; top:8px; right:8px; background:none; border:none; color:var(--text-dim); cursor:pointer; font-size:0.9rem;" title="Remove">✕</button>
-      `;
-      document.getElementById(gridId).appendChild(card);
-
-      // Close dropdown and clear search
-      const wrap = document.getElementById(gridId).parentElement;
-      const dropdown = wrap.querySelector('.dropdown');
-      const searchInput = wrap.querySelector('.person-search-wrap input');
-      if (dropdown) dropdown.classList.remove('open');
-      if (searchInput) searchInput.value = '';
-    }
-
-    // ── Grid data helpers for save/load ─────────────────────────
-    function getGridData(gridId) {
-      const cards = document.getElementById(gridId).querySelectorAll('.contact-card');
-      return Array.from(cards).map(card => {
-        try { return JSON.parse(card.dataset.person); } catch(e) {}
-        return {
-          name: card.querySelector('.name')?.textContent || '',
-          title: card.querySelector('.role')?.textContent || '',
-          team: card.querySelector('.desc')?.textContent || '',
-        };
+    function getGridData(id) {
+      return Array.from(document.getElementById(id).querySelectorAll('.contact-card')).map(c => {
+        try { return JSON.parse(c.dataset.person); } catch(e) { return { name: c.querySelector('.name')?.textContent||'', title: c.querySelector('.role')?.textContent||'', team: c.querySelector('.desc')?.textContent||'' }; }
       }).filter(c => c.name);
     }
+    function renderGrid(id, data) { document.getElementById(id).innerHTML=''; data.forEach(d => createRichCard(id, d)); }
 
-    function renderGridData(gridId, data) {
-      document.getElementById(gridId).innerHTML = '';
-      data.forEach(d => createRichContactCard(gridId, d));
-    }
-
-    // Close dropdowns on outside click
-    document.addEventListener('click', (e) => {
-      if (!e.target.closest('.person-search-wrap')) {
-        document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('open'));
-      }
-    });
-
-    // ── Sidebar highlight on scroll ────────────────────────────
-    const sections = document.querySelectorAll('.section');
-    const sidebarLinks = document.querySelectorAll('.sidebar a[href^="#"]');
-
+    // ── Sidebar highlight ─────────────────────────────────────────
     const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          sidebarLinks.forEach(l => l.classList.remove('active'));
-          const link = document.querySelector(`.sidebar a[href="#${entry.target.id}"]`);
-          if (link) link.classList.add('active');
-        }
-      });
+      entries.forEach(entry => { if (entry.isIntersecting) {
+        document.querySelectorAll('.sidebar a').forEach(l => l.classList.remove('active'));
+        const link = document.querySelector(`.sidebar a[href="#${entry.target.id}"]`);
+        if (link) link.classList.add('active');
+      }});
     }, { rootMargin: '-50px 0px -60% 0px' });
+    document.querySelectorAll('.section').forEach(s => observer.observe(s));
 
-    sections.forEach(s => observer.observe(s));
+    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sidebarOverlay').classList.toggle('open'); }
+    function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebarOverlay').classList.remove('open'); }
 
-    // ── Mobile sidebar toggle ───────────────────────────────────
-    function toggleSidebar() {
-      document.getElementById('sidebar').classList.toggle('open');
-      document.getElementById('sidebarOverlay').classList.toggle('open');
-    }
-    function closeSidebar() {
-      document.getElementById('sidebar').classList.remove('open');
-      document.getElementById('sidebarOverlay').classList.remove('open');
-    }
-
-    // ── Make content editable in editor mode ───────────────────
-    function enableEditableContent() {
-      if (isViewMode) return;
-      // Make all headings, paragraphs, and list items inside sections editable
-      document.querySelectorAll('.section h3, .section p, .section li, .card h3, .card p, .card li, .step h3, .step p').forEach((el, i) => {
-        if (el.closest('.person-search-wrap') || el.closest('.search-connect')) return;
-        el.contentEditable = 'true';
-        if (!el.dataset.editKey) el.dataset.editKey = 'content-' + i;
-      });
-    }
-
-    function getEditedContent() {
-      const edits = {};
-      document.querySelectorAll('[data-edit-key]').forEach(el => {
-        if (el.contentEditable === 'true' || el.getAttribute('contenteditable') === 'true') {
-          edits[el.dataset.editKey] = el.innerHTML;
-        }
-      });
-      return edits;
-    }
-
-    function restoreEditedContent(edits) {
-      if (!edits) return;
-      document.querySelectorAll('[data-edit-key]').forEach(el => {
-        if (edits[el.dataset.editKey] !== undefined) {
-          el.innerHTML = edits[el.dataset.editKey];
-        }
-      });
-    }
-
-    // ── Auto-load config on page load ──────────────────────────
+    // ── Init ──────────────────────────────────────────────────────
     window.addEventListener('DOMContentLoaded', () => {
-      enableEditableContent();
+      renderSchedule(null);
       if (isViewMode) enterViewMode();
-      if (hasId) {
-        loadConfig();
-        setTimeout(() => loadConfig(), 800);
-      }
-      // Auto-connect search once Quick loads (editor mode only)
-      if (!isViewMode) {
-        const tryInit = setInterval(() => {
-          if (typeof quick !== 'undefined' && quick.auth) {
-            clearInterval(tryInit);
-            initSearch();
-          }
-        }, 500);
-        setTimeout(() => clearInterval(tryInit), 10000); // give up after 10s
-      }
+      if (hasId) { loadConfig(); setTimeout(() => loadConfig(), 800); }
     });
   </script>
 </body>
