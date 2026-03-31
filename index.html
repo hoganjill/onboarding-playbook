@@ -497,8 +497,16 @@
       if (!searchReady) { console.log('[search] not ready'); return []; }
       try {
         // Escape single quotes for SQL safety
-        const safe = query.replace(/'/g, "''");
-        const sql = "SELECT worker_full_name AS name, worker_email AS email, job_title_end AS title, vault_team_end AS team, group_name_end AS group_name, tenure, worker_id FROM `shopify-dw.people.worker_daily_snapshot_v1` WHERE is_active_end = true AND effective_on = CURRENT_DATE() AND LOWER(worker_full_name) LIKE '%" + safe.toLowerCase() + "%' ORDER BY worker_full_name LIMIT 15";
+        const safe = query.replace(/'/g, "''").toLowerCase();
+        const sql = [
+          "SELECT worker_full_name AS name, worker_email AS email,",
+          "job_title_end AS title, vault_team_end AS team,",
+          "group_name_end AS group_name, CAST(tenure AS STRING) AS tenure, CAST(worker_id AS STRING) AS worker_id",
+          "FROM shopify-dw.people.worker_daily_snapshot_v1",
+          "WHERE is_active_end = true AND effective_on = CURRENT_DATE()",
+          "AND LOWER(worker_full_name) LIKE '%" + safe + "%'",
+          "ORDER BY worker_full_name LIMIT 15"
+        ].join(" ");
         console.log('[search] Running query for:', query);
         const result = await quick.dw.querySync(sql);
         console.log('[search] Raw result:', JSON.stringify(result).slice(0, 500));
