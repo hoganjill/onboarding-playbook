@@ -121,13 +121,12 @@
     .contact-row .check { width: 18px; height: 18px; border-radius: 4px; border: 2px solid var(--border); cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.15s; font-size: 0.7rem; }
     .contact-row .check.done { background: var(--accent); border-color: var(--accent); color: #000; }
     .contact-row .avatar-sm { width: 28px; height: 28px; border-radius: 50%; background: var(--accent-dim); color: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.65rem; flex-shrink: 0; }
-    .contact-row .person-info { flex: 1; min-width: 0; }
-    .contact-row .person-name { font-weight: 600; font-size: 0.88rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .contact-row .person-meta { color: var(--text-dim); font-size: 0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .contact-row .person-info { min-width: 0; }
+    .contact-row .person-name { font-weight: 600; font-size: 0.88rem; display: inline; }
     .contact-row .person-name.met { text-decoration: line-through; color: var(--text-dim); }
-    .contact-row .tenure-sm { color: var(--accent); font-size: 0.68rem; font-weight: 600; flex-shrink: 0; }
-    .contact-row .vault-sm { color: var(--blue); font-size: 0.75rem; text-decoration: none; flex-shrink: 0; }
+    .contact-row .vault-sm { color: var(--blue); font-size: 0.75rem; text-decoration: none; margin-left: 0.4rem; }
     .contact-row .vault-sm:hover { text-decoration: underline; }
+    .contact-row .person-meta { color: var(--text-dim); font-size: 0.75rem; }
     .contact-row .remove-card { background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 0.75rem; opacity: 0; flex-shrink: 0; }
     .contact-row:hover .remove-card { opacity: 1; }
 
@@ -613,11 +612,9 @@
         <div class="check" onclick="this.classList.toggle('done'); this.textContent=this.classList.contains('done')?'✓':''; this.closest('.contact-row').querySelector('.person-name').classList.toggle('met')"></div>
         <div class="avatar-sm">${getInitials(p.name||'??')}</div>
         <div class="person-info">
-          <div class="person-name">${esc(p.name||'Name')}</div>
+          <div><span class="person-name">${esc(p.name||'Name')}</span>${vaultUrl?`<a class="vault-sm" href="${vaultUrl}" target="_blank">🔗</a>`:''}</div>
           <div class="person-meta">${esc(teamStr||'Title · Team')}</div>
         </div>
-        ${tenure?`<span class="tenure-sm">${tenure}</span>`:''}
-        ${vaultUrl?`<a class="vault-sm" href="${vaultUrl}" target="_blank" title="View on Vault">🔗</a>`:''}
         <button class="remove-card editor-only" onclick="this.closest('.contact-row').remove()">✕</button>`;
       document.getElementById(gridId).appendChild(row);
     }
