@@ -94,18 +94,25 @@
     .sched-grid .cell.week-label input:focus { outline: 1px solid var(--accent); border-radius: 3px; }
     .sched-grid .cell.week-label .remove-week { background: none; border: none; color: var(--accent); cursor: pointer; font-size: 0.65rem; opacity: 0; transition: opacity 0.15s; }
     .sched-grid .cell.week-label:hover .remove-week { opacity: 1; }
-    .sched-event { padding: 0.2rem 0.45rem; border-radius: 4px; margin-bottom: 0.25rem; font-size: 0.76rem; display: flex; align-items: center; gap: 0.2rem; }
+    .sched-event { padding: 0.2rem 0.45rem; border-radius: 4px; margin-bottom: 0.25rem; font-size: 0.76rem; display: flex; align-items: center; gap: 0.2rem; cursor: grab; }
+    .sched-event:active { cursor: grabbing; }
+    .sched-event.dragging { opacity: 0.4; }
     .sched-event span { flex: 1; }
     .sched-event .remove-event { background: none; border: none; color: inherit; cursor: pointer; opacity: 0; font-size: 0.65rem; padding: 0; }
     .sched-event:hover .remove-event { opacity: 0.7; }
-    .sched-event[contenteditable=true]:focus { outline: 1px solid rgba(255,255,255,0.2); }
+    .sched-event[contenteditable=true]:focus { outline: 1px solid rgba(255,255,255,0.2); cursor: text; }
     .sched-event.general { background: var(--blue-dim); color: var(--blue); }
     .sched-event.startup { background: var(--purple-dim); color: var(--purple); }
     .sched-event.data { background: var(--teal-dim); color: var(--teal); }
     .sched-event.irl { background: var(--orange-dim); color: var(--orange); }
     .sched-event.custom { background: var(--accent-dim); color: var(--accent); }
-    .add-event-btn { background: none; border: 1px dashed rgba(255,255,255,0.08); color: var(--text-dim); padding: 0.15rem; border-radius: 3px; cursor: pointer; font-size: 0.65rem; width: 100%; margin-top: 0.2rem; text-align: center; opacity: 0; transition: opacity 0.15s; }
+    .sched-grid .cell.drop-target { outline: 2px solid var(--accent); outline-offset: -2px; }
+    .add-event-btn { background: none; border: 1px dashed rgba(255,255,255,0.08); color: var(--text-dim); padding: 0.15rem; border-radius: 3px; cursor: pointer; font-size: 0.65rem; width: 100%; margin-top: 0.2rem; text-align: center; opacity: 0; transition: opacity 0.15s; position: relative; }
     .sched-grid .cell:hover .add-event-btn { opacity: 1; }
+    .event-type-picker { position: absolute; bottom: 100%; left: 0; right: 0; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.3rem; z-index: 50; display: flex; flex-direction: column; gap: 2px; box-shadow: 0 -4px 16px rgba(0,0,0,0.5); }
+    .event-type-picker .pick-opt { display: flex; align-items: center; gap: 0.4rem; padding: 0.35rem 0.5rem; border-radius: 3px; cursor: pointer; font-size: 0.75rem; border: none; background: none; color: var(--text); text-align: left; width: 100%; }
+    .event-type-picker .pick-opt:hover { background: var(--surface-hover); }
+    .event-type-picker .pick-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
     .cat-picker { display: flex; gap: 2px; margin-top: 0.3rem; }
     .cat-dot { width: 14px; height: 14px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: border-color 0.1s; }
     .cat-dot:hover, .cat-dot.active { border-color: white; }
@@ -416,29 +423,91 @@
     }
 
     function renderEvent(text, cat) {
-      return `<div class="sched-event ${cat}" contenteditable="true" data-cat="${cat}">
-        <span>${text}</span>
+      return `<div class="sched-event ${cat}" draggable="true" data-cat="${cat}" ondragstart="dragEvent(event)" ondragend="dragEnd(event)">
+        <span contenteditable="true">${text}</span>
         <button class="remove-event editor-only" onclick="event.stopPropagation();this.closest('.sched-event').remove()">✕</button>
       </div>`;
     }
 
+    const CAT_LABELS = {general:'General', startup:'Startup', data:'Data Onboarding', irl:'In-Person', custom:'Custom'};
+    const CAT_COLORS = {general:'var(--blue)', startup:'var(--purple)', data:'var(--teal)', irl:'var(--orange)', custom:'var(--accent)'};
+
     function addEvent(btn) {
-      const day = btn.closest('.sched-day');
-      const html = `<div class="sched-event general" contenteditable="true" data-cat="general">
-        <span>New event</span>
-        <button class="remove-event editor-only" onclick="event.stopPropagation();this.closest('.sched-event').remove()">✕</button>
-      </div>
-      <div class="cat-picker editor-only">${CATS.map(c => `<div class="cat-dot c-${c}" onclick="setCat(this,'${c}')"></div>`).join('')}</div>`;
-      btn.insertAdjacentHTML('beforebegin', html);
+      // Close any existing pickers
+      document.querySelectorAll('.event-type-picker').forEach(p => p.remove());
+      const picker = document.createElement('div');
+      picker.className = 'event-type-picker';
+      picker.innerHTML = CATS.map(c =>
+        `<button class="pick-opt" onclick="insertEvent(this, '${c}')"><span class="pick-dot" style="background:${CAT_COLORS[c]}"></span>${CAT_LABELS[c]}</button>`
+      ).join('');
+      btn.style.position = 'relative';
+      btn.appendChild(picker);
+      // Close on outside click
+      setTimeout(() => document.addEventListener('click', function close(e) {
+        if (!picker.contains(e.target)) { picker.remove(); document.removeEventListener('click', close); }
+      }), 10);
     }
 
-    function setCat(dot, cat) {
-      const picker = dot.closest('.cat-picker');
-      const ev = picker.previousElementSibling;
-      ev.className = 'sched-event ' + cat;
-      ev.dataset.cat = cat;
+    function insertEvent(pickBtn, cat) {
+      const picker = pickBtn.closest('.event-type-picker');
+      const addBtn = picker.closest('.add-event-btn');
+      const cell = addBtn.closest('.cell');
       picker.remove();
+      const html = renderEvent('New event', cat);
+      addBtn.insertAdjacentHTML('beforebegin', html);
+      // Focus the new event text for immediate editing
+      const newEv = addBtn.previousElementSibling;
+      const span = newEv.querySelector('span');
+      if (span) { span.focus(); document.execCommand('selectAll'); }
     }
+
+    // ── Drag and drop ────────────────────────────────────────────
+    let draggedEl = null;
+
+    function dragEvent(e) {
+      draggedEl = e.target.closest('.sched-event');
+      if (draggedEl) {
+        draggedEl.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', '');
+      }
+    }
+
+    function dragEnd(e) {
+      if (draggedEl) draggedEl.classList.remove('dragging');
+      document.querySelectorAll('.drop-target').forEach(c => c.classList.remove('drop-target'));
+      draggedEl = null;
+    }
+
+    // Delegate drag events on the grid
+    document.addEventListener('dragover', (e) => {
+      const cell = e.target.closest('.sched-grid .cell:not(.header):not(.week-label)');
+      if (cell && draggedEl) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        document.querySelectorAll('.drop-target').forEach(c => c.classList.remove('drop-target'));
+        cell.classList.add('drop-target');
+      }
+    });
+
+    document.addEventListener('dragleave', (e) => {
+      const cell = e.target.closest('.cell');
+      if (cell) cell.classList.remove('drop-target');
+    });
+
+    document.addEventListener('drop', (e) => {
+      e.preventDefault();
+      const cell = e.target.closest('.sched-grid .cell:not(.header):not(.week-label)');
+      if (cell && draggedEl) {
+        // Insert before the + button
+        const addBtn = cell.querySelector('.add-event-btn');
+        if (addBtn) cell.insertBefore(draggedEl, addBtn);
+        else cell.appendChild(draggedEl);
+        draggedEl.classList.remove('dragging');
+      }
+      document.querySelectorAll('.drop-target').forEach(c => c.classList.remove('drop-target'));
+      draggedEl = null;
+    });
 
     function addWeek() {
       const grid = document.querySelector('.sched-grid');
