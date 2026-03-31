@@ -450,13 +450,12 @@
     }
 
     function insertEvent(pickBtn, cat) {
+      event.stopPropagation();
       const picker = pickBtn.closest('.event-type-picker');
       const addBtn = picker.closest('.add-event-btn');
-      const cell = addBtn.closest('.cell');
       picker.remove();
       const html = renderEvent('New event', cat);
       addBtn.insertAdjacentHTML('beforebegin', html);
-      // Focus the new event text for immediate editing
       const newEv = addBtn.previousElementSibling;
       const span = newEv.querySelector('span');
       if (span) { span.focus(); document.execCommand('selectAll'); }
