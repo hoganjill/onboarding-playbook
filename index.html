@@ -612,7 +612,7 @@
         <div class="check" onclick="this.classList.toggle('done'); this.textContent=this.classList.contains('done')?'✓':''; this.closest('.contact-row').querySelector('.person-name').classList.toggle('met')"></div>
         <div class="avatar-sm">${getInitials(p.name||'??')}</div>
         <div class="person-info">
-          <div><span class="person-name">${esc(p.name||'Name')}</span>${vaultUrl?`<a class="vault-sm" href="${vaultUrl}" target="_blank">🔗</a>`:''}</div>
+          <div><span class="person-name">${esc(p.name||'Name')}</span>${vaultUrl?`<a class="vault-sm" href="${vaultUrl}" target="_blank">Vault profile</a>`:''}</div>
           <div class="person-meta">${esc(teamStr||'Title · Team')}</div>
         </div>
         <button class="remove-card editor-only" onclick="this.closest('.contact-row').remove()">✕</button>`;
