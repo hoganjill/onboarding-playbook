@@ -216,7 +216,6 @@
     <nav class="sidebar" id="sidebar">
       <div class="sidebar-brand">
         <div class="brand-title" id="sidebarTitle"><span>Onboarding</span> Playbook</div>
-        <div class="brand-sub">Welcome to Shopify</div>
       </div>
       <div class="sidebar-inner">
         <div class="sidebar-label">Getting Started</div>
@@ -736,7 +735,6 @@
         document.getElementById('headerTitle').innerHTML = `<span>Welcome, ${esc(first)}</span>`;
         document.getElementById('headerSubtitle').textContent = `This playbook covers the most important information as you transition into your new role${config.hireRole ? ' as ' + config.hireRole : ''}.`;
         document.getElementById('sidebarTitle').innerHTML = `<span>${esc(config.hireName)}'s</span> Playbook`;
-        document.querySelector('.sidebar-brand .brand-sub').textContent = config.hireRole || 'Welcome to Shopify';
         document.title = config.hireName + "'s Onboarding Playbook";
       }
       if (config.hireManager) { const el = document.querySelector('[data-field="managerName"]'); if (el) el.textContent = config.hireManager; }
