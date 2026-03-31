@@ -107,7 +107,8 @@
     .sched-event.irl { background: var(--orange-dim); color: var(--orange); }
     .sched-event.custom { background: var(--accent-dim); color: var(--accent); }
     .sched-grid .cell.drop-target { outline: 2px solid var(--accent); outline-offset: -2px; }
-    .add-event-btn { background: none; border: 1px dashed rgba(255,255,255,0.08); color: var(--text-dim); padding: 0.15rem; border-radius: 3px; cursor: pointer; font-size: 0.65rem; width: 100%; margin-top: 0.2rem; text-align: center; opacity: 0; transition: opacity 0.15s; position: relative; }
+    .add-event-btn { background: rgba(150,191,72,0.08); border: 1px dashed rgba(150,191,72,0.25); color: var(--accent); padding: 0.3rem; border-radius: 4px; cursor: pointer; font-size: 0.85rem; font-weight: 600; width: 100%; margin-top: 0.3rem; text-align: center; opacity: 0; transition: opacity 0.15s; position: relative; }
+    .add-event-btn:hover { background: rgba(150,191,72,0.15); border-color: var(--accent); }
     .sched-grid .cell:hover .add-event-btn { opacity: 1; }
     .event-type-picker { position: absolute; bottom: 100%; left: 0; right: 0; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.3rem; z-index: 50; display: flex; flex-direction: column; gap: 2px; box-shadow: 0 -4px 16px rgba(0,0,0,0.5); }
     .event-type-picker .pick-opt { display: flex; align-items: center; gap: 0.4rem; padding: 0.35rem 0.5rem; border-radius: 3px; cursor: pointer; font-size: 0.75rem; border: none; background: none; color: var(--text); text-align: left; width: 100%; }
@@ -403,7 +404,7 @@
         week.days.forEach((events, di) => {
           html += `<div class="cell" data-day="${di}">`;
           events.forEach(ev => html += renderEvent(ev.t, ev.c));
-          html += `<button class="add-event-btn editor-only" onclick="addEvent(this)">+</button></div>`;
+          html += `<button class="add-event-btn editor-only" onclick="addEvent(this)">+ Add</button></div>`;
         });
       });
       html += '</div>';
@@ -514,7 +515,7 @@
       if (!grid) return;
       const num = grid.querySelectorAll('.cell.week-label').length + 1;
       let html = `<div class="cell week-label"><input value="Wk ${num}" /><button class="remove-week editor-only" onclick="removeWeekRow(this)">✕</button></div>`;
-      for (let i = 0; i < 5; i++) html += `<div class="cell" data-day="${i}"><button class="add-event-btn editor-only" onclick="addEvent(this)">+</button></div>`;
+      for (let i = 0; i < 5; i++) html += `<div class="cell" data-day="${i}"><button class="add-event-btn editor-only" onclick="addEvent(this)">+ Add</button></div>`;
       grid.insertAdjacentHTML('beforeend', html);
     }
 
