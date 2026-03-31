@@ -503,9 +503,10 @@
           "job_title_end AS title, vault_team_end AS team,",
           "group_name_end AS group_name, CAST(tenure AS STRING) AS tenure, CAST(worker_id AS STRING) AS worker_id",
           "FROM shopify-dw.people.worker_daily_snapshot_v1",
-          "WHERE is_active_end = true AND effective_on = CURRENT_DATE()",
+          "WHERE is_active_end = true",
+          "AND DATE(effective_on) >= DATE_SUB(CURRENT_DATE(), INTERVAL 3 DAY)",
           "AND LOWER(worker_full_name) LIKE '%" + safe + "%'",
-          "ORDER BY worker_full_name LIMIT 15"
+          "ORDER BY effective_on DESC, worker_full_name LIMIT 15"
         ].join(" ");
         console.log('[search] Running query for:', query);
         const result = await quick.dw.querySync(sql);
