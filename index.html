@@ -115,18 +115,30 @@
     .cat-dot.c-irl { background: var(--orange); }
     .cat-dot.c-custom { background: var(--accent); }
 
-    .contact-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 0.75rem; }
-    .contact-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.2rem; position: relative; }
-    .contact-card .role { color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
-    .contact-card .name { font-weight: 600; font-size: 1rem; margin-bottom: 0.4rem; min-height: 1.2em; }
-    .contact-card .desc { color: var(--text-secondary); font-size: 0.85rem; }
-    .contact-card .card-header { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem; }
-    .contact-card .avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--accent-dim); color: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; flex-shrink: 0; }
-    .contact-card .vault-link { display: inline-flex; align-items: center; gap: 0.3rem; color: var(--blue); font-size: 0.78rem; text-decoration: none; margin-top: 0.4rem; }
-    .contact-card .vault-link:hover { text-decoration: underline; }
-    .contact-card .tenure-badge { display: inline-block; background: var(--accent-dim); color: var(--accent); padding: 0.1rem 0.5rem; border-radius: 10px; font-size: 0.72rem; font-weight: 600; }
-    .contact-card .remove-card { position: absolute; top: 6px; right: 8px; background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 0.85rem; opacity: 0; transition: opacity 0.15s; }
-    .contact-card:hover .remove-card { opacity: 1; }
+    .contact-grid { display: flex; flex-direction: column; gap: 2px; }
+    .contact-row { display: flex; align-items: center; gap: 0.6rem; background: var(--surface); border-radius: var(--radius-sm); padding: 0.5rem 0.75rem; position: relative; transition: background 0.1s; }
+    .contact-row:hover { background: var(--surface-hover); }
+    .contact-row .check { width: 18px; height: 18px; border-radius: 4px; border: 2px solid var(--border); cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.15s; font-size: 0.7rem; }
+    .contact-row .check.done { background: var(--accent); border-color: var(--accent); color: #000; }
+    .contact-row .avatar-sm { width: 28px; height: 28px; border-radius: 50%; background: var(--accent-dim); color: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.65rem; flex-shrink: 0; }
+    .contact-row .person-info { flex: 1; min-width: 0; }
+    .contact-row .person-name { font-weight: 600; font-size: 0.88rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .contact-row .person-meta { color: var(--text-dim); font-size: 0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .contact-row .person-name.met { text-decoration: line-through; color: var(--text-dim); }
+    .contact-row .tenure-sm { color: var(--accent); font-size: 0.68rem; font-weight: 600; flex-shrink: 0; }
+    .contact-row .vault-sm { color: var(--blue); font-size: 0.75rem; text-decoration: none; flex-shrink: 0; }
+    .contact-row .vault-sm:hover { text-decoration: underline; }
+    .contact-row .remove-card { background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 0.75rem; opacity: 0; flex-shrink: 0; }
+    .contact-row:hover .remove-card { opacity: 1; }
+
+    /* Guide cards stay as cards since they have descriptions */
+    .guide-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 0.5rem; }
+    .guide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.8rem 1rem; position: relative; }
+    .guide-card .role { color: var(--text-dim); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.15rem; }
+    .guide-card .name { font-weight: 600; font-size: 0.9rem; margin-bottom: 0.25rem; min-height: 1.1em; }
+    .guide-card .desc { color: var(--text-secondary); font-size: 0.8rem; line-height: 1.5; }
+    .guide-card .remove-card { position: absolute; top: 4px; right: 6px; background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 0.75rem; opacity: 0; }
+    .guide-card:hover .remove-card { opacity: 1; }
 
     .channel-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 0.5rem; }
     .channel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.7rem 1rem; display: flex; align-items: center; gap: 0.75rem; position: relative; }
@@ -260,12 +272,12 @@
     <!-- KEY GUIDES -->
     <div class="section" id="guides">
       <h2><span class="icon" style="background: var(--orange-dim); color: var(--orange);">🧭</span> Your Key Guides</h2>
-      <div class="contact-grid" id="guidesGrid">
-        <div class="contact-card"><div class="role" contenteditable="true">Onboarding Coach</div><div class="name" contenteditable="true" data-field="coachName">← Click to add name</div><div class="desc" contenteditable="true">Accelerates your time to impact. Helps you define success, understand your leadership style, build relationships, and navigate Shopify's culture.</div><button class="remove-card editor-only" onclick="this.closest('.contact-card').remove()">✕</button></div>
-        <div class="contact-card"><div class="role" contenteditable="true">HR Business Partner</div><div class="name" contenteditable="true" data-field="hrbpName">← Click to add name</div><div class="desc" contenteditable="true">Provides talent support — performance programs, org structure advice, headcount decisions, internal movement processes.</div><button class="remove-card editor-only" onclick="this.closest('.contact-card').remove()">✕</button></div>
-        <div class="contact-card"><div class="role" contenteditable="true">IT Support</div><div class="name" contenteditable="true">#help-IT</div><div class="desc" contenteditable="true">Laptop issues, program/software access, cell phone setup.</div><button class="remove-card editor-only" onclick="this.closest('.contact-card').remove()">✕</button></div>
-        <div class="contact-card"><div class="role" contenteditable="true">Manager</div><div class="name" contenteditable="true" data-field="managerName">← Click to add name</div><div class="desc" contenteditable="true">Your direct manager. Sets up recurring 1:1s and weekly check-ins during onboarding.</div><button class="remove-card editor-only" onclick="this.closest('.contact-card').remove()">✕</button></div>
-        <div class="contact-card"><div class="role" contenteditable="true">Product Ops / EP</div><div class="name" contenteditable="true" data-field="epName">← Click to add name</div><div class="desc" contenteditable="true">Your Embedded Partner — helps coordinate across product, engineering, and data leadership.</div><button class="remove-card editor-only" onclick="this.closest('.contact-card').remove()">✕</button></div>
+      <div class="guide-grid" id="guidesGrid">
+        <div class="guide-card"><div class="role" contenteditable="true">Onboarding Coach</div><div class="name" contenteditable="true" data-field="coachName">← Click to add name</div><div class="desc" contenteditable="true">Accelerates your time to impact. Helps define success, build relationships, and navigate Shopify's culture.</div><button class="remove-card editor-only" onclick="this.closest('.guide-card').remove()">✕</button></div>
+        <div class="guide-card"><div class="role" contenteditable="true">HR Business Partner</div><div class="name" contenteditable="true" data-field="hrbpName">← Click to add name</div><div class="desc" contenteditable="true">Talent support — performance, org structure, headcount, internal movement.</div><button class="remove-card editor-only" onclick="this.closest('.guide-card').remove()">✕</button></div>
+        <div class="guide-card"><div class="role" contenteditable="true">IT Support</div><div class="name" contenteditable="true">#help-IT</div><div class="desc" contenteditable="true">Laptop, software access, cell phone setup.</div><button class="remove-card editor-only" onclick="this.closest('.guide-card').remove()">✕</button></div>
+        <div class="guide-card"><div class="role" contenteditable="true">Manager</div><div class="name" contenteditable="true" data-field="managerName">← Click to add name</div><div class="desc" contenteditable="true">Direct manager. Recurring 1:1s and weekly check-ins during onboarding.</div><button class="remove-card editor-only" onclick="this.closest('.guide-card').remove()">✕</button></div>
+        <div class="guide-card"><div class="role" contenteditable="true">Product Ops / EP</div><div class="name" contenteditable="true" data-field="epName">← Click to add name</div><div class="desc" contenteditable="true">Embedded Partner — coordinates across product, engineering, and data leadership.</div><button class="remove-card editor-only" onclick="this.closest('.guide-card').remove()">✕</button></div>
       </div>
       <button class="add-btn editor-only" onclick="addGuide()">+ Add guide</button>
     </div>
@@ -572,7 +584,18 @@
       closeSearch(gridId);
     }
     function addManualCard(gridId, prefill) {
-      createRichCard(gridId, { name:prefill||'', email:'', title:'', team:'', groupName:'', tenure:'' });
+      const row = document.createElement('div');
+      row.className = 'contact-row';
+      row.dataset.person = JSON.stringify({name:prefill||'',email:'',title:'',team:''});
+      row.innerHTML = `
+        <div class="check" onclick="this.classList.toggle('done'); this.textContent=this.classList.contains('done')?'✓':''; this.closest('.contact-row').querySelector('.person-name').classList.toggle('met')"></div>
+        <div class="avatar-sm">${getInitials(prefill||'??')}</div>
+        <div class="person-info">
+          <div class="person-name" contenteditable="true">${esc(prefill||'Name')}</div>
+          <div class="person-meta" contenteditable="true">Title · Team</div>
+        </div>
+        <button class="remove-card editor-only" onclick="this.closest('.contact-row').remove()">✕</button>`;
+      document.getElementById(gridId).appendChild(row);
       closeSearch(gridId);
     }
     function closeSearch(gridId) {
@@ -580,24 +603,29 @@
       if (wrap) { const inp=wrap.querySelector('input'); const dd=wrap.querySelector('.dropdown'); if(inp)inp.value=''; if(dd)dd.classList.remove('open'); }
     }
     function createRichCard(gridId, p) {
-      const card = document.createElement('div');
-      card.className = 'contact-card';
-      card.dataset.person = JSON.stringify(p);
+      const row = document.createElement('div');
+      row.className = 'contact-row';
+      row.dataset.person = JSON.stringify(p);
       const tenure = tenureText(p.tenure);
-      const vaultUrl = p.email ? `https://vault.shopify.io/search?q=${encodeURIComponent(p.email.split('@')[0])}` : '#';
-      card.innerHTML = `
-        <div class="card-header"><div class="avatar">${getInitials(p.name||'??')}</div><div style="flex:1"><div class="name" contenteditable="true">${esc(p.name||'Name')}</div><div class="role" contenteditable="true">${esc(p.title||'Title')}</div></div></div>
-        <div class="desc" contenteditable="true">${esc(p.team||'Team')}${p.groupName&&p.groupName!==p.team?' · '+esc(p.groupName):''}</div>
-        ${tenure?`<span class="tenure-badge">${tenure} at Shopify</span>`:''}
-        ${p.email?`<a class="vault-link" href="${vaultUrl}" target="_blank">🔗 View on Vault</a>`:''}
-        <button class="remove-card editor-only" onclick="this.closest('.contact-card').remove()">✕</button>`;
-      document.getElementById(gridId).appendChild(card);
+      const vaultUrl = p.email ? `https://vault.shopify.io/search?q=${encodeURIComponent(p.email.split('@')[0])}` : '';
+      const teamStr = [p.title, p.team].filter(Boolean).join(' · ');
+      row.innerHTML = `
+        <div class="check" onclick="this.classList.toggle('done'); this.textContent=this.classList.contains('done')?'✓':''; this.closest('.contact-row').querySelector('.person-name').classList.toggle('met')"></div>
+        <div class="avatar-sm">${getInitials(p.name||'??')}</div>
+        <div class="person-info">
+          <div class="person-name">${esc(p.name||'Name')}</div>
+          <div class="person-meta">${esc(teamStr||'Title · Team')}</div>
+        </div>
+        ${tenure?`<span class="tenure-sm">${tenure}</span>`:''}
+        ${vaultUrl?`<a class="vault-sm" href="${vaultUrl}" target="_blank" title="View on Vault">🔗</a>`:''}
+        <button class="remove-card editor-only" onclick="this.closest('.contact-row').remove()">✕</button>`;
+      document.getElementById(gridId).appendChild(row);
     }
 
     // ── Section add helpers ───────────────────────────────────────
     function addStep() { document.getElementById('stepsContainer').insertAdjacentHTML('beforeend', '<div class="step"><div><h3 contenteditable="true">New step</h3><p contenteditable="true">Description…</p></div><button class="remove-card editor-only" onclick="this.closest(\'.step\').remove()">✕</button></div>'); }
     function addCard(containerId) { const c=document.getElementById(containerId); c.insertAdjacentHTML('beforeend', '<div class="card"><h3 contenteditable="true">New card</h3><p contenteditable="true">Description…</p><button class="remove-card editor-only" onclick="this.closest(\'.card\').remove()">✕</button></div>'); }
-    function addGuide() { document.getElementById('guidesGrid').insertAdjacentHTML('beforeend', '<div class="contact-card"><div class="role" contenteditable="true">Role</div><div class="name" contenteditable="true">Name</div><div class="desc" contenteditable="true">Description…</div><button class="remove-card editor-only" onclick="this.closest(\'.contact-card\').remove()">✕</button></div>'); }
+    function addGuide() { document.getElementById('guidesGrid').insertAdjacentHTML('beforeend', '<div class="guide-card"><div class="role" contenteditable="true">Role</div><div class="name" contenteditable="true">Name</div><div class="desc" contenteditable="true">Description…</div><button class="remove-card editor-only" onclick="this.closest(\'.guide-card\').remove()">✕</button></div>'); }
     function addChannel() { document.getElementById('channelList').insertAdjacentHTML('beforeend', '<div class="channel"><span class="ch-icon">#</span><div><div class="ch-name" contenteditable="true">channel-name</div><div class="ch-note" contenteditable="true">Notes</div></div><span class="ch-tool" contenteditable="true">Slack</span><button class="remove-card editor-only" onclick="this.closest(\'.channel\').remove()">✕</button></div>'); }
     function addRitualCard() { document.getElementById('ritualsCards').insertAdjacentHTML('beforeend', '<div class="card"><h3 contenteditable="true">New ritual</h3><ul><li contenteditable="true">Item…</li></ul><button class="remove-card editor-only" onclick="this.closest(\'.card\').remove()">✕</button></div>'); }
     function addReadingLink() { document.getElementById('readingList').insertAdjacentHTML('beforeend', '<a href="#"><span class="link-icon">📄</span><div><div contenteditable="true">Title</div><div class="link-desc" contenteditable="true">Description…</div></div></a>'); }
@@ -677,8 +705,8 @@
     }
 
     function getGridData(id) {
-      return Array.from(document.getElementById(id).querySelectorAll('.contact-card')).map(c => {
-        try { return JSON.parse(c.dataset.person); } catch(e) { return { name: c.querySelector('.name')?.textContent||'', title: c.querySelector('.role')?.textContent||'', team: c.querySelector('.desc')?.textContent||'' }; }
+      return Array.from(document.getElementById(id).querySelectorAll('.contact-row')).map(c => {
+        try { return JSON.parse(c.dataset.person); } catch(e) { return { name: c.querySelector('.person-name')?.textContent||'', title:'', team: c.querySelector('.person-meta')?.textContent||'' }; }
       }).filter(c => c.name);
     }
     function renderGrid(id, data) { document.getElementById(id).innerHTML=''; data.forEach(d => createRichCard(id, d)); }
