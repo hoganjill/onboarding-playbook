@@ -251,8 +251,8 @@
         <div class="sidebar-divider"></div>
         <div class="sidebar-label">People</div>
         <a href="#guides" onclick="closeSidebar()"><span class="nav-icon">🧭</span> Key Guides</a>
-        <a href="#team" onclick="closeSidebar()"><span class="nav-icon">👥</span> Your Team</a>
         <a href="#domain" onclick="closeSidebar()"><span class="nav-icon">🗺️</span> Domain</a>
+        <a href="#team" onclick="closeSidebar()"><span class="nav-icon">👥</span> Your Team</a>
         <a href="#channels" onclick="closeSidebar()"><span class="nav-icon">💬</span> Channels</a>
         <div class="sidebar-divider"></div>
         <div class="sidebar-label">Reference</div>
@@ -329,6 +329,17 @@
       <button class="add-btn editor-only" onclick="addGuide()">+ Add guide</button>
     </div>
 
+    <!-- DOMAIN CONTEXT -->
+    <div class="section" id="domain">
+      <h2><span class="icon" style="background: var(--blue-dim); color: var(--blue);">🗺️</span> Domain Context</h2>
+      <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;" contenteditable="true">Get up to speed on the areas you'll be working in. Each domain below includes an overview, key teams, and active projects.</p>
+      <div class="domain-input-row editor-only">
+        <input type="text" id="domainInput" placeholder="Type an area, e.g. Commerce Loop, Data Infrastructure, Checkout…" onkeydown="if(event.key==='Enter')generateDomain()" />
+        <button onclick="generateDomain()" id="domainGenBtn">✨ Generate</button>
+      </div>
+      <div id="domainCards"></div>
+    </div>
+
     <!-- TEAM -->
     <div class="section" id="team">
       <h2><span class="icon" style="background: var(--teal-dim); color: var(--teal);">👥</span> Your Team</h2>
@@ -345,17 +356,6 @@
       <h3 style="font-size:1rem; margin:1rem 0 0.5rem; color:var(--text-dim);">Cross-Functional Partners</h3>
       <div class="contact-grid" id="xfnGrid"></div>
       <div class="person-search-wrap editor-only"><input type="text" placeholder="🔍 Search by name to add…" data-grid="xfnGrid" /><div class="dropdown"></div></div>
-    </div>
-
-    <!-- DOMAIN CONTEXT -->
-    <div class="section" id="domain">
-      <h2><span class="icon" style="background: var(--blue-dim); color: var(--blue);">🗺️</span> Domain Context</h2>
-      <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;" contenteditable="true">Get up to speed on the areas you'll be working in. Each domain below includes an overview, key teams, and active projects.</p>
-      <div class="domain-input-row editor-only">
-        <input type="text" id="domainInput" placeholder="Type an area, e.g. Commerce Loop, Data Infrastructure, Checkout…" onkeydown="if(event.key==='Enter')generateDomain()" />
-        <button onclick="generateDomain()" id="domainGenBtn">✨ Generate</button>
-      </div>
-      <div id="domainCards"></div>
     </div>
 
     <!-- CHANNELS -->
