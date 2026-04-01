@@ -334,8 +334,8 @@
       <h2><span class="icon" style="background: var(--blue-dim); color: var(--blue);">🗺️</span> Domain Context</h2>
       <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;" contenteditable="true">Get up to speed on the areas you'll be working in. Each domain below includes an overview, key teams, and active projects.</p>
       <div class="domain-input-row editor-only">
-        <input type="text" id="domainInput" placeholder="Type an area, e.g. Commerce Loop, Data Infrastructure, Checkout…" onkeydown="if(event.key==='Enter')generateDomain()" />
-        <button onclick="generateDomain()" id="domainGenBtn">✨ Generate</button>
+        <input type="text" id="domainInput" placeholder="Type an area, e.g. Data, Core, Infrastructure, Growth, Shop…" onkeydown="if(event.key==='Enter')generateDomain()" />
+        <button onclick="generateDomain()" id="domainGenBtn">🔍 Look up</button>
       </div>
       <div id="domainCards"></div>
     </div>
@@ -750,80 +750,108 @@
       if (!area) return;
 
       btn.disabled = true;
-      btn.textContent = 'Generating…';
+      btn.textContent = 'Loading…';
 
       const container = document.getElementById('domainCards');
       const placeholder = document.createElement('div');
       placeholder.className = 'domain-generating';
-      placeholder.textContent = `✨ Generating context for "${area}"…`;
+      placeholder.textContent = `Loading "${area}" from Vault…`;
       container.appendChild(placeholder);
 
       try {
-        if (typeof quick === 'undefined' || !quick.ai) {
-          await new Promise(r => setTimeout(r, 1500));
+        if (!searchReady) await tryConnectSearch(input);
+        if (!searchReady) { placeholder.textContent = 'Connect to BigQuery first (click a people search field).'; btn.disabled = false; btn.textContent = '✨ Generate'; return; }
+
+        // Query 1: Teams in this area with sizes
+        const teamsSql = [
+          "SELECT vault_team_end AS team, COUNT(DISTINCT worker_id) AS size",
+          "FROM shopify-dw.people.worker_daily_snapshot_v1",
+          "WHERE is_active_end = true",
+          "AND DATE(effective_on) >= DATE_SUB(CURRENT_DATE(), INTERVAL 3 DAY)",
+          "AND (LOWER(group_name_end) LIKE '%" + area.toLowerCase().replace(/'/g,"''") + "%'",
+          "OR LOWER(vault_team_end) LIKE '%" + area.toLowerCase().replace(/'/g,"''") + "%'",
+          "OR LOWER(area_end) LIKE '%" + area.toLowerCase().replace(/'/g,"''") + "%')",
+          "GROUP BY vault_team_end ORDER BY size DESC LIMIT 15"
+        ].join(" ");
+
+        // Query 2: Leadership in this area
+        const leadersSql = [
+          "SELECT DISTINCT worker_full_name AS name, job_title_end AS title, vault_team_end AS team, worker_email AS email",
+          "FROM shopify-dw.people.worker_daily_snapshot_v1",
+          "WHERE is_active_end = true",
+          "AND DATE(effective_on) >= DATE_SUB(CURRENT_DATE(), INTERVAL 3 DAY)",
+          "AND (LOWER(group_name_end) LIKE '%" + area.toLowerCase().replace(/'/g,"''") + "%'",
+          "OR LOWER(vault_team_end) LIKE '%" + area.toLowerCase().replace(/'/g,"''") + "%'",
+          "OR LOWER(area_end) LIKE '%" + area.toLowerCase().replace(/'/g,"''") + "%')",
+          "AND (LOWER(job_title_end) LIKE '%vp%' OR LOWER(job_title_end) LIKE '%director%')",
+          "ORDER BY title LIMIT 10"
+        ].join(" ");
+
+        placeholder.textContent = 'Querying teams…';
+        const [teamsResult, leadersResult] = await Promise.all([
+          quick.dw.querySync(teamsSql),
+          quick.dw.querySync(leadersSql)
+        ]);
+
+        const teams = (teamsResult.results || teamsResult.rows || []);
+        const leaders = (leadersResult.results || leadersResult.rows || []);
+
+        if (teams.length === 0) {
+          placeholder.innerHTML = `No teams found for "${esc(area)}". Try a different name (e.g. Data, Core, Infrastructure, Growth). <a href="#" onclick="this.closest('.domain-generating').remove();return false" style="color:var(--accent)">Dismiss</a>`;
+          btn.disabled = false; btn.textContent = '✨ Generate'; return;
         }
 
-        const prompt = `You are writing an onboarding briefing for a new hire at Shopify who will be working in the "${area}" area.
+        const totalPeople = teams.reduce((s, t) => s + parseInt(t.size || 0), 0);
 
-Write a polished, accurate briefing in valid Markdown with these exact sections:
+        // Build the card HTML from real data
+        let html = '';
 
-## Overview
-2-3 clear, grammatically correct sentences. What does this area own at Shopify? Why does it matter to merchants and to the company? Be specific to Shopify — reference real Shopify products, surfaces, or capabilities where relevant.
+        // Overview stats
+        html += `<h4>Overview</h4>`;
+        html += `<p>The <strong>${esc(area)}</strong> area at Shopify spans <strong>${teams.length} teams</strong> with approximately <strong>${totalPeople} people</strong>. Explore the area in detail on <a href="https://vault.shopify.io/search?q=${encodeURIComponent(area)}" target="_blank">Vault</a>.</p>`;
 
-## Key Teams
-A bullet list of 4-6 teams that operate in this area. For each team, write the team name in bold followed by a concise description of what they own. Example format:
-- **Checkout Platform** — Owns the checkout flow, payment processing, and cart infrastructure
-Use real Shopify team names where possible.
+        // Teams
+        html += `<h4>Teams</h4><ul>`;
+        teams.forEach(t => {
+          const vaultLink = `https://vault.shopify.io/search?q=${encodeURIComponent(t.team)}`;
+          html += `<li><a href="${vaultLink}" target="_blank"><strong>${esc(t.team)}</strong></a> — ${t.size} people</li>`;
+        });
+        html += `</ul>`;
 
-## Active Focus Areas
-A bullet list of 3-5 current priorities, projects, or strategic initiatives relevant to this area. Reference GSD missions, product launches, or technical initiatives where relevant. Example:
-- **Agentic Storefronts** — Enabling AI agents to browse and purchase on behalf of buyers (P0 company mission)
+        // Leadership
+        if (leaders.length > 0) {
+          // Deduplicate by name
+          const seen = new Set();
+          const uniqueLeaders = leaders.filter(l => { if (seen.has(l.name)) return false; seen.add(l.name); return true; });
+          html += `<h4>Leadership</h4><ul>`;
+          uniqueLeaders.forEach(l => {
+            const vaultLink = `https://vault.shopify.io/search?q=${encodeURIComponent(l.email ? l.email.split('@')[0] : l.name)}`;
+            html += `<li><a href="${vaultLink}" target="_blank"><strong>${esc(l.name)}</strong></a> — ${esc(l.title)}, ${esc(l.team)}</li>`;
+          });
+          html += `</ul>`;
+        }
 
-## Key Concepts to Know
-A bullet list of 3-4 Shopify-specific terms, systems, or tools the new hire should understand. For each, give the term in bold, then a one-sentence explanation. Example:
-- **GSD (Get Shit Done)** — Shopify's product development framework for proposing, reviewing, and shipping projects
-- **Vault** — Shopify's internal wiki for team pages, project proposals, and documentation
-
-Rules:
-- Write in clean, professional prose. No sentence fragments. No filler.
-- Do NOT output HTML tags. Output Markdown only.
-- Do NOT use generic descriptions. Be specific to Shopify.
-- Keep it concise — this is a starting point, not documentation.`;
-
-        const response = await quick.ai.ask(prompt);
-
-        // Convert markdown to HTML
-        const html = markdownToHtml(response);
+        // Useful links
+        html += `<h4>Explore on Vault</h4><ul>`;
+        html += `<li><a href="https://vault.shopify.io/search?q=${encodeURIComponent(area)}" target="_blank">Search "${esc(area)}" on Vault</a> — team pages, projects, documentation</li>`;
+        html += `<li><a href="https://vault.shopify.io/gsd" target="_blank">GSD Projects</a> — active missions and project proposals</li>`;
+        html += `<li><a href="https://vault.shopify.io/teams" target="_blank">Vault Teams Directory</a> — browse all team pages</li>`;
+        html += `</ul>`;
 
         placeholder.outerHTML = `
           <div class="domain-card">
-            <h3 contenteditable="true">${esc(area)} <span class="domain-tag">Domain</span></h3>
+            <h3 contenteditable="true">${esc(area)} <span class="domain-tag">${teams.length} teams · ${totalPeople} people</span></h3>
             <div class="domain-body" contenteditable="true">${html}</div>
-            <a class="vault-banner" href="https://vault.shopify.io/search?q=${encodeURIComponent(area)}" target="_blank">📖 Explore ${esc(area)} on Vault</a>
             <button class="remove-card editor-only" onclick="this.closest('.domain-card').remove()">✕</button>
           </div>`;
       } catch(e) {
         console.error('Domain generation failed:', e);
-        placeholder.innerHTML = `Failed to generate. <a href="#" onclick="this.closest('.domain-generating').remove();return false" style="color:var(--accent)">Dismiss</a>`;
+        placeholder.innerHTML = `Failed to load. <a href="#" onclick="this.closest('.domain-generating').remove();return false" style="color:var(--accent)">Dismiss</a>`;
       }
 
       input.value = '';
       btn.disabled = false;
       btn.textContent = '✨ Generate';
-    }
-
-    function markdownToHtml(md) {
-      return md
-        .replace(/^## (.+)$/gm, '<h4>$1</h4>')
-        .replace(/^### (.+)$/gm, '<h4>$1</h4>')
-        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>')
-        .replace(/^- (.+)$/gm, '<li>$1</li>')
-        .replace(/(<li>.*<\/li>\n?)+/g, (m) => '<ul>' + m + '</ul>')
-        .replace(/\n{2,}/g, '<br><br>')
-        .replace(/\n/g, ' ')
-        .replace(/<\/h4> /g, '</h4>')
-        .replace(/<\/ul> /g, '</ul>');
     }
 
     function addStep() { document.getElementById('stepsContainer').insertAdjacentHTML('beforeend', '<div class="step"><div><h3 contenteditable="true">New step</h3><p contenteditable="true">Description…</p></div><button class="remove-card editor-only" onclick="this.closest(\'.step\').remove()">✕</button></div>'); }
