@@ -188,6 +188,27 @@
     body:not(.view-mode) [contenteditable=true]:hover { background: rgba(150,191,72,0.04); }
     body:not(.view-mode) [contenteditable=true]:focus { background: rgba(150,191,72,0.07); outline: 1px solid rgba(150,191,72,0.25); outline-offset: 2px; }
 
+    /* ── Domain context ────────────────────────────────────────── */
+    .domain-input-row { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+    .domain-input-row input { flex: 1; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); color: var(--text); padding: 0.5rem 0.8rem; border-radius: var(--radius-sm); font-size: 0.9rem; }
+    .domain-input-row input:focus { outline: none; border-color: var(--accent); }
+    .domain-input-row button { background: var(--accent); color: #000; border: none; padding: 0.5rem 1rem; border-radius: var(--radius-sm); font-weight: 600; font-size: 0.85rem; cursor: pointer; white-space: nowrap; }
+    .domain-input-row button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .domain-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.2rem 1.5rem; margin-bottom: 1rem; position: relative; }
+    .domain-card h3 { font-size: 1.1rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
+    .domain-card h3 .domain-tag { background: var(--blue-dim); color: var(--blue); font-size: 0.7rem; padding: 0.15rem 0.5rem; border-radius: 10px; font-weight: 600; }
+    .domain-card .domain-body { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.7; }
+    .domain-card .domain-body h4 { color: var(--text); font-size: 0.92rem; margin: 0.8rem 0 0.3rem; }
+    .domain-card .domain-body ul { padding-left: 1.2rem; margin-bottom: 0.5rem; }
+    .domain-card .domain-body li { margin-bottom: 0.2rem; }
+    .domain-card .domain-body a { color: var(--blue); text-decoration: none; }
+    .domain-card .domain-body a:hover { text-decoration: underline; }
+    .domain-card .vault-banner { display: inline-flex; align-items: center; gap: 0.4rem; background: var(--blue-dim); color: var(--blue); padding: 0.3rem 0.8rem; border-radius: var(--radius-sm); font-size: 0.8rem; text-decoration: none; margin-top: 0.6rem; }
+    .domain-card .vault-banner:hover { background: rgba(92,158,255,0.2); }
+    .domain-card .remove-card { position: absolute; top: 8px; right: 10px; background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 0.85rem; opacity: 0; }
+    .domain-card:hover .remove-card { opacity: 1; }
+    .domain-generating { color: var(--text-dim); font-size: 0.85rem; padding: 1rem; text-align: center; }
+
     .add-btn { display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 0.75rem; background: none; color: var(--accent); border: 1px dashed rgba(150,191,72,0.3); padding: 0.45rem 1rem; border-radius: var(--radius-sm); cursor: pointer; font-size: 0.82rem; transition: all 0.15s; }
     .add-btn:hover { background: var(--accent-dim); border-color: var(--accent); }
 
@@ -227,6 +248,7 @@
         <a href="#day1" onclick="closeSidebar()"><span class="nav-icon">🚀</span> Day 1</a>
         <a href="#startup" onclick="closeSidebar()"><span class="nav-icon">🎓</span> Startup</a>
         <a href="#schedule" onclick="closeSidebar()"><span class="nav-icon">📅</span> Schedule</a>
+        <a href="#domain" onclick="closeSidebar()"><span class="nav-icon">🗺️</span> Domain</a>
         <div class="sidebar-divider"></div>
         <div class="sidebar-label">People</div>
         <a href="#guides" onclick="closeSidebar()"><span class="nav-icon">🧭</span> Key Guides</a>
@@ -292,6 +314,17 @@
         <span><span class="dot" style="background:var(--orange)"></span> In-Person</span>
         <span><span class="dot" style="background:var(--accent)"></span> Custom</span>
       </div>
+    </div>
+
+    <!-- DOMAIN CONTEXT -->
+    <div class="section" id="domain">
+      <h2><span class="icon" style="background: var(--blue-dim); color: var(--blue);">🗺️</span> Domain Context</h2>
+      <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;" contenteditable="true">Get up to speed on the areas you'll be working in. Each domain below includes an overview, key teams, and active projects.</p>
+      <div class="domain-input-row editor-only">
+        <input type="text" id="domainInput" placeholder="Type an area, e.g. Commerce Loop, Data Infrastructure, Checkout…" onkeydown="if(event.key==='Enter')generateDomain()" />
+        <button onclick="generateDomain()" id="domainGenBtn">✨ Generate</button>
+      </div>
+      <div id="domainCards"></div>
     </div>
 
     <!-- KEY GUIDES -->
@@ -709,6 +742,62 @@
     }
 
     // ── Section add helpers ───────────────────────────────────────
+    // ── Domain context AI generation ─────────────────────────────
+    async function generateDomain() {
+      const input = document.getElementById('domainInput');
+      const btn = document.getElementById('domainGenBtn');
+      const area = input.value.trim();
+      if (!area) return;
+
+      btn.disabled = true;
+      btn.textContent = 'Generating…';
+
+      // Add a placeholder card
+      const container = document.getElementById('domainCards');
+      const placeholder = document.createElement('div');
+      placeholder.className = 'domain-generating';
+      placeholder.textContent = `✨ Generating context for "${area}"…`;
+      container.appendChild(placeholder);
+
+      try {
+        if (typeof quick === 'undefined' || !quick.ai) {
+          await new Promise(r => setTimeout(r, 1500));
+        }
+
+        const prompt = `You are a Shopify internal onboarding assistant. Generate a concise domain context briefing for a new hire joining the "${area}" area at Shopify.
+
+Format your response as HTML (no wrapping tags, just the inner content) with these sections:
+1. <h4>Overview</h4> - 2-3 sentences on what this area does and why it matters to Shopify
+2. <h4>Key Teams</h4> - A bullet list of 4-6 teams in this area with one-line descriptions
+3. <h4>Active Projects & Missions</h4> - A bullet list of 3-5 current projects or GSD missions relevant to this area
+4. <h4>Key Concepts</h4> - A bullet list of 3-4 terms or systems the new hire should know about
+
+Keep it concise — this is a starting point, not an encyclopedia. Use <a href="https://vault.shopify.io/search?q=TERM" target="_blank">linked terms</a> where appropriate so the new hire can explore further on Vault.`;
+
+        let html = '';
+        await quick.ai.askStream(prompt, (chunk, full) => {
+          html = full;
+          placeholder.innerHTML = `<div class="domain-body">${full}</div>`;
+        });
+
+        // Replace placeholder with final card
+        placeholder.outerHTML = `
+          <div class="domain-card">
+            <h3 contenteditable="true">${esc(area)} <span class="domain-tag">Domain</span></h3>
+            <div class="domain-body" contenteditable="true">${html}</div>
+            <a class="vault-banner" href="https://vault.shopify.io/search?q=${encodeURIComponent(area)}" target="_blank">📖 Explore ${esc(area)} on Vault</a>
+            <button class="remove-card editor-only" onclick="this.closest('.domain-card').remove()">✕</button>
+          </div>`;
+      } catch(e) {
+        console.error('Domain generation failed:', e);
+        placeholder.innerHTML = `Failed to generate. <a href="#" onclick="this.closest('.domain-generating').remove();return false" style="color:var(--accent)">Dismiss</a>`;
+      }
+
+      input.value = '';
+      btn.disabled = false;
+      btn.textContent = '✨ Generate';
+    }
+
     function addStep() { document.getElementById('stepsContainer').insertAdjacentHTML('beforeend', '<div class="step"><div><h3 contenteditable="true">New step</h3><p contenteditable="true">Description…</p></div><button class="remove-card editor-only" onclick="this.closest(\'.step\').remove()">✕</button></div>'); }
     function addCard(containerId) { const c=document.getElementById(containerId); c.insertAdjacentHTML('beforeend', '<div class="card"><h3 contenteditable="true">New card</h3><p contenteditable="true">Description…</p><button class="remove-card editor-only" onclick="this.closest(\'.card\').remove()">✕</button></div>'); }
     function addGuide() { document.getElementById('guidesGrid').insertAdjacentHTML('beforeend', '<div class="guide-card"><div class="role" contenteditable="true">Role</div><div class="name" contenteditable="true">Name</div><div class="desc" contenteditable="true">Description…</div><button class="remove-card editor-only" onclick="this.closest(\'.guide-card\').remove()">✕</button></div>'); }
