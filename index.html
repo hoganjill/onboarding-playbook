@@ -46,8 +46,14 @@
     .config-bar input:focus { outline: none; border-color: var(--accent); background: rgba(255,255,255,0.1); }
     .config-bar .actions { display: flex; gap: 0.4rem; align-items: flex-end; }
     .config-bar button { background: var(--accent); color: #000; border: none; padding: 0.45rem 1rem; border-radius: var(--radius-sm); font-weight: 600; font-size: 0.82rem; cursor: pointer; }
-    .config-bar .share-url { display: none; background: rgba(150,191,72,0.1); border: 1px solid rgba(150,191,72,0.2); border-radius: var(--radius-sm); padding: 0.4rem 0.8rem; color: var(--accent); font-size: 0.8rem; width: 100%; max-width: 500px; text-align: center; margin-top: 0.5rem; }
+    .config-bar .share-url { display: none; background: rgba(150,191,72,0.08); border: 1px solid rgba(150,191,72,0.15); border-radius: var(--radius); padding: 1rem 1.2rem; color: var(--text); font-size: 0.85rem; width: 100%; margin-top: 0.75rem; line-height: 1.8; }
     .config-bar .share-url.visible { display: block; }
+    .config-bar .share-url .link-row { display: flex; align-items: center; gap: 0.5rem; }
+    .config-bar .share-url .link-label { color: var(--text-dim); font-size: 0.75rem; min-width: 100px; }
+    .config-bar .share-url .link-val { color: var(--blue); font-size: 0.82rem; text-decoration: none; word-break: break-all; }
+    .config-bar .share-url .link-val:hover { text-decoration: underline; }
+    .config-bar .share-url .copy-btn { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: var(--text-secondary); padding: 0.2rem 0.5rem; border-radius: 4px; cursor: pointer; font-size: 0.72rem; flex-shrink: 0; }
+    .config-bar .share-url .copy-btn:hover { background: rgba(255,255,255,0.1); }
 
     .page-layout { display: flex; min-height: 100vh; }
     .main-content { flex: 1; min-width: 0; }
@@ -364,7 +370,7 @@
 
   <div class="footer">
     <span class="editor-only">Built with ❤️ by the Data team · Powered by <a href="https://quick.shopify.io">Quick</a></span>
-    <span class="viewer-footer" style="display:none;">Built with ❤️ for your onboarding journey</span>
+    <span class="viewer-footer" style="display:none;">Built with ❤️ for your onboarding journey · <a href="#" id="editLink" onclick="window.location.href=window.location.href.replace('&view','');return false;" style="color:var(--text-dim);">✏️ Edit this playbook</a></span>
   </div>
 
   <script src="/client/quick.js" async></script>
@@ -756,8 +762,21 @@
       else localStorage.setItem('pb_'+k, JSON.stringify(config));
 
       const viewUrl = `${location.origin}${location.pathname}?id=${k}&view`;
+      const editUrl = `${location.origin}${location.pathname}?id=${k}`;
       const shareEl = document.getElementById('shareUrl');
-      shareEl.innerHTML = `✅ Saved! <a href="${viewUrl}" target="_blank" style="color:var(--accent)">Open ${esc(name)}'s playbook</a> · <a href="#" onclick="navigator.clipboard.writeText('${viewUrl}');this.textContent='Copied!';return false" style="color:var(--blue)">Copy share link</a> · <a href="?id=${k}" style="color:var(--text-dim)">Edit later</a>`;
+      shareEl.innerHTML = `
+        <div style="font-weight:600; color:var(--accent); margin-bottom:0.5rem;">✅ ${esc(name)}'s playbook saved</div>
+        <div class="link-row">
+          <span class="link-label">📤 Send to new hire</span>
+          <a class="link-val" href="${viewUrl}" target="_blank">${viewUrl}</a>
+          <button class="copy-btn" onclick="navigator.clipboard.writeText('${viewUrl}');this.textContent='✓';setTimeout(()=>this.textContent='Copy',1500)">Copy</button>
+        </div>
+        <div class="link-row">
+          <span class="link-label">✏️ Edit later (EA)</span>
+          <a class="link-val" href="${editUrl}" target="_blank">${editUrl}</a>
+          <button class="copy-btn" onclick="navigator.clipboard.writeText('${editUrl}');this.textContent='✓';setTimeout(()=>this.textContent='Copy',1500)">Copy</button>
+        </div>
+      `;
       shareEl.classList.add('visible');
     }
 
