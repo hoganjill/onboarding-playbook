@@ -762,95 +762,85 @@
         if (!searchReady) await tryConnectSearch(input);
         if (!searchReady) { placeholder.textContent = 'Connect to BigQuery first (click a people search field).'; btn.disabled = false; btn.textContent = '✨ Generate'; return; }
 
-        const safe = area.replace(/'/g,"''");
+        const safe = area.replace(/'/g,"''").toLowerCase();
 
-        // Query 1: Teams — match area_end exactly first, then group_name_end, then fuzzy
-        const teamsSql = [
+        // Single query: teams with their manager, matched by hierarchy priority
+        const sql = [
           "WITH matched AS (",
-          "  SELECT vault_team_end AS team, area_end, group_name_end, worker_id,",
+          "  SELECT vault_team_end AS team, worker_id, worker_full_name, job_title_end, worker_email,",
           "    CASE",
-          "      WHEN LOWER(area_end) = '" + safe.toLowerCase() + "' THEN 1",
-          "      WHEN LOWER(group_name_end) = '" + safe.toLowerCase() + "' THEN 2",
-          "      WHEN LOWER(area_end) LIKE '%" + safe.toLowerCase() + "%' THEN 3",
-          "      WHEN LOWER(group_name_end) LIKE '%" + safe.toLowerCase() + "%' THEN 4",
+          "      WHEN LOWER(area_end) = '" + safe + "' THEN 1",
+          "      WHEN LOWER(group_name_end) = '" + safe + "' THEN 2",
+          "      WHEN LOWER(area_end) LIKE '%" + safe + "%' THEN 3",
+          "      WHEN LOWER(group_name_end) LIKE '%" + safe + "%' THEN 4",
           "    END AS match_rank",
           "  FROM shopify-dw.people.worker_daily_snapshot_v1",
           "  WHERE is_active_end = true",
           "  AND DATE(effective_on) >= DATE_SUB(CURRENT_DATE(), INTERVAL 3 DAY)",
+          "),",
+          "best AS (",
+          "  SELECT * FROM matched",
+          "  WHERE match_rank = (SELECT MIN(match_rank) FROM matched WHERE match_rank IS NOT NULL)",
+          "),",
+          "team_sizes AS (",
+          "  SELECT team, COUNT(DISTINCT worker_id) AS size FROM best GROUP BY team",
+          "),",
+          "team_leads AS (",
+          "  SELECT team, worker_full_name AS lead_name, job_title_end AS lead_title, worker_email AS lead_email,",
+          "    ROW_NUMBER() OVER (PARTITION BY team ORDER BY",
+          "      CASE WHEN LOWER(job_title_end) LIKE '%vp%' THEN 1",
+          "           WHEN LOWER(job_title_end) LIKE '%director%' THEN 2",
+          "           WHEN LOWER(job_title_end) LIKE '%senior manager%' THEN 3",
+          "           WHEN LOWER(job_title_end) LIKE '%manager%' THEN 4",
+          "           WHEN LOWER(job_title_end) LIKE '%lead%' THEN 5",
+          "           ELSE 6 END",
+          "    ) AS rn",
+          "  FROM best",
+          "  WHERE LOWER(job_title_end) LIKE '%manager%' OR LOWER(job_title_end) LIKE '%director%'",
+          "     OR LOWER(job_title_end) LIKE '%vp%' OR LOWER(job_title_end) LIKE '%lead%'",
           ")",
-          "SELECT team, COUNT(DISTINCT worker_id) AS size",
-          "FROM matched",
-          "WHERE match_rank = (SELECT MIN(match_rank) FROM matched WHERE match_rank IS NOT NULL)",
-          "GROUP BY team ORDER BY size DESC LIMIT 15"
-        ].join(" ");
-
-        // Query 2: Leadership — same matching logic
-        const leadersSql = [
-          "WITH matched AS (",
-          "  SELECT DISTINCT worker_full_name AS name, job_title_end AS title, vault_team_end AS team, worker_email AS email,",
-          "    CASE",
-          "      WHEN LOWER(area_end) = '" + safe.toLowerCase() + "' THEN 1",
-          "      WHEN LOWER(group_name_end) = '" + safe.toLowerCase() + "' THEN 2",
-          "      WHEN LOWER(area_end) LIKE '%" + safe.toLowerCase() + "%' THEN 3",
-          "      WHEN LOWER(group_name_end) LIKE '%" + safe.toLowerCase() + "%' THEN 4",
-          "    END AS match_rank",
-          "  FROM shopify-dw.people.worker_daily_snapshot_v1",
-          "  WHERE is_active_end = true",
-          "  AND DATE(effective_on) >= DATE_SUB(CURRENT_DATE(), INTERVAL 3 DAY)",
-          "  AND (LOWER(job_title_end) LIKE '%vp%' OR LOWER(job_title_end) LIKE '%director%')",
-          ")",
-          "SELECT DISTINCT name, title, team, email FROM matched",
-          "WHERE match_rank = (SELECT MIN(match_rank) FROM matched WHERE match_rank IS NOT NULL)",
-          "ORDER BY title LIMIT 10"
+          "SELECT t.team, t.size, l.lead_name, l.lead_title, l.lead_email",
+          "FROM team_sizes t",
+          "LEFT JOIN team_leads l ON t.team = l.team AND l.rn = 1",
+          "ORDER BY t.size DESC LIMIT 15"
         ].join(" ");
 
         placeholder.textContent = 'Querying teams…';
-        const [teamsResult, leadersResult] = await Promise.all([
-          quick.dw.querySync(teamsSql),
-          quick.dw.querySync(leadersSql)
-        ]);
-
-        const teams = (teamsResult.results || teamsResult.rows || []);
-        const leaders = (leadersResult.results || leadersResult.rows || []);
+        const result = await quick.dw.querySync(sql);
+        const teams = (result.results || result.rows || []);
 
         if (teams.length === 0) {
           placeholder.innerHTML = `No teams found for "${esc(area)}". Try a different name (e.g. Data, Core, Infrastructure, Growth). <a href="#" onclick="this.closest('.domain-generating').remove();return false" style="color:var(--accent)">Dismiss</a>`;
-          btn.disabled = false; btn.textContent = '✨ Generate'; return;
+          btn.disabled = false; btn.textContent = '🔍 Look up'; return;
         }
 
         const totalPeople = teams.reduce((s, t) => s + parseInt(t.size || 0), 0);
+        const vaultSearch = `https://vault.shopify.io/search?q=${encodeURIComponent(area)}`;
 
-        // Build the card HTML from real data
+        // Build card HTML
         let html = '';
-
-        // Overview stats
         html += `<h4>Overview</h4>`;
-        html += `<p>The <strong>${esc(area)}</strong> area at Shopify spans <strong>${teams.length} teams</strong> with approximately <strong>${totalPeople} people</strong>. Explore the area in detail on <a href="https://vault.shopify.io/search?q=${encodeURIComponent(area)}" target="_blank">Vault</a>.</p>`;
+        html += `<p>The <strong>${esc(area)}</strong> area at Shopify has <strong>${teams.length} teams</strong> and approximately <strong>${totalPeople} people</strong>. <a href="${vaultSearch}" target="_blank">Explore on Vault →</a></p>`;
 
-        // Teams
-        html += `<h4>Teams</h4><ul>`;
+        html += `<h4>Teams & Leads</h4>`;
+        html += `<table style="width:100%; border-collapse:collapse; font-size:0.88rem;">`;
+        html += `<tr style="border-bottom:1px solid var(--border); color:var(--text-dim); font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em;">`;
+        html += `<td style="padding:0.4rem 0;">Team</td><td>Lead</td><td style="text-align:right;">Size</td></tr>`;
         teams.forEach(t => {
-          const vaultLink = `https://vault.shopify.io/search?q=${encodeURIComponent(t.team)}`;
-          html += `<li><a href="${vaultLink}" target="_blank"><strong>${esc(t.team)}</strong></a> — ${t.size} people</li>`;
+          const teamLink = `https://vault.shopify.io/search?q=${encodeURIComponent(t.team + ' team')}`;
+          const leadHtml = t.lead_name
+            ? `<a href="https://vault.shopify.io/search?q=${encodeURIComponent(t.lead_email ? t.lead_email.split('@')[0] : t.lead_name)}" target="_blank" style="color:var(--text)">${esc(t.lead_name)}</a><br><span style="color:var(--text-dim); font-size:0.78rem;">${esc(t.lead_title)}</span>`
+            : `<span style="color:var(--text-dim)">—</span>`;
+          html += `<tr style="border-bottom:1px solid rgba(255,255,255,0.03);">`;
+          html += `<td style="padding:0.6rem 0.5rem 0.6rem 0;"><a href="${teamLink}" target="_blank" style="color:var(--blue); font-weight:600;">${esc(t.team)}</a></td>`;
+          html += `<td style="padding:0.6rem 0;">${leadHtml}</td>`;
+          html += `<td style="padding:0.6rem 0; text-align:right; color:var(--text-dim);">${t.size}</td>`;
+          html += `</tr>`;
         });
-        html += `</ul>`;
+        html += `</table>`;
 
-        // Leadership
-        if (leaders.length > 0) {
-          // Deduplicate by name
-          const seen = new Set();
-          const uniqueLeaders = leaders.filter(l => { if (seen.has(l.name)) return false; seen.add(l.name); return true; });
-          html += `<h4>Leadership</h4><ul>`;
-          uniqueLeaders.forEach(l => {
-            const vaultLink = `https://vault.shopify.io/search?q=${encodeURIComponent(l.email ? l.email.split('@')[0] : l.name)}`;
-            html += `<li><a href="${vaultLink}" target="_blank"><strong>${esc(l.name)}</strong></a> — ${esc(l.title)}, ${esc(l.team)}</li>`;
-          });
-          html += `</ul>`;
-        }
-
-        // Useful links
-        html += `<h4>Explore on Vault</h4><ul>`;
-        html += `<li><a href="https://vault.shopify.io/search?q=${encodeURIComponent(area)}" target="_blank">Search "${esc(area)}" on Vault</a> — team pages, projects, documentation</li>`;
+        html += `<h4 style="margin-top:1rem;">Explore on Vault</h4><ul>`;
+        html += `<li><a href="${vaultSearch}" target="_blank">Search "${esc(area)}" on Vault</a> — team pages, projects, documentation</li>`;
         html += `<li><a href="https://vault.shopify.io/gsd" target="_blank">GSD Projects</a> — active missions and project proposals</li>`;
         html += `<li><a href="https://vault.shopify.io/teams" target="_blank">Vault Teams Directory</a> — browse all team pages</li>`;
         html += `</ul>`;
