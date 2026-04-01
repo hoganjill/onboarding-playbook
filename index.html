@@ -762,28 +762,45 @@
         if (!searchReady) await tryConnectSearch(input);
         if (!searchReady) { placeholder.textContent = 'Connect to BigQuery first (click a people search field).'; btn.disabled = false; btn.textContent = '✨ Generate'; return; }
 
-        // Query 1: Teams in this area with sizes
+        const safe = area.replace(/'/g,"''");
+
+        // Query 1: Teams — match area_end exactly first, then group_name_end, then fuzzy
         const teamsSql = [
-          "SELECT vault_team_end AS team, COUNT(DISTINCT worker_id) AS size",
-          "FROM shopify-dw.people.worker_daily_snapshot_v1",
-          "WHERE is_active_end = true",
-          "AND DATE(effective_on) >= DATE_SUB(CURRENT_DATE(), INTERVAL 3 DAY)",
-          "AND (LOWER(group_name_end) LIKE '%" + area.toLowerCase().replace(/'/g,"''") + "%'",
-          "OR LOWER(vault_team_end) LIKE '%" + area.toLowerCase().replace(/'/g,"''") + "%'",
-          "OR LOWER(area_end) LIKE '%" + area.toLowerCase().replace(/'/g,"''") + "%')",
-          "GROUP BY vault_team_end ORDER BY size DESC LIMIT 15"
+          "WITH matched AS (",
+          "  SELECT vault_team_end AS team, area_end, group_name_end, worker_id,",
+          "    CASE",
+          "      WHEN LOWER(area_end) = '" + safe.toLowerCase() + "' THEN 1",
+          "      WHEN LOWER(group_name_end) = '" + safe.toLowerCase() + "' THEN 2",
+          "      WHEN LOWER(area_end) LIKE '%" + safe.toLowerCase() + "%' THEN 3",
+          "      WHEN LOWER(group_name_end) LIKE '%" + safe.toLowerCase() + "%' THEN 4",
+          "    END AS match_rank",
+          "  FROM shopify-dw.people.worker_daily_snapshot_v1",
+          "  WHERE is_active_end = true",
+          "  AND DATE(effective_on) >= DATE_SUB(CURRENT_DATE(), INTERVAL 3 DAY)",
+          ")",
+          "SELECT team, COUNT(DISTINCT worker_id) AS size",
+          "FROM matched",
+          "WHERE match_rank = (SELECT MIN(match_rank) FROM matched WHERE match_rank IS NOT NULL)",
+          "GROUP BY team ORDER BY size DESC LIMIT 15"
         ].join(" ");
 
-        // Query 2: Leadership in this area
+        // Query 2: Leadership — same matching logic
         const leadersSql = [
-          "SELECT DISTINCT worker_full_name AS name, job_title_end AS title, vault_team_end AS team, worker_email AS email",
-          "FROM shopify-dw.people.worker_daily_snapshot_v1",
-          "WHERE is_active_end = true",
-          "AND DATE(effective_on) >= DATE_SUB(CURRENT_DATE(), INTERVAL 3 DAY)",
-          "AND (LOWER(group_name_end) LIKE '%" + area.toLowerCase().replace(/'/g,"''") + "%'",
-          "OR LOWER(vault_team_end) LIKE '%" + area.toLowerCase().replace(/'/g,"''") + "%'",
-          "OR LOWER(area_end) LIKE '%" + area.toLowerCase().replace(/'/g,"''") + "%')",
-          "AND (LOWER(job_title_end) LIKE '%vp%' OR LOWER(job_title_end) LIKE '%director%')",
+          "WITH matched AS (",
+          "  SELECT DISTINCT worker_full_name AS name, job_title_end AS title, vault_team_end AS team, worker_email AS email,",
+          "    CASE",
+          "      WHEN LOWER(area_end) = '" + safe.toLowerCase() + "' THEN 1",
+          "      WHEN LOWER(group_name_end) = '" + safe.toLowerCase() + "' THEN 2",
+          "      WHEN LOWER(area_end) LIKE '%" + safe.toLowerCase() + "%' THEN 3",
+          "      WHEN LOWER(group_name_end) LIKE '%" + safe.toLowerCase() + "%' THEN 4",
+          "    END AS match_rank",
+          "  FROM shopify-dw.people.worker_daily_snapshot_v1",
+          "  WHERE is_active_end = true",
+          "  AND DATE(effective_on) >= DATE_SUB(CURRENT_DATE(), INTERVAL 3 DAY)",
+          "  AND (LOWER(job_title_end) LIKE '%vp%' OR LOWER(job_title_end) LIKE '%director%')",
+          ")",
+          "SELECT DISTINCT name, title, team, email FROM matched",
+          "WHERE match_rank = (SELECT MIN(match_rank) FROM matched WHERE match_rank IS NOT NULL)",
           "ORDER BY title LIMIT 10"
         ].join(" ");
 
