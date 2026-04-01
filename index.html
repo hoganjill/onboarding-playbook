@@ -839,7 +839,7 @@
           "LEFT JOIN disc d ON t.team = d.team",
           "LEFT JOIN top_mgr tm ON t.team = tm.team AND tm.rn = 1",
           "LEFT JOIN mgr_info m ON CAST(tm.mgr_id AS STRING) = m.wid",
-          "GROUP BY t.team, t.size, m.worker_full_name, m.job_title_end, m.worker_email",
+          "GROUP BY t.team, t.size, m.worker_full_name, m.job_title_end, m.worker_email, d.focus",
           "ORDER BY t.size DESC LIMIT 15"
         ].join(" ");
 
