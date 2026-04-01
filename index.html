@@ -764,10 +764,10 @@
 
         const safe = area.replace(/'/g,"''").toLowerCase();
 
-        // Single query: teams with their manager, matched by hierarchy priority
+        // Single query: teams with actual manager (who manages the most people on each team)
         const sql = [
           "WITH matched AS (",
-          "  SELECT vault_team_end AS team, worker_id, worker_full_name, job_title_end, worker_email,",
+          "  SELECT vault_team_end AS team, worker_id, managers_worker_id_end AS mgr_id,",
           "    CASE",
           "      WHEN LOWER(area_end) = '" + safe + "' THEN 1",
           "      WHEN LOWER(group_name_end) = '" + safe + "' THEN 2",
@@ -785,23 +785,25 @@
           "team_sizes AS (",
           "  SELECT team, COUNT(DISTINCT worker_id) AS size FROM best GROUP BY team",
           "),",
-          "team_leads AS (",
-          "  SELECT team, worker_full_name AS lead_name, job_title_end AS lead_title, worker_email AS lead_email,",
-          "    ROW_NUMBER() OVER (PARTITION BY team ORDER BY",
-          "      CASE WHEN LOWER(job_title_end) LIKE '%vp%' THEN 1",
-          "           WHEN LOWER(job_title_end) LIKE '%director%' THEN 2",
-          "           WHEN LOWER(job_title_end) LIKE '%senior manager%' THEN 3",
-          "           WHEN LOWER(job_title_end) LIKE '%manager%' THEN 4",
-          "           WHEN LOWER(job_title_end) LIKE '%lead%' THEN 5",
-          "           ELSE 6 END",
-          "    ) AS rn",
-          "  FROM best",
-          "  WHERE LOWER(job_title_end) LIKE '%manager%' OR LOWER(job_title_end) LIKE '%director%'",
-          "     OR LOWER(job_title_end) LIKE '%vp%' OR LOWER(job_title_end) LIKE '%lead%'",
+          "mgr_counts AS (",
+          "  SELECT team, mgr_id, COUNT(DISTINCT worker_id) AS manages",
+          "  FROM best WHERE mgr_id IS NOT NULL GROUP BY team, mgr_id",
+          "),",
+          "top_mgr AS (",
+          "  SELECT team, mgr_id,",
+          "    ROW_NUMBER() OVER (PARTITION BY team ORDER BY manages DESC) AS rn",
+          "  FROM mgr_counts",
+          "),",
+          "mgr_info AS (",
+          "  SELECT DISTINCT CAST(worker_id AS STRING) AS wid, worker_full_name, job_title_end, worker_email",
+          "  FROM shopify-dw.people.worker_daily_snapshot_v1",
+          "  WHERE is_active_end = true AND DATE(effective_on) >= DATE_SUB(CURRENT_DATE(), INTERVAL 3 DAY)",
           ")",
-          "SELECT t.team, t.size, l.lead_name, l.lead_title, l.lead_email",
+          "SELECT t.team, t.size, m.worker_full_name AS lead_name, m.job_title_end AS lead_title, m.worker_email AS lead_email",
           "FROM team_sizes t",
-          "LEFT JOIN team_leads l ON t.team = l.team AND l.rn = 1",
+          "LEFT JOIN top_mgr tm ON t.team = tm.team AND tm.rn = 1",
+          "LEFT JOIN mgr_info m ON CAST(tm.mgr_id AS STRING) = m.wid",
+          "GROUP BY t.team, t.size, m.worker_full_name, m.job_title_end, m.worker_email",
           "ORDER BY t.size DESC LIMIT 15"
         ].join(" ");
 
