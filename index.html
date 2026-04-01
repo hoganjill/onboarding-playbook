@@ -201,8 +201,10 @@
     .domain-card .domain-body h4 { color: var(--text); font-size: 0.92rem; margin: 0.8rem 0 0.3rem; }
     .domain-card .domain-body ul { padding-left: 1.2rem; margin-bottom: 0.5rem; }
     .domain-card .domain-body li { margin-bottom: 0.2rem; }
-    .domain-card .domain-body a { color: var(--blue); text-decoration: none; }
+    .domain-card .domain-body a { color: var(--blue); text-decoration: none; pointer-events: auto; position: relative; z-index: 1; }
     .domain-card .domain-body a:hover { text-decoration: underline; }
+    .domain-card .domain-body table { pointer-events: auto; }
+    .domain-card .domain-body table a { cursor: pointer; }
     .domain-card .vault-banner { display: inline-flex; align-items: center; gap: 0.4rem; background: var(--blue-dim); color: var(--blue); padding: 0.3rem 0.8rem; border-radius: var(--radius-sm); font-size: 0.8rem; text-decoration: none; margin-top: 0.6rem; }
     .domain-card .vault-banner:hover { background: rgba(92,158,255,0.2); }
     .domain-card .remove-card { position: absolute; top: 8px; right: 10px; background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 0.85rem; opacity: 0; }
@@ -822,37 +824,57 @@
         // Build card HTML
         let html = '';
         html += `<h4>Overview</h4>`;
-        html += `<p>The <strong>${esc(area)}</strong> area at Shopify has <strong>${teams.length} teams</strong> and approximately <strong>${totalPeople} people</strong>. <a href="${vaultSearch}" target="_blank">Explore on Vault →</a></p>`;
+        html += `<p contenteditable="true">The <strong>${esc(area)}</strong> area at Shopify has <strong>${teams.length} teams</strong> and approximately <strong>${totalPeople} people</strong>.</p>`;
+        html += `<p><a href="${vaultSearch}" target="_blank">Explore on Vault →</a></p>`;
 
         html += `<h4>Teams & Leads</h4>`;
-        html += `<table style="width:100%; border-collapse:collapse; font-size:0.88rem;">`;
-        html += `<tr style="border-bottom:1px solid var(--border); color:var(--text-dim); font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em;">`;
-        html += `<td style="padding:0.4rem 0;">Team</td><td>Lead</td><td style="text-align:right;">Size</td></tr>`;
+        html += `<table style="width:100%; border-collapse:collapse; font-size:0.85rem;">`;
+        html += `<tr style="border-bottom:1px solid var(--border); color:var(--text-dim); font-size:0.7rem; text-transform:uppercase; letter-spacing:0.05em;">`;
+        html += `<td style="padding:0.3rem 0;">Team</td><td>Lead</td><td style="text-align:right;">Size</td></tr>`;
+        const leadsToAdd = [];
         teams.forEach(t => {
           const teamLink = `https://vault.shopify.io/search?q=${encodeURIComponent(t.team + ' team')}`;
           const leadHtml = t.lead_name
-            ? `<a href="https://vault.shopify.io/search?q=${encodeURIComponent(t.lead_email ? t.lead_email.split('@')[0] : t.lead_name)}" target="_blank" style="color:var(--text)">${esc(t.lead_name)}</a><br><span style="color:var(--text-dim); font-size:0.78rem;">${esc(t.lead_title)}</span>`
+            ? `<a href="https://vault.shopify.io/search?q=${encodeURIComponent(t.lead_email ? t.lead_email.split('@')[0] : t.lead_name)}" target="_blank" style="color:var(--text)">${esc(t.lead_name)}</a> <span style="color:var(--text-dim); font-size:0.75rem;">· ${esc(t.lead_title)}</span>`
             : `<span style="color:var(--text-dim)">—</span>`;
           html += `<tr style="border-bottom:1px solid rgba(255,255,255,0.03);">`;
-          html += `<td style="padding:0.6rem 0.5rem 0.6rem 0;"><a href="${teamLink}" target="_blank" style="color:var(--blue); font-weight:600;">${esc(t.team)}</a></td>`;
-          html += `<td style="padding:0.6rem 0;">${leadHtml}</td>`;
-          html += `<td style="padding:0.6rem 0; text-align:right; color:var(--text-dim);">${t.size}</td>`;
+          html += `<td style="padding:0.35rem 0.5rem 0.35rem 0;"><a href="${teamLink}" target="_blank" style="color:var(--blue); font-weight:600;">${esc(t.team)}</a></td>`;
+          html += `<td style="padding:0.35rem 0;" contenteditable="true">${t.lead_name ? esc(t.lead_name) + ' <span style=\\"color:var(--text-dim); font-size:0.75rem;\\">· ' + esc(t.lead_title) + '</span>' : '—'}</td>`;
+          html += `<td style="padding:0.35rem 0; text-align:right; color:var(--text-dim);">${t.size}</td>`;
           html += `</tr>`;
+          if (t.lead_name) leadsToAdd.push({ name: t.lead_name, email: t.lead_email || '', title: t.lead_title || '', team: t.team });
         });
         html += `</table>`;
 
-        html += `<h4 style="margin-top:1rem;">Explore on Vault</h4><ul>`;
-        html += `<li><a href="${vaultSearch}" target="_blank">Search "${esc(area)}" on Vault</a> — team pages, projects, documentation</li>`;
-        html += `<li><a href="https://vault.shopify.io/gsd" target="_blank">GSD Projects</a> — active missions and project proposals</li>`;
-        html += `<li><a href="https://vault.shopify.io/teams" target="_blank">Vault Teams Directory</a> — browse all team pages</li>`;
-        html += `</ul>`;
+        html += `<h4 style="margin-top:1rem;">Explore on Vault</h4>`;
+        html += `<p><a href="${vaultSearch}" target="_blank">🔍 Search "${esc(area)}" on Vault</a> · <a href="https://vault.shopify.io/gsd" target="_blank">📋 GSD Projects</a> · <a href="https://vault.shopify.io/teams" target="_blank">👥 Teams Directory</a></p>`;
 
         placeholder.outerHTML = `
           <div class="domain-card">
             <h3 contenteditable="true">${esc(area)} <span class="domain-tag">${teams.length} teams · ${totalPeople} people</span></h3>
-            <div class="domain-body" contenteditable="true">${html}</div>
+            <div class="domain-body">${html}</div>
             <button class="remove-card editor-only" onclick="this.closest('.domain-card').remove()">✕</button>
           </div>`;
+
+        // Auto-populate "Your Team" with the leads from this domain
+        if (leadsToAdd.length > 0) {
+          const grid = document.getElementById('leadershipGrid');
+          const existing = new Set(Array.from(grid.querySelectorAll('.person-name')).map(el => el.textContent.trim()));
+          let added = 0;
+          leadsToAdd.forEach(l => {
+            if (!existing.has(l.name)) {
+              createRichCard('leadershipGrid', { name: l.name, email: l.email, title: l.title, team: l.team, groupName: '', tenure: '' });
+              existing.add(l.name);
+              added++;
+            }
+          });
+          if (added > 0) {
+            // Scroll to show team section briefly
+            document.getElementById('team')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            setTimeout(() => document.getElementById('domain')?.scrollIntoView({ behavior: 'smooth' }), 1500);
+          }
+        }
+
       } catch(e) {
         console.error('Domain generation failed:', e);
         placeholder.innerHTML = `Failed to load. <a href="#" onclick="this.closest('.domain-generating').remove();return false" style="color:var(--accent)">Dismiss</a>`;
