@@ -752,7 +752,6 @@
       btn.disabled = true;
       btn.textContent = 'Generating…';
 
-      // Add a placeholder card
       const container = document.getElementById('domainCards');
       const placeholder = document.createElement('div');
       placeholder.className = 'domain-generating';
@@ -764,23 +763,38 @@
           await new Promise(r => setTimeout(r, 1500));
         }
 
-        const prompt = `You are a Shopify internal onboarding assistant. Generate a concise domain context briefing for a new hire joining the "${area}" area at Shopify.
+        const prompt = `You are writing an onboarding briefing for a new hire at Shopify who will be working in the "${area}" area.
 
-Format your response as HTML (no wrapping tags, just the inner content) with these sections:
-1. <h4>Overview</h4> - 2-3 sentences on what this area does and why it matters to Shopify
-2. <h4>Key Teams</h4> - A bullet list of 4-6 teams in this area with one-line descriptions
-3. <h4>Active Projects & Missions</h4> - A bullet list of 3-5 current projects or GSD missions relevant to this area
-4. <h4>Key Concepts</h4> - A bullet list of 3-4 terms or systems the new hire should know about
+Write a polished, accurate briefing in valid Markdown with these exact sections:
 
-Keep it concise — this is a starting point, not an encyclopedia. Use <a href="https://vault.shopify.io/search?q=TERM" target="_blank">linked terms</a> where appropriate so the new hire can explore further on Vault.`;
+## Overview
+2-3 clear, grammatically correct sentences. What does this area own at Shopify? Why does it matter to merchants and to the company? Be specific to Shopify — reference real Shopify products, surfaces, or capabilities where relevant.
 
-        let html = '';
-        await quick.ai.askStream(prompt, (chunk, full) => {
-          html = full;
-          placeholder.innerHTML = `<div class="domain-body">${full}</div>`;
-        });
+## Key Teams
+A bullet list of 4-6 teams that operate in this area. For each team, write the team name in bold followed by a concise description of what they own. Example format:
+- **Checkout Platform** — Owns the checkout flow, payment processing, and cart infrastructure
+Use real Shopify team names where possible.
 
-        // Replace placeholder with final card
+## Active Focus Areas
+A bullet list of 3-5 current priorities, projects, or strategic initiatives relevant to this area. Reference GSD missions, product launches, or technical initiatives where relevant. Example:
+- **Agentic Storefronts** — Enabling AI agents to browse and purchase on behalf of buyers (P0 company mission)
+
+## Key Concepts to Know
+A bullet list of 3-4 Shopify-specific terms, systems, or tools the new hire should understand. For each, give the term in bold, then a one-sentence explanation. Example:
+- **GSD (Get Shit Done)** — Shopify's product development framework for proposing, reviewing, and shipping projects
+- **Vault** — Shopify's internal wiki for team pages, project proposals, and documentation
+
+Rules:
+- Write in clean, professional prose. No sentence fragments. No filler.
+- Do NOT output HTML tags. Output Markdown only.
+- Do NOT use generic descriptions. Be specific to Shopify.
+- Keep it concise — this is a starting point, not documentation.`;
+
+        const response = await quick.ai.ask(prompt);
+
+        // Convert markdown to HTML
+        const html = markdownToHtml(response);
+
         placeholder.outerHTML = `
           <div class="domain-card">
             <h3 contenteditable="true">${esc(area)} <span class="domain-tag">Domain</span></h3>
@@ -796,6 +810,20 @@ Keep it concise — this is a starting point, not an encyclopedia. Use <a href="
       input.value = '';
       btn.disabled = false;
       btn.textContent = '✨ Generate';
+    }
+
+    function markdownToHtml(md) {
+      return md
+        .replace(/^## (.+)$/gm, '<h4>$1</h4>')
+        .replace(/^### (.+)$/gm, '<h4>$1</h4>')
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>')
+        .replace(/^- (.+)$/gm, '<li>$1</li>')
+        .replace(/(<li>.*<\/li>\n?)+/g, (m) => '<ul>' + m + '</ul>')
+        .replace(/\n{2,}/g, '<br><br>')
+        .replace(/\n/g, ' ')
+        .replace(/<\/h4> /g, '</h4>')
+        .replace(/<\/ul> /g, '</ul>');
     }
 
     function addStep() { document.getElementById('stepsContainer').insertAdjacentHTML('beforeend', '<div class="step"><div><h3 contenteditable="true">New step</h3><p contenteditable="true">Description…</p></div><button class="remove-card editor-only" onclick="this.closest(\'.step\').remove()">✕</button></div>'); }
