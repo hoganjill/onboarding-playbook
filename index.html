@@ -857,31 +857,28 @@
 
         // Build card HTML
         let html = '';
-        html += `<h4>Overview</h4>`;
-        html += `<p contenteditable="true">The <strong>${titleCase(esc(area))}</strong> area at Shopify has <strong>${teams.length} teams</strong> and approximately <strong>${totalPeople} people</strong>.</p>`;
-        html += `<p><a href="${vaultSearch}" target="_blank">Explore on Vault →</a></p>`;
+        html += `<p contenteditable="true" style="margin-bottom:0.6rem;">The <strong>${titleCase(esc(area))}</strong> area at Shopify has <strong>${teams.length} teams</strong> and approximately <strong>${totalPeople} people</strong>. <a href="${vaultSearch}" target="_blank">Explore on Vault →</a></p>`;
 
-        html += `<h4>Teams & Leads</h4>`;
-        html += `<table style="width:100%; border-collapse:collapse; font-size:0.85rem;">`;
-        html += `<tr style="border-bottom:1px solid var(--border); color:var(--text-dim); font-size:0.7rem; text-transform:uppercase; letter-spacing:0.05em;">`;
-        html += `<td style="padding:0.3rem 0;">Team</td><td>Lead</td><td style="text-align:right;">Size</td></tr>`;
         const leadsToAdd = [];
         teams.forEach(t => {
           const teamLink = `https://vault.shopify.io/search?q=${encodeURIComponent(t.team + ' team')}`;
-          const leadHtml = t.lead_name
-            ? `<a href="https://vault.shopify.io/search?q=${encodeURIComponent(t.lead_email ? t.lead_email.split('@')[0] : t.lead_name)}" target="_blank" style="color:var(--text)">${esc(t.lead_name)}</a> <span style="color:var(--text-dim); font-size:0.75rem;">· ${esc(t.lead_title)}</span>`
-            : `<span style="color:var(--text-dim)">—</span>`;
-          html += `<tr style="border-bottom:1px solid rgba(255,255,255,0.03);">`;
-          html += `<td style="padding:0.35rem 0.5rem 0.35rem 0;"><a href="${teamLink}" target="_blank" style="color:var(--blue); font-weight:600;">${esc(t.team)}</a></td>`;
-          html += `<td style="padding:0.35rem 0;" contenteditable="true">${t.lead_name ? esc(t.lead_name) + ' <span style=\\"color:var(--text-dim); font-size:0.75rem;\\">· ' + esc(t.lead_title) + '</span>' : '—'}</td>`;
-          html += `<td style="padding:0.35rem 0; text-align:right; color:var(--text-dim);">${t.size}</td>`;
-          html += `</tr>`;
+          const focus = t.focus ? t.focus.replace(/Management - /g, '') : '';
+          html += `<div style="display:flex; gap:0.6rem; padding:0.4rem 0; border-bottom:1px solid rgba(255,255,255,0.03); font-size:0.85rem; align-items:baseline;">`;
+          html += `<a href="${teamLink}" target="_blank" style="color:var(--blue); font-weight:600; min-width:140px; flex-shrink:0;">${esc(t.team)}</a>`;
+          html += `<div style="flex:1; min-width:0;">`;
+          if (focus) html += `<span style="color:var(--text-secondary); font-size:0.8rem;" contenteditable="true">${esc(focus)}</span>`;
+          if (t.lead_name) html += `<span style="color:var(--text-dim); font-size:0.78rem;"> · ${esc(t.lead_name)}, ${esc(t.lead_title)}</span>`;
+          html += `</div>`;
+          html += `<span style="color:var(--text-dim); font-size:0.78rem; flex-shrink:0;">${t.size}</span>`;
+          html += `</div>`;
           if (t.lead_name) leadsToAdd.push({ name: t.lead_name, email: t.lead_email || '', title: t.lead_title || '', team: t.team });
         });
-        html += `</table>`;
 
-        html += `<h4 style="margin-top:1rem;">Explore on Vault</h4>`;
-        html += `<p><a href="${vaultSearch}" target="_blank">🔍 Search "${titleCase(esc(area))}" on Vault</a> · <a href="https://vault.shopify.io/gsd" target="_blank">📋 GSD Projects</a> · <a href="https://vault.shopify.io/teams" target="_blank">👥 Teams Directory</a></p>`;
+        html += `<div style="margin-top:0.8rem; font-size:0.85rem;">`;
+        html += `<a href="${vaultSearch}" target="_blank">🔍 Search on Vault</a>`;
+        html += ` · <a href="https://vault.shopify.io/docs/get-to-know-shopify/221-GSD---How-We-Build-Product-at-Shopify" target="_blank">📋 GSD</a>`;
+        html += ` · <a href="https://vault.shopify.io/teams" target="_blank">👥 Teams</a>`;
+        html += `</div>`;
 
         placeholder.outerHTML = `
           <div class="domain-card">
