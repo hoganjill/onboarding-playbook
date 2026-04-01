@@ -148,6 +148,10 @@
     .contact-row .person-meta { color: var(--text-dim); font-size: 0.75rem; }
     .contact-row .remove-card { background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 0.75rem; opacity: 0; flex-shrink: 0; }
     .contact-row:hover .remove-card { opacity: 1; }
+    .contact-row { cursor: grab; }
+    .contact-row:active { cursor: grabbing; }
+    .contact-row.dragging { opacity: 0.3; }
+    .contact-grid.drop-target-grid { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: var(--radius-sm); }
 
     /* Guide cards stay as cards since they have descriptions */
     .guide-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 0.5rem; }
@@ -698,6 +702,7 @@
 
     function key(q) { return q.toLowerCase(); }
     function esc(s) { const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
+    function titleCase(s) { return (s||'').replace(/\w\S*/g, t => t.charAt(0).toUpperCase() + t.substr(1).toLowerCase()); }
     function tenureText(days) { const d=parseInt(days); if(isNaN(d))return''; const y=Math.floor(d/365),m=Math.floor((d%365)/30); return y>=1?`${y}y ${m}m`:`${m}m`; }
     function getInitials(n) { return n.split(' ').map(p=>p[0]).join('').toUpperCase().slice(0,2); }
 
@@ -725,9 +730,32 @@
       const wrap = document.getElementById(gridId)?.nextElementSibling;
       if (wrap) { const inp=wrap.querySelector('input'); const dd=wrap.querySelector('.dropdown'); if(inp)inp.value=''; if(dd)dd.classList.remove('open'); }
     }
+
+    // ── Drag people rows between sections ────────────────────────
+    let draggedRow = null;
+    document.addEventListener('dragstart', (e) => {
+      const row = e.target.closest('.contact-row');
+      if (row) { draggedRow = row; row.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain',''); }
+    });
+    document.addEventListener('dragend', (e) => {
+      if (draggedRow) draggedRow.classList.remove('dragging');
+      document.querySelectorAll('.drop-target-grid').forEach(g => g.classList.remove('drop-target-grid'));
+      draggedRow = null;
+    });
+    document.addEventListener('dragover', (e) => {
+      const grid = e.target.closest('.contact-grid');
+      if (grid && draggedRow) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; document.querySelectorAll('.drop-target-grid').forEach(g => g.classList.remove('drop-target-grid')); grid.classList.add('drop-target-grid'); }
+    });
+    document.addEventListener('drop', (e) => {
+      const grid = e.target.closest('.contact-grid');
+      if (grid && draggedRow) { e.preventDefault(); grid.appendChild(draggedRow); draggedRow.classList.remove('dragging'); }
+      document.querySelectorAll('.drop-target-grid').forEach(g => g.classList.remove('drop-target-grid'));
+      draggedRow = null;
+    });
     function createRichCard(gridId, p) {
       const row = document.createElement('div');
       row.className = 'contact-row';
+      row.draggable = true;
       row.dataset.person = JSON.stringify(p);
       const tenure = tenureText(p.tenure);
       const vaultUrl = p.email ? `https://vault.shopify.io/search?q=${encodeURIComponent(p.email.split('@')[0])}` : '';
@@ -801,8 +829,14 @@
           "  FROM shopify-dw.people.worker_daily_snapshot_v1",
           "  WHERE is_active_end = true AND DATE(effective_on) >= DATE_SUB(CURRENT_DATE(), INTERVAL 3 DAY)",
           ")",
-          "SELECT t.team, t.size, m.worker_full_name AS lead_name, m.job_title_end AS lead_title, m.worker_email AS lead_email",
+          "disc AS (",
+          "  SELECT vault_team_end AS team,",
+          "    STRING_AGG(DISTINCT subdiscipline_end, ', ' ORDER BY subdiscipline_end LIMIT 3) AS focus",
+          "  FROM best GROUP BY vault_team_end",
+          ")",
+          "SELECT t.team, t.size, m.worker_full_name AS lead_name, m.job_title_end AS lead_title, m.worker_email AS lead_email, d.focus",
           "FROM team_sizes t",
+          "LEFT JOIN disc d ON t.team = d.team",
           "LEFT JOIN top_mgr tm ON t.team = tm.team AND tm.rn = 1",
           "LEFT JOIN mgr_info m ON CAST(tm.mgr_id AS STRING) = m.wid",
           "GROUP BY t.team, t.size, m.worker_full_name, m.job_title_end, m.worker_email",
@@ -824,7 +858,7 @@
         // Build card HTML
         let html = '';
         html += `<h4>Overview</h4>`;
-        html += `<p contenteditable="true">The <strong>${esc(area)}</strong> area at Shopify has <strong>${teams.length} teams</strong> and approximately <strong>${totalPeople} people</strong>.</p>`;
+        html += `<p contenteditable="true">The <strong>${titleCase(esc(area))}</strong> area at Shopify has <strong>${teams.length} teams</strong> and approximately <strong>${totalPeople} people</strong>.</p>`;
         html += `<p><a href="${vaultSearch}" target="_blank">Explore on Vault →</a></p>`;
 
         html += `<h4>Teams & Leads</h4>`;
@@ -847,32 +881,28 @@
         html += `</table>`;
 
         html += `<h4 style="margin-top:1rem;">Explore on Vault</h4>`;
-        html += `<p><a href="${vaultSearch}" target="_blank">🔍 Search "${esc(area)}" on Vault</a> · <a href="https://vault.shopify.io/gsd" target="_blank">📋 GSD Projects</a> · <a href="https://vault.shopify.io/teams" target="_blank">👥 Teams Directory</a></p>`;
+        html += `<p><a href="${vaultSearch}" target="_blank">🔍 Search "${titleCase(esc(area))}" on Vault</a> · <a href="https://vault.shopify.io/gsd" target="_blank">📋 GSD Projects</a> · <a href="https://vault.shopify.io/teams" target="_blank">👥 Teams Directory</a></p>`;
 
         placeholder.outerHTML = `
           <div class="domain-card">
-            <h3 contenteditable="true">${esc(area)} <span class="domain-tag">${teams.length} teams · ${totalPeople} people</span></h3>
+            <h3 contenteditable="true">${titleCase(esc(area))} <span class="domain-tag">${teams.length} teams · ${totalPeople} people</span></h3>
             <div class="domain-body">${html}</div>
             <button class="remove-card editor-only" onclick="this.closest('.domain-card').remove()">✕</button>
           </div>`;
 
-        // Auto-populate "Your Team" with the leads from this domain
+        // Auto-populate "Your Team" — VPs/Directors → Leadership, Managers → Direct Reports
         if (leadsToAdd.length > 0) {
-          const grid = document.getElementById('leadershipGrid');
-          const existing = new Set(Array.from(grid.querySelectorAll('.person-name')).map(el => el.textContent.trim()));
-          let added = 0;
-          leadsToAdd.forEach(l => {
-            if (!existing.has(l.name)) {
-              createRichCard('leadershipGrid', { name: l.name, email: l.email, title: l.title, team: l.team, groupName: '', tenure: '' });
-              existing.add(l.name);
-              added++;
-            }
+          const allExisting = new Set();
+          ['leadershipGrid','teamGrid','xfnGrid'].forEach(gid => {
+            document.getElementById(gid).querySelectorAll('.person-name').forEach(el => allExisting.add(el.textContent.trim()));
           });
-          if (added > 0) {
-            // Scroll to show team section briefly
-            document.getElementById('team')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            setTimeout(() => document.getElementById('domain')?.scrollIntoView({ behavior: 'smooth' }), 1500);
-          }
+          leadsToAdd.forEach(l => {
+            if (allExisting.has(l.name)) return;
+            const isLeadership = /\b(vp|director|head of)\b/i.test(l.title);
+            const gridId = isLeadership ? 'leadershipGrid' : 'teamGrid';
+            createRichCard(gridId, { name: l.name, email: l.email, title: l.title, team: l.team, groupName: '', tenure: '' });
+            allExisting.add(l.name);
+          });
         }
 
       } catch(e) {
