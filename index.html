@@ -797,7 +797,7 @@
         // Single query: teams with actual manager (who manages the most people on each team)
         const sql = [
           "WITH matched AS (",
-          "  SELECT vault_team_end AS team, worker_id, managers_worker_id_end AS mgr_id,",
+          "  SELECT vault_team_end AS team, worker_id, managers_worker_id_end AS mgr_id, subdiscipline_end,",
           "    CASE",
           "      WHEN LOWER(area_end) = '" + safe + "' THEN 1",
           "      WHEN LOWER(group_name_end) = '" + safe + "' THEN 2",
@@ -830,9 +830,9 @@
           "  WHERE is_active_end = true AND DATE(effective_on) >= DATE_SUB(CURRENT_DATE(), INTERVAL 3 DAY)",
           ")",
           "disc AS (",
-          "  SELECT vault_team_end AS team,",
+          "  SELECT team,",
           "    STRING_AGG(DISTINCT subdiscipline_end, ', ' ORDER BY subdiscipline_end LIMIT 3) AS focus",
-          "  FROM best GROUP BY vault_team_end",
+          "  FROM best GROUP BY team",
           ")",
           "SELECT t.team, t.size, m.worker_full_name AS lead_name, m.job_title_end AS lead_title, m.worker_email AS lead_email, d.focus",
           "FROM team_sizes t",
