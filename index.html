@@ -857,28 +857,23 @@
 
         // Build card HTML
         let html = '';
-        html += `<p contenteditable="true" style="margin-bottom:0.6rem;">The <strong>${titleCase(esc(area))}</strong> area at Shopify has <strong>${teams.length} teams</strong> and approximately <strong>${totalPeople} people</strong>. <a href="${vaultSearch}" target="_blank">Explore on Vault →</a></p>`;
-
+        // Build team list
         const leadsToAdd = [];
+        const teamNames = [];
         teams.forEach(t => {
           const teamLink = `https://vault.shopify.io/search?q=${encodeURIComponent(t.team + ' team')}`;
-          const focus = t.focus ? t.focus.replace(/Management - /g, '') : '';
-          html += `<div style="display:flex; gap:0.6rem; padding:0.4rem 0; border-bottom:1px solid rgba(255,255,255,0.03); font-size:0.85rem; align-items:baseline;">`;
-          html += `<a href="${teamLink}" target="_blank" style="color:var(--blue); font-weight:600; min-width:140px; flex-shrink:0;">${esc(t.team)}</a>`;
-          html += `<div style="flex:1; min-width:0;">`;
-          if (focus) html += `<span style="color:var(--text-secondary); font-size:0.8rem;" contenteditable="true">${esc(focus)}</span>`;
-          if (t.lead_name) html += `<span style="color:var(--text-dim); font-size:0.78rem;"> · ${esc(t.lead_name)}, ${esc(t.lead_title)}</span>`;
-          html += `</div>`;
-          html += `<span style="color:var(--text-dim); font-size:0.78rem; flex-shrink:0;">${t.size}</span>`;
+          teamNames.push(t.team);
+          html += `<div style="display:flex; align-items:baseline; gap:0.4rem; padding:0.3rem 0; border-bottom:1px solid rgba(255,255,255,0.03); font-size:0.85rem;">`;
+          html += `<a href="${teamLink}" target="_blank" style="color:var(--blue); font-weight:600;">${esc(t.team)}</a>`;
+          if (t.lead_name) html += `<span style="color:var(--text-dim); font-size:0.78rem;">· ${esc(t.lead_name)}</span>`;
+          html += `<span style="color:var(--text-dim); font-size:0.78rem; margin-left:auto;">${t.size}</span>`;
           html += `</div>`;
           if (t.lead_name) leadsToAdd.push({ name: t.lead_name, email: t.lead_email || '', title: t.lead_title || '', team: t.team });
         });
 
-        html += `<div style="margin-top:0.8rem; font-size:0.85rem;">`;
-        html += `<a href="${vaultSearch}" target="_blank">🔍 Search on Vault</a>`;
-        html += ` · <a href="https://vault.shopify.io/docs/get-to-know-shopify/221-GSD---How-We-Build-Product-at-Shopify" target="_blank">📋 GSD</a>`;
-        html += ` · <a href="https://vault.shopify.io/teams" target="_blank">👥 Teams</a>`;
-        html += `</div>`;
+        // Placeholder for AI-generated area context
+        html += `<div id="domainContext" style="margin-top:1rem; color:var(--text-secondary); font-size:0.88rem; line-height:1.7;" contenteditable="true"><span style="color:var(--text-dim); font-style:italic;">Generating area context…</span></div>`;
+        html += `<div style="margin-top:0.8rem; font-size:0.85rem;"><a href="${vaultSearch}" target="_blank">📖 Explore ${titleCase(esc(area))} on Vault →</a></div>`;
 
         placeholder.outerHTML = `
           <div class="domain-card">
@@ -886,6 +881,37 @@
             <div class="domain-body">${html}</div>
             <button class="remove-card editor-only" onclick="this.closest('.domain-card').remove()">✕</button>
           </div>`;
+
+        // Generate area context with AI — what are they walking into
+        try {
+          if (typeof quick !== 'undefined' && quick.ai) {
+            const teamList = teams.map(t => `${t.team} (${t.size} people, led by ${t.lead_name || 'TBD'})`).join('; ');
+            const contextPrompt = `Write a brief onboarding context for someone joining the "${area}" area at Shopify. This area has these teams: ${teamList}.
+
+Write 2-3 short paragraphs:
+1. What this area is responsible for at Shopify and why it matters to the business.
+2. How the teams fit together — what each team owns and how they collaborate. Reference each team by name.
+3. What the key priorities and focus areas are right now.
+
+Rules:
+- Be specific to Shopify. Reference real Shopify products, systems, or capabilities.
+- Write concise, polished prose. No bullet points. No headers.
+- This will be read by a new Director joining this area — write at that level.
+- Do NOT make up project names or dates. Speak in general terms about priorities.
+- 150 words max.`;
+
+            const contextResponse = await quick.ai.ask(contextPrompt);
+            const contextEl = document.getElementById('domainContext');
+            if (contextEl && contextResponse) {
+              contextEl.textContent = contextResponse.trim();
+              contextEl.style.fontStyle = 'normal';
+            }
+          }
+        } catch(ae) {
+          console.warn('AI context failed:', ae);
+          const el = document.getElementById('domainContext');
+          if (el) el.textContent = 'Add area context here — describe what this area does and current priorities.';
+        }
 
         // Auto-populate "Your Team" — VPs/Directors → Leadership, Managers → Direct Reports
         if (leadsToAdd.length > 0) {
