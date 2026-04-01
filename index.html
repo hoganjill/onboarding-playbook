@@ -828,7 +828,7 @@
           "  SELECT DISTINCT CAST(worker_id AS STRING) AS wid, worker_full_name, job_title_end, worker_email",
           "  FROM shopify-dw.people.worker_daily_snapshot_v1",
           "  WHERE is_active_end = true AND DATE(effective_on) >= DATE_SUB(CURRENT_DATE(), INTERVAL 3 DAY)",
-          ")",
+          "),",
           "disc AS (",
           "  SELECT team,",
           "    STRING_AGG(DISTINCT subdiscipline_end, ', ' ORDER BY subdiscipline_end LIMIT 3) AS focus",
