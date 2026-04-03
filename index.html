@@ -161,6 +161,14 @@
     .guide-card .desc { color: var(--text-secondary); font-size: 0.8rem; line-height: 1.5; }
     .guide-card .remove-card { position: absolute; top: 4px; right: 6px; background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 0.75rem; opacity: 0; }
     .guide-card:hover .remove-card { opacity: 1; }
+    .guide-card { position: relative; }
+    .guide-card .name-dropdown { position: absolute; left: 0; right: 0; top: auto; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); max-height: 200px; overflow-y: auto; z-index: 100; display: none; box-shadow: 0 4px 16px rgba(0,0,0,0.4); }
+    .guide-card .name-dropdown.open { display: block; }
+    .guide-card .name-dropdown .item { padding: 0.5rem 0.8rem; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 0.85rem; }
+    .guide-card .name-dropdown .item:hover { background: var(--surface-hover); }
+    .guide-card .name-dropdown .item .item-meta { color: var(--text-dim); font-size: 0.75rem; }
+    .guide-card .name a { color: var(--text); text-decoration: none; }
+    .guide-card .name a:hover { color: var(--blue); text-decoration: underline; }
 
     .channel-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 0.5rem; }
     .channel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.7rem 1rem; display: flex; align-items: center; gap: 0.75rem; position: relative; }
@@ -326,11 +334,11 @@
     <div class="section" id="guides">
       <h2><span class="icon" style="background: var(--orange-dim); color: var(--orange);">🧭</span> Your Key Guides</h2>
       <div class="guide-grid" id="guidesGrid">
-        <div class="guide-card"><div class="role" contenteditable="true">Onboarding Coach</div><div class="name" contenteditable="true" data-field="coachName">← Click to add name</div><div class="desc" contenteditable="true">Accelerates your time to impact. Helps define success, build relationships, and navigate Shopify's culture.</div><button class="remove-card editor-only" onclick="this.closest('.guide-card').remove()">✕</button></div>
-        <div class="guide-card"><div class="role" contenteditable="true">HR Business Partner</div><div class="name" contenteditable="true" data-field="hrbpName">← Click to add name</div><div class="desc" contenteditable="true">Talent support — performance, org structure, headcount, internal movement.</div><button class="remove-card editor-only" onclick="this.closest('.guide-card').remove()">✕</button></div>
-        <div class="guide-card"><div class="role" contenteditable="true">IT Support</div><div class="name" contenteditable="true">#help-IT</div><div class="desc" contenteditable="true">Laptop, software access, cell phone setup.</div><button class="remove-card editor-only" onclick="this.closest('.guide-card').remove()">✕</button></div>
-        <div class="guide-card"><div class="role" contenteditable="true">Manager</div><div class="name" contenteditable="true" data-field="managerName">← Click to add name</div><div class="desc" contenteditable="true">Direct manager. Recurring 1:1s and weekly check-ins during onboarding.</div><button class="remove-card editor-only" onclick="this.closest('.guide-card').remove()">✕</button></div>
-        <div class="guide-card"><div class="role" contenteditable="true">Product Ops / EP</div><div class="name" contenteditable="true" data-field="epName">← Click to add name</div><div class="desc" contenteditable="true">Embedded Partner — coordinates across product, engineering, and data leadership.</div><button class="remove-card editor-only" onclick="this.closest('.guide-card').remove()">✕</button></div>
+        <div class="guide-card"><div class="role" contenteditable="true">Onboarding Coach</div><div class="name" contenteditable="true" data-field="coachName">← Click to add name</div><div class="name-dropdown"></div><div class="desc" contenteditable="true">Accelerates your time to impact. Helps define success, build relationships, and navigate Shopify's culture.</div><button class="remove-card editor-only" onclick="this.closest('.guide-card').remove()">✕</button></div>
+        <div class="guide-card"><div class="role" contenteditable="true">HR Business Partner</div><div class="name" contenteditable="true" data-field="hrbpName">← Click to add name</div><div class="name-dropdown"></div><div class="desc" contenteditable="true">Talent support — performance, org structure, headcount, internal movement.</div><button class="remove-card editor-only" onclick="this.closest('.guide-card').remove()">✕</button></div>
+        <div class="guide-card"><div class="role" contenteditable="true">IT Support</div><div class="name" contenteditable="true">#help-IT</div><div class="name-dropdown"></div><div class="desc" contenteditable="true">Laptop, software access, cell phone setup.</div><button class="remove-card editor-only" onclick="this.closest('.guide-card').remove()">✕</button></div>
+        <div class="guide-card"><div class="role" contenteditable="true">Manager</div><div class="name" contenteditable="true" data-field="managerName">← Click to add name</div><div class="name-dropdown"></div><div class="desc" contenteditable="true">Direct manager. Recurring 1:1s and weekly check-ins during onboarding.</div><button class="remove-card editor-only" onclick="this.closest('.guide-card').remove()">✕</button></div>
+        <div class="guide-card"><div class="role" contenteditable="true">Product Ops / EP</div><div class="name" contenteditable="true" data-field="epName">← Click to add name</div><div class="name-dropdown"></div><div class="desc" contenteditable="true">Embedded Partner — coordinates across product, engineering, and data leadership.</div><button class="remove-card editor-only" onclick="this.closest('.guide-card').remove()">✕</button></div>
       </div>
       <button class="add-btn editor-only" onclick="addGuide()">+ Add guide</button>
     </div>
@@ -960,6 +968,56 @@ Return ONLY a valid JSON object where keys are exact team names and values are t
       btn.textContent = '✨ Generate';
     }
 
+    // ── Guide name autocomplete ─────────────────────────────────
+    let guideDebounce = null;
+    document.addEventListener('input', (e) => {
+      const nameEl = e.target.closest('.guide-card .name');
+      if (!nameEl) return;
+      const card = nameEl.closest('.guide-card');
+      const dropdown = card.querySelector('.name-dropdown');
+      if (!dropdown) return;
+      const query = nameEl.textContent.trim();
+      if (query.length < 2 || query.startsWith('←')) { dropdown.classList.remove('open'); return; }
+
+      clearTimeout(guideDebounce);
+      guideDebounce = setTimeout(async () => {
+        if (!searchReady) await tryConnectSearch(nameEl);
+        if (!searchReady) { dropdown.classList.remove('open'); return; }
+
+        const results = await searchPeople(query);
+        if (results.length === 0) { dropdown.classList.remove('open'); return; }
+
+        dropdown.innerHTML = results.slice(0, 6).map((p, i) =>
+          `<div class="item" data-idx="${i}" data-cache-key="${key(query)}"><strong>${esc(p.name)}</strong><div class="item-meta">${esc(p.title || '')} · ${esc(p.team || '')}</div></div>`
+        ).join('');
+        dropdown.classList.add('open');
+
+        dropdown.querySelectorAll('.item').forEach(item => {
+          item.addEventListener('click', () => {
+            const p = searchCache[item.dataset.cacheKey]?.[parseInt(item.dataset.idx)];
+            if (!p) return;
+            const vaultUrl = `https://vault.shopify.io/search?q=${encodeURIComponent(p.email ? p.email.split('@')[0] : p.name)}`;
+            nameEl.innerHTML = `<a href="${vaultUrl}" target="_blank">${esc(p.name)}</a>`;
+            nameEl.contentEditable = 'false';
+            dropdown.classList.remove('open');
+          });
+        });
+      }, 350);
+    });
+
+    // Close guide dropdowns on outside click
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.guide-card')) {
+        document.querySelectorAll('.name-dropdown').forEach(d => d.classList.remove('open'));
+      }
+    });
+
+    // When clicking a guide name that has a link, allow the link click
+    document.addEventListener('click', (e) => {
+      const nameLink = e.target.closest('.guide-card .name a');
+      if (nameLink) { e.stopPropagation(); }
+    });
+
     function removeDomain(btn) {
       const card = btn.closest('.domain-card');
       const domainKey = card?.dataset.domain;
@@ -972,7 +1030,7 @@ Return ONLY a valid JSON object where keys are exact team names and values are t
 
     function addStep() { document.getElementById('stepsContainer').insertAdjacentHTML('beforeend', '<div class="step"><div><h3 contenteditable="true">New step</h3><p contenteditable="true">Description…</p></div><button class="remove-card editor-only" onclick="this.closest(\'.step\').remove()">✕</button></div>'); }
     function addCard(containerId) { const c=document.getElementById(containerId); c.insertAdjacentHTML('beforeend', '<div class="card"><h3 contenteditable="true">New card</h3><p contenteditable="true">Description…</p><button class="remove-card editor-only" onclick="this.closest(\'.card\').remove()">✕</button></div>'); }
-    function addGuide() { document.getElementById('guidesGrid').insertAdjacentHTML('beforeend', '<div class="guide-card"><div class="role" contenteditable="true">Role</div><div class="name" contenteditable="true">Name</div><div class="desc" contenteditable="true">Description…</div><button class="remove-card editor-only" onclick="this.closest(\'.guide-card\').remove()">✕</button></div>'); }
+    function addGuide() { document.getElementById('guidesGrid').insertAdjacentHTML('beforeend', '<div class="guide-card"><div class="role" contenteditable="true">Role</div><div class="name" contenteditable="true">Name</div><div class="name-dropdown"></div><div class="desc" contenteditable="true">Description…</div><button class="remove-card editor-only" onclick="this.closest(\'.guide-card\').remove()">✕</button></div>'); }
     function addChannel() { document.getElementById('channelList').insertAdjacentHTML('beforeend', '<div class="channel"><span class="ch-icon">#</span><div><div class="ch-name" contenteditable="true">channel-name</div><div class="ch-note" contenteditable="true">Notes</div></div><span class="ch-tool" contenteditable="true">Slack</span><button class="remove-card editor-only" onclick="this.closest(\'.channel\').remove()">✕</button></div>'); }
     function addRitualCard() { document.getElementById('ritualsCards').insertAdjacentHTML('beforeend', '<div class="card"><h3 contenteditable="true">New ritual</h3><ul><li contenteditable="true">Item…</li></ul><button class="remove-card editor-only" onclick="this.closest(\'.card\').remove()">✕</button></div>'); }
     function addReadingLink() { document.getElementById('readingList').insertAdjacentHTML('beforeend', '<a href="#"><span class="link-icon">📄</span><div><div contenteditable="true">Title</div><div class="link-desc" contenteditable="true">Description…</div></div></a>'); }
