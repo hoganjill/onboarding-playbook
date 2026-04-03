@@ -878,11 +878,12 @@
 
         html += `<div style="margin-top:0.8rem; font-size:0.85rem;"><a href="${vaultSearch}" target="_blank">📖 Explore ${titleCase(esc(area))} on Vault →</a></div>`;
 
+        const domainKey = area.toLowerCase().replace(/[^a-z0-9]+/g, '-');
         placeholder.outerHTML = `
-          <div class="domain-card">
+          <div class="domain-card" data-domain="${domainKey}">
             <h3 contenteditable="true">${titleCase(esc(area))} <span class="domain-tag">${teams.length} teams · ${totalPeople} people</span></h3>
             <div class="domain-body">${html}</div>
-            <button class="remove-card editor-only" onclick="this.closest('.domain-card').remove()">✕</button>
+            <button class="remove-card editor-only" onclick="removeDomain(this)">✕</button>
           </div>`;
 
         // Generate per-team blurbs with AI
@@ -941,6 +942,10 @@ Return ONLY a valid JSON object where keys are exact team names and values are t
             const isLeadership = /\b(vp|director|head of)\b/i.test(l.title);
             const gridId = isLeadership ? 'leadershipGrid' : 'teamGrid';
             createRichCard(gridId, { name: l.name, email: l.email, title: l.title, team: l.team, groupName: '', tenure: '' });
+            // Tag the row we just added with the domain source
+            const grid = document.getElementById(gridId);
+            const lastRow = grid.querySelector('.contact-row:last-child');
+            if (lastRow) lastRow.dataset.domainSource = domainKey;
             allExisting.add(l.name);
           });
         }
@@ -953,6 +958,16 @@ Return ONLY a valid JSON object where keys are exact team names and values are t
       input.value = '';
       btn.disabled = false;
       btn.textContent = '✨ Generate';
+    }
+
+    function removeDomain(btn) {
+      const card = btn.closest('.domain-card');
+      const domainKey = card?.dataset.domain;
+      card.remove();
+      // Remove all people rows that came from this domain
+      if (domainKey) {
+        document.querySelectorAll(`.contact-row[data-domain-source="${domainKey}"]`).forEach(row => row.remove());
+      }
     }
 
     function addStep() { document.getElementById('stepsContainer').insertAdjacentHTML('beforeend', '<div class="step"><div><h3 contenteditable="true">New step</h3><p contenteditable="true">Description…</p></div><button class="remove-card editor-only" onclick="this.closest(\'.step\').remove()">✕</button></div>'); }
