@@ -857,22 +857,25 @@
 
         // Build card HTML
         let html = '';
-        // Build team list
+        // Build team cards — each team gets a small card with name, lead, size, and AI blurb
         const leadsToAdd = [];
         const teamNames = [];
+        html += `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:0.5rem; margin-top:0.5rem;">`;
         teams.forEach(t => {
           const teamLink = `https://vault.shopify.io/search?q=${encodeURIComponent(t.team + ' team')}`;
           teamNames.push(t.team);
-          html += `<div style="display:flex; align-items:baseline; gap:0.4rem; padding:0.3rem 0; border-bottom:1px solid rgba(255,255,255,0.03); font-size:0.85rem;">`;
-          html += `<a href="${teamLink}" target="_blank" style="color:var(--blue); font-weight:600;">${esc(t.team)}</a>`;
-          if (t.lead_name) html += `<span style="color:var(--text-dim); font-size:0.78rem;">· ${esc(t.lead_name)}</span>`;
-          html += `<span style="color:var(--text-dim); font-size:0.78rem; margin-left:auto;">${t.size}</span>`;
+          html += `<div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.04); border-radius:8px; padding:0.65rem 0.8rem;">`;
+          html += `<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.25rem;">`;
+          html += `<a href="${teamLink}" target="_blank" style="color:var(--blue); font-weight:600; font-size:0.88rem; text-decoration:none;">${esc(t.team)}</a>`;
+          html += `<span style="color:var(--text-dim); font-size:0.72rem; background:rgba(255,255,255,0.04); padding:0.1rem 0.4rem; border-radius:10px;">${t.size}</span>`;
+          html += `</div>`;
+          if (t.lead_name) html += `<div style="color:var(--text-dim); font-size:0.78rem;">👤 ${esc(t.lead_name)} · ${esc(t.lead_title)}</div>`;
+          html += `<div class="team-blurb-${t.team.replace(/[^a-zA-Z]/g,'')}" style="color:var(--text-secondary); font-size:0.8rem; margin-top:0.3rem; line-height:1.5;" contenteditable="true"><span style="color:var(--text-dim); font-style:italic;">Loading…</span></div>`;
           html += `</div>`;
           if (t.lead_name) leadsToAdd.push({ name: t.lead_name, email: t.lead_email || '', title: t.lead_title || '', team: t.team });
         });
+        html += `</div>`;
 
-        // Placeholder for AI-generated area context
-        html += `<div id="domainContext" style="margin-top:1rem; color:var(--text-secondary); font-size:0.88rem; line-height:1.7;" contenteditable="true"><span style="color:var(--text-dim); font-style:italic;">Generating area context…</span></div>`;
         html += `<div style="margin-top:0.8rem; font-size:0.85rem;"><a href="${vaultSearch}" target="_blank">📖 Explore ${titleCase(esc(area))} on Vault →</a></div>`;
 
         placeholder.outerHTML = `
@@ -882,35 +885,49 @@
             <button class="remove-card editor-only" onclick="this.closest('.domain-card').remove()">✕</button>
           </div>`;
 
-        // Generate area context with AI — what are they walking into
+        // Generate per-team blurbs with AI
         try {
           if (typeof quick !== 'undefined' && quick.ai) {
-            const teamList = teams.map(t => `${t.team} (${t.size} people, led by ${t.lead_name || 'TBD'})`).join('; ');
-            const contextPrompt = `Write a brief onboarding context for someone joining the "${area}" area at Shopify. This area has these teams: ${teamList}.
+            const teamList = teamNames.join(', ');
+            const blurbPrompt = `You are writing for a Shopify onboarding playbook. The "${area}" area has these teams: ${teamList}.
 
-Write 2-3 short paragraphs:
-1. What this area is responsible for at Shopify and why it matters to the business.
-2. How the teams fit together — what each team owns and how they collaborate. Reference each team by name.
-3. What the key priorities and focus areas are right now.
+For each team, write exactly 1 sentence (15-25 words) describing what that team owns or does at Shopify. Be specific — reference Shopify products, merchant capabilities, or data systems.
 
-Rules:
-- Be specific to Shopify. Reference real Shopify products, systems, or capabilities.
-- Write concise, polished prose. No bullet points. No headers.
-- This will be read by a new Director joining this area — write at that level.
-- Do NOT make up project names or dates. Speak in general terms about priorities.
-- 150 words max.`;
+Return ONLY a valid JSON object where keys are exact team names and values are the sentences. No markdown. No code fences. Example:
+{"Team A":"Owns the checkout analytics pipeline, providing conversion and payment insights to product teams.","Team B":"Builds and maintains..."}`;
 
-            const contextResponse = await quick.ai.ask(contextPrompt);
-            const contextEl = document.getElementById('domainContext');
-            if (contextEl && contextResponse) {
-              contextEl.textContent = contextResponse.trim();
-              contextEl.style.fontStyle = 'normal';
+            const blurbResponse = await quick.ai.ask(blurbPrompt);
+            try {
+              const clean = blurbResponse.trim().replace(/^```json?\s*/,'').replace(/\s*```$/,'');
+              const blurbs = JSON.parse(clean);
+              teamNames.forEach(name => {
+                const cls = 'team-blurb-' + name.replace(/[^a-zA-Z]/g, '');
+                const el = document.querySelector('.' + cls);
+                if (el && blurbs[name]) {
+                  el.textContent = blurbs[name];
+                  el.style.fontStyle = 'normal';
+                } else if (el) {
+                  el.textContent = 'Click to add description';
+                  el.style.fontStyle = 'italic';
+                  el.style.color = 'var(--text-dim)';
+                }
+              });
+            } catch(pe) {
+              console.warn('Could not parse blurbs:', pe, blurbResponse);
+              teamNames.forEach(name => {
+                const cls = 'team-blurb-' + name.replace(/[^a-zA-Z]/g, '');
+                const el = document.querySelector('.' + cls);
+                if (el) { el.textContent = 'Click to add description'; el.style.fontStyle = 'italic'; el.style.color = 'var(--text-dim)'; }
+              });
             }
           }
         } catch(ae) {
-          console.warn('AI context failed:', ae);
-          const el = document.getElementById('domainContext');
-          if (el) el.textContent = 'Add area context here — describe what this area does and current priorities.';
+          console.warn('AI blurb failed:', ae);
+          teamNames.forEach(name => {
+            const cls = 'team-blurb-' + name.replace(/[^a-zA-Z]/g, '');
+            const el = document.querySelector('.' + cls);
+            if (el) { el.textContent = 'Click to add description'; el.style.fontStyle = 'italic'; el.style.color = 'var(--text-dim)'; }
+          });
         }
 
         // Auto-populate "Your Team" — VPs/Directors → Leadership, Managers → Direct Reports
