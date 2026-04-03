@@ -1005,6 +1005,14 @@ Return ONLY a valid JSON object where keys are exact team names and values are t
       }, 350);
     });
 
+    // Clear placeholder text on focus
+    document.addEventListener('focusin', (e) => {
+      const nameEl = e.target.closest('.guide-card .name');
+      if (nameEl && nameEl.textContent.trim().startsWith('←')) {
+        nameEl.textContent = '';
+      }
+    });
+
     // Close guide dropdowns on outside click
     document.addEventListener('click', (e) => {
       if (!e.target.closest('.guide-card')) {
