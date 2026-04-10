@@ -536,74 +536,96 @@ document.querySelectorAll('.people-list').forEach(list => {
 });
 
 // ── Init on load ─────────────────────────────────────────────
-window.addEventListener('DOMContentLoaded', () => {
-  // Restore saved edits
-  const saved = localStorage.getItem('ana-maria-playbook');
-  if (saved) document.querySelector('.main').innerHTML = saved;
-
+function initAll() {
   // Setup calendar cells
   document.querySelectorAll('.sched .cell:not(.hdr):not(.wk)').forEach(setupCell);
   document.querySelectorAll('.ev').forEach(makeEventDraggable);
 
-  // Add checkboxes and drag handles to all person rows
-  document.querySelectorAll('.person').forEach(p => {
-    // Add checkbox at start if not already there
-    if (!p.querySelector('.check')) {
-      const check = document.createElement('div');
-      check.className = 'check';
-      check.onclick = () => {
-        check.classList.toggle('done');
-        check.textContent = check.classList.contains('done') ? '✓' : '';
-        p.querySelector('.pname')?.classList.toggle('met');
-      };
-      p.insertBefore(check, p.firstChild);
-    }
-    // Add drag handle at end if not already there
-    if (!p.querySelector('.drag-handle')) {
-      const handle = document.createElement('span');
-      handle.className = 'drag-handle';
-      handle.textContent = '⠿';
-      handle.draggable = true;
-      handle.addEventListener('dragstart', e => {
-        e.stopPropagation();
-        window._dragPerson = p;
-        p.style.opacity = '.3';
-        e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setData('text/plain', '');
-      });
-      handle.addEventListener('dragend', () => {
-        p.style.opacity = '1';
-        document.querySelectorAll('.drop-hl-list').forEach(l => l.classList.remove('drop-hl-list'));
-        window._dragPerson = null;
-      });
-      p.appendChild(handle);
-    }
-    // Don't make the person row itself draggable — only the handle
-    p.draggable = false;
+  // Setup all person rows — checkboxes, drag handles, listeners
+  document.querySelectorAll('.person').forEach(setupPerson);
+
+  // Setup people list drop zones
+  document.querySelectorAll('.people-list').forEach(list => {
+    list.addEventListener('dragover', e => { if (window._dragPerson) { e.preventDefault(); list.classList.add('drop-hl-list'); }});
+    list.addEventListener('dragleave', () => list.classList.remove('drop-hl-list'));
+    list.addEventListener('drop', e => { e.preventDefault(); list.classList.remove('drop-hl-list'); if (window._dragPerson) list.appendChild(window._dragPerson); });
   });
 
-  // Add remove buttons to all removable items
+  // Add remove buttons
   document.querySelectorAll('.step, .card, .guide, .team-card, .person, .ch').forEach(el => addRemoveBtn(el));
 
-  // Inject add buttons into sections
+  // Inject add buttons
   const addBtns = [
     { after: '.steps', html: '<button class="add-btn" onclick="addStep()" style="display:none">+ Add step</button>' },
-    { after: '#startup', html: '<button class="add-btn" onclick="addCard(\'startup\')" style="display:none">+ Add card</button>', inside: true },
-    { after: '.sched', html: '<button class="add-btn" onclick="addWeek()" style="display:none">+ Add week</button>' },
     { after: '.guide-grid', html: '<button class="add-btn" onclick="addGuide()" style="display:none">+ Add guide</button>' },
     { after: '.team-grid', html: '<button class="add-btn" onclick="addTeamCard()" style="display:none">+ Add team</button>' },
-    { after: '#team', html: '<button class="add-btn" onclick="addPerson(\'.people-list:nth-of-type(1)\')" style="display:none">+ Add person</button>', inside: true },
     { after: '.ch-list', html: '<button class="add-btn" onclick="addChannel()" style="display:none">+ Add channel</button>' },
-    { after: '#rituals', html: '<button class="add-btn" onclick="addRitual()" style="display:none">+ Add ritual</button>', inside: true },
     { after: '.reading', html: '<button class="add-btn" onclick="addReading()" style="display:none">+ Add link</button>' },
   ];
-  addBtns.forEach(({ after, html, inside }) => {
+  addBtns.forEach(({ after, html }) => {
     const el = document.querySelector(after);
-    if (el) {
-      if (inside) el.insertAdjacentHTML('beforeend', html);
-      else el.insertAdjacentHTML('afterend', html);
+    if (el && !el.nextElementSibling?.classList?.contains('add-btn')) el.insertAdjacentHTML('afterend', html);
+  });
+  // Section-level adds
+  ['startup','rituals','team'].forEach(id => {
+    const section = document.getElementById(id);
+    if (section && !section.querySelector(':scope > .add-btn')) {
+      const label = id === 'startup' ? 'card' : id === 'rituals' ? 'ritual' : 'person';
+      const fn = id === 'startup' ? "addCard('startup')" : id === 'rituals' ? 'addRitual()' : "addPerson('.people-list:last-of-type')";
+      section.insertAdjacentHTML('beforeend', `<button class="add-btn" onclick="${fn}" style="display:none">+ Add ${label}</button>`);
     }
   });
+  // Add week button after schedule
+  const sched = document.querySelector('.sched');
+  if (sched && !sched.nextElementSibling?.classList?.contains('add-btn')) {
+    sched.insertAdjacentHTML('afterend', '<button class="add-btn" onclick="addWeek()" style="display:none">+ Add week</button>');
+  }
+}
+
+function setupPerson(p) {
+  p.draggable = false;
+  // Remove old handles/checks to avoid duplicates
+  p.querySelectorAll('.check, .drag-handle').forEach(el => el.remove());
+  
+  // Checkbox
+  const check = document.createElement('div');
+  check.className = 'check';
+  // Restore checked state from class
+  if (p.querySelector('.pname.met')) { check.classList.add('done'); check.textContent = '✓'; }
+  check.onclick = () => {
+    check.classList.toggle('done');
+    check.textContent = check.classList.contains('done') ? '✓' : '';
+    p.querySelector('.pname')?.classList.toggle('met');
+  };
+  p.insertBefore(check, p.firstChild);
+
+  // Drag handle
+  const handle = document.createElement('span');
+  handle.className = 'drag-handle';
+  handle.textContent = '⠿';
+  handle.draggable = true;
+  handle.addEventListener('dragstart', e => {
+    e.stopPropagation();
+    window._dragPerson = p;
+    p.style.opacity = '.3';
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', '');
+  });
+  handle.addEventListener('dragend', () => {
+    p.style.opacity = '1';
+    document.querySelectorAll('.drop-hl-list').forEach(l => l.classList.remove('drop-hl-list'));
+    window._dragPerson = null;
+  });
+  p.appendChild(handle);
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  // Restore saved edits FIRST
+  const saved = localStorage.getItem('ana-maria-playbook');
+  if (saved) document.querySelector('.main').innerHTML = saved;
+
+  // Then init all interactive elements (attaches fresh event listeners)
+  initAll();
 });
 </script>
 </body>
