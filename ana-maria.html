@@ -48,6 +48,20 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 .ev.gen{background:var(--blue-dim);color:var(--blue)}.ev.start{background:var(--purple-dim);color:var(--purple)}
 .ev.data{background:var(--teal-dim);color:var(--teal)}.ev.irl{background:var(--orange-dim);color:var(--orange)}
 .ev.cust{background:var(--accent-dim);color:var(--accent)}
+    .cell .add-ev{background:rgba(150,191,72,0.08);border:1px dashed rgba(150,191,72,0.25);color:var(--accent);padding:.2rem;border-radius:3px;cursor:pointer;font-size:.75rem;font-weight:600;width:100%;margin-top:.2rem;text-align:center;opacity:0;transition:opacity .15s;position:relative}
+    .cell:hover .add-ev{opacity:1}.add-ev:hover{background:rgba(150,191,72,0.15)}
+    .ev-picker{position:absolute;bottom:100%;left:0;right:0;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:.3rem;z-index:50;box-shadow:0 -4px 16px rgba(0,0,0,0.5);display:flex;flex-direction:column;gap:2px}
+    .ev-picker button{display:flex;align-items:center;gap:.4rem;padding:.3rem .5rem;border-radius:3px;cursor:pointer;font-size:.75rem;border:none;background:none;color:var(--text);text-align:left;width:100%}
+    .ev-picker button:hover{background:var(--surface-hover)}
+    .ev-picker .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+    .drop-hl{outline:2px solid var(--accent);outline-offset:-2px}
+    .drop-hl-list{outline:2px solid var(--accent);outline-offset:2px;border-radius:var(--radius-sm)}
+    .remove-btn{transition:opacity .15s}
+    .add-btn{display:inline-flex;align-items:center;gap:.4rem;margin-top:.75rem;background:none;color:var(--accent);border:1px dashed rgba(150,191,72,0.3);padding:.45rem 1rem;border-radius:var(--radius-sm);cursor:pointer;font-size:.82rem}
+    .add-btn:hover{background:var(--accent-dim);border-color:var(--accent)}
+    .person{cursor:grab}.person:active{cursor:grabbing}
+    .add-week-btn{display:inline-flex;align-items:center;gap:.4rem;margin-top:.75rem;background:none;color:var(--accent);border:1px dashed rgba(150,191,72,0.3);padding:.45rem 1rem;border-radius:var(--radius-sm);cursor:pointer;font-size:.82rem}
+    .add-week-btn:hover{background:var(--accent-dim)}
 
 /* Guides */
 .guide-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.5rem}
@@ -321,7 +335,10 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 
 <div class="footer">Built with ❤️ for your onboarding journey</div>
 
+<button class="edit-toggle" id="editToggle" onclick="toggleEdit()">✏️ Edit</button>
+
 <script>
+// ── Sidebar highlight ────────────────────────────────────────
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => { if (entry.isIntersecting) {
     document.querySelectorAll('.sidebar a').forEach(l => l.classList.remove('active'));
@@ -330,29 +347,225 @@ const observer = new IntersectionObserver((entries) => {
   }});
 }, { rootMargin: '-50px 0px -60% 0px' });
 document.querySelectorAll('.section').forEach(s => observer.observe(s));
-</script>
 
-<button class="edit-toggle" id="editToggle" onclick="toggleEdit()">✏️ Edit</button>
-
-<script>
+// ── Edit toggle + save ───────────────────────────────────────
 let editing = false;
 function toggleEdit() {
   editing = !editing;
   document.body.classList.toggle('editing', editing);
-  const btn = document.getElementById('editToggle');
-  btn.innerHTML = editing ? '💾 Save' : '✏️ Edit';
+  document.getElementById('editToggle').innerHTML = editing ? '💾 Save' : '✏️ Edit';
+  // Show/hide add buttons and remove buttons
+  document.querySelectorAll('.add-btn,.remove-btn').forEach(el => el.style.display = editing ? '' : 'none');
   if (!editing) {
-    // Save to localStorage
     localStorage.setItem('ana-maria-playbook', document.querySelector('.main').innerHTML);
-    btn.innerHTML = '✓ Saved';
-    setTimeout(() => btn.innerHTML = '✏️ Edit', 1500);
+    document.getElementById('editToggle').innerHTML = '✓ Saved';
+    setTimeout(() => document.getElementById('editToggle').innerHTML = '✏️ Edit', 1500);
   }
 }
 
-// Restore saved edits on load
+// ── Remove buttons on hover ──────────────────────────────────
+function addRemoveBtn(el, targetSelector) {
+  const btn = document.createElement('button');
+  btn.className = 'remove-btn';
+  btn.textContent = '✕';
+  btn.style.cssText = 'position:absolute;top:4px;right:6px;background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:.75rem;opacity:0;display:none;';
+  btn.onclick = () => el.remove();
+  el.style.position = 'relative';
+  el.appendChild(btn);
+  el.addEventListener('mouseenter', () => { if (editing) btn.style.opacity = '1'; });
+  el.addEventListener('mouseleave', () => btn.style.opacity = '0');
+}
+
+// ── Calendar: drag-drop, add events, add weeks ───────────────
+const CATS = {gen:'General',start:'Startup',data:'Data Onboarding',irl:'In-Person / Travel',cust:'Custom / Manager'};
+const CAT_COLORS = {gen:'var(--blue)',start:'var(--purple)',data:'var(--teal)',irl:'var(--orange)',cust:'var(--accent)'};
+
+function makeEventDraggable(ev) {
+  ev.draggable = true;
+  ev.style.cursor = 'grab';
+  ev.addEventListener('dragstart', e => { window._dragEv = ev; ev.style.opacity = '.3'; e.dataTransfer.effectAllowed = 'move'; });
+  ev.addEventListener('dragend', () => { ev.style.opacity = '1'; document.querySelectorAll('.drop-hl').forEach(c => c.classList.remove('drop-hl')); window._dragEv = null; });
+}
+
+function setupCell(cell) {
+  cell.addEventListener('dragover', e => { if (window._dragEv) { e.preventDefault(); cell.classList.add('drop-hl'); }});
+  cell.addEventListener('dragleave', () => cell.classList.remove('drop-hl'));
+  cell.addEventListener('drop', e => { e.preventDefault(); cell.classList.remove('drop-hl'); if (window._dragEv) { const addBtn = cell.querySelector('.add-ev'); if (addBtn) cell.insertBefore(window._dragEv, addBtn); else cell.appendChild(window._dragEv); }});
+  // Add "+" button
+  const addBtn = document.createElement('div');
+  addBtn.className = 'add-ev add-btn';
+  addBtn.textContent = '+ Add';
+  addBtn.style.display = 'none';
+  addBtn.onclick = () => showEventPicker(addBtn);
+  cell.appendChild(addBtn);
+}
+
+function showEventPicker(addBtn) {
+  document.querySelectorAll('.ev-picker').forEach(p => p.remove());
+  const picker = document.createElement('div');
+  picker.className = 'ev-picker';
+  Object.entries(CATS).forEach(([cat, label]) => {
+    const btn = document.createElement('button');
+    btn.innerHTML = `<span class="dot" style="background:${CAT_COLORS[cat]}"></span>${label}`;
+    btn.onclick = (e) => { e.stopPropagation(); picker.remove(); insertNewEvent(addBtn, cat); };
+    picker.appendChild(btn);
+  });
+  addBtn.appendChild(picker);
+  setTimeout(() => document.addEventListener('click', function close(e) { if (!picker.contains(e.target)) { picker.remove(); document.removeEventListener('click', close); }}, 10));
+}
+
+function insertNewEvent(addBtn, cat) {
+  const ev = document.createElement('span');
+  ev.className = 'ev ' + cat;
+  ev.contentEditable = 'true';
+  ev.textContent = 'New event';
+  makeEventDraggable(ev);
+  addBtn.parentElement.insertBefore(ev, addBtn);
+  ev.focus();
+  document.execCommand('selectAll');
+}
+
+function addWeek() {
+  const grid = document.querySelector('.sched');
+  const wks = grid.querySelectorAll('.wk');
+  const num = wks.length + 1;
+  const wkCell = document.createElement('div');
+  wkCell.className = 'cell wk';
+  wkCell.contentEditable = 'true';
+  wkCell.textContent = 'Wk ' + num;
+  grid.appendChild(wkCell);
+  for (let i = 0; i < 5; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    cell.contentEditable = 'true';
+    grid.appendChild(cell);
+    setupCell(cell);
+  }
+}
+
+// ── Section add buttons ──────────────────────────────────────
+function addStep() {
+  const steps = document.querySelector('.steps');
+  const step = document.createElement('div');
+  step.className = 'step';
+  step.innerHTML = '<div><h3 contenteditable="true">New step</h3><p contenteditable="true">Description…</p></div>';
+  steps.appendChild(step);
+  addRemoveBtn(step);
+}
+
+function addCard(sectionId) {
+  const section = document.getElementById(sectionId);
+  const btn = section.querySelector('.add-btn:last-of-type');
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = '<h3 contenteditable="true">New card</h3><p contenteditable="true">Description…</p>';
+  section.insertBefore(card, btn);
+  addRemoveBtn(card);
+}
+
+function addGuide() {
+  const grid = document.getElementById('guidesGrid') || document.querySelector('.guide-grid');
+  const guide = document.createElement('div');
+  guide.className = 'guide';
+  guide.innerHTML = '<div class="role" contenteditable="true">Role</div><div class="name" contenteditable="true">Name</div><div class="desc" contenteditable="true">Description…</div>';
+  grid.appendChild(guide);
+  addRemoveBtn(guide);
+}
+
+function addTeamCard() {
+  const grid = document.querySelector('.team-grid');
+  const card = document.createElement('div');
+  card.className = 'team-card';
+  card.innerHTML = '<h4 contenteditable="true">Team Name <span class="badge">0</span></h4><div class="lead" contenteditable="true">👤 Lead name · Title</div><div class="blurb" contenteditable="true">What this team does…</div>';
+  grid.appendChild(card);
+  addRemoveBtn(card);
+}
+
+function addPerson(listSelector) {
+  const list = document.querySelector(listSelector);
+  const person = document.createElement('div');
+  person.className = 'person';
+  person.draggable = true;
+  person.innerHTML = '<div class="av">??</div><div class="info"><div class="pname" contenteditable="true">Name</div><div class="pmeta" contenteditable="true">Title</div></div>';
+  list.appendChild(person);
+  addRemoveBtn(person);
+  setupPersonDrag(person);
+}
+
+function addChannel() {
+  const list = document.querySelector('.ch-list');
+  const ch = document.createElement('div');
+  ch.className = 'ch';
+  ch.innerHTML = '<span class="chicon">#</span><div><div class="chname" contenteditable="true">channel-name</div><div class="chnote" contenteditable="true">Notes</div></div><span class="chtool" contenteditable="true">Slack</span>';
+  list.appendChild(ch);
+  addRemoveBtn(ch);
+}
+
+function addRitual() {
+  const section = document.getElementById('rituals');
+  const btn = section.querySelector('.add-btn');
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = '<h3 contenteditable="true">New ritual</h3><ul><li contenteditable="true">Item…</li></ul>';
+  section.insertBefore(card, btn);
+  addRemoveBtn(card);
+}
+
+function addReading() {
+  const list = document.querySelector('.reading');
+  const link = document.createElement('a');
+  link.href = '#';
+  link.innerHTML = '<span>📄</span><div><div contenteditable="true">Title</div><div class="ldesc" contenteditable="true">Description…</div></div>';
+  list.appendChild(link);
+}
+
+// ── People drag between sections ─────────────────────────────
+function setupPersonDrag(person) {
+  person.addEventListener('dragstart', e => { window._dragPerson = person; person.style.opacity = '.3'; });
+  person.addEventListener('dragend', () => { person.style.opacity = '1'; document.querySelectorAll('.drop-hl-list').forEach(l => l.classList.remove('drop-hl-list')); window._dragPerson = null; });
+}
+
+document.querySelectorAll('.people-list').forEach(list => {
+  list.addEventListener('dragover', e => { if (window._dragPerson) { e.preventDefault(); list.classList.add('drop-hl-list'); }});
+  list.addEventListener('dragleave', () => list.classList.remove('drop-hl-list'));
+  list.addEventListener('drop', e => { e.preventDefault(); list.classList.remove('drop-hl-list'); if (window._dragPerson) list.appendChild(window._dragPerson); });
+});
+
+// ── Init on load ─────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
+  // Restore saved edits
   const saved = localStorage.getItem('ana-maria-playbook');
   if (saved) document.querySelector('.main').innerHTML = saved;
+
+  // Setup calendar cells
+  document.querySelectorAll('.sched .cell:not(.hdr):not(.wk)').forEach(setupCell);
+  document.querySelectorAll('.ev').forEach(makeEventDraggable);
+
+  // Setup person dragging
+  document.querySelectorAll('.person').forEach(p => { p.draggable = true; setupPersonDrag(p); });
+
+  // Add remove buttons to all removable items
+  document.querySelectorAll('.step, .card, .guide, .team-card, .person, .ch').forEach(el => addRemoveBtn(el));
+
+  // Inject add buttons into sections
+  const addBtns = [
+    { after: '.steps', html: '<button class="add-btn" onclick="addStep()" style="display:none">+ Add step</button>' },
+    { after: '#startup', html: '<button class="add-btn" onclick="addCard(\'startup\')" style="display:none">+ Add card</button>', inside: true },
+    { after: '.sched', html: '<button class="add-btn" onclick="addWeek()" style="display:none">+ Add week</button>' },
+    { after: '.guide-grid', html: '<button class="add-btn" onclick="addGuide()" style="display:none">+ Add guide</button>' },
+    { after: '.team-grid', html: '<button class="add-btn" onclick="addTeamCard()" style="display:none">+ Add team</button>' },
+    { after: '#team', html: '<button class="add-btn" onclick="addPerson(\'.people-list:nth-of-type(1)\')" style="display:none">+ Add person</button>', inside: true },
+    { after: '.ch-list', html: '<button class="add-btn" onclick="addChannel()" style="display:none">+ Add channel</button>' },
+    { after: '#rituals', html: '<button class="add-btn" onclick="addRitual()" style="display:none">+ Add ritual</button>', inside: true },
+    { after: '.reading', html: '<button class="add-btn" onclick="addReading()" style="display:none">+ Add link</button>' },
+  ];
+  addBtns.forEach(({ after, html, inside }) => {
+    const el = document.querySelector(after);
+    if (el) {
+      if (inside) el.insertAdjacentHTML('beforeend', html);
+      else el.insertAdjacentHTML('afterend', html);
+    }
+  });
 });
 </script>
 </body>
