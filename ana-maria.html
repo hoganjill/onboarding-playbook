@@ -54,17 +54,23 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 .guide{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:.8rem 1rem}
 .guide .role{color:var(--text-dim);font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;margin-bottom:.15rem}
 .guide .name{font-weight:600;font-size:.9rem;margin-bottom:.25rem}
+    .guide .name a{color:var(--text);text-decoration:none}
+    .guide .name a:hover{color:var(--accent);text-decoration:underline}
 .guide .desc{color:var(--text-secondary);font-size:.8rem;line-height:1.5}
 
 /* Domain team cards */
 .team-grid{display:flex;flex-direction:column;gap:.5rem;margin:.75rem 0}
 .team-card{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);border-radius:8px;padding:.7rem .9rem}
-.team-card h4{font-size:.92rem;margin-bottom:.15rem;display:flex;align-items:center;justify-content:space-between}
+.team-card h4{font-size:.92rem;color:var(--text);margin-bottom:.15rem;display:flex;align-items:center;justify-content:space-between}
 .team-card h4 .badge{color:var(--text-dim);font-size:.72rem;background:rgba(255,255,255,0.04);padding:.1rem .4rem;border-radius:10px}
 .team-card .lead{color:var(--text-dim);font-size:.78rem;margin-bottom:.3rem}
+    .team-card .lead a{color:var(--text-secondary)}
+    .team-card h4 a{color:var(--text);text-decoration:none}
+    .team-card h4 a:hover{color:var(--accent);text-decoration:underline}
 .team-card .blurb{color:var(--text-secondary);font-size:.82rem;line-height:1.5;margin-bottom:.3rem}
 .team-card .projects{font-size:.78rem;color:var(--text-dim)}
-.team-card .projects a{font-size:.78rem}
+.team-card .projects a{font-size:.78rem;color:var(--text-secondary)}
+    .team-card .projects a:hover{color:var(--accent)}
 
 /* People checklist */
 .people-list{display:flex;flex-direction:column;gap:2px;margin:.5rem 0}
@@ -176,11 +182,11 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 <div class="section" id="guides">
   <h2><span class="icon" style="background:var(--orange-dim);color:var(--orange)">🧭</span> Your Key Guides</h2>
   <div class="guide-grid">
-    <div class="guide"><div class="role">Onboarding Coach</div><div class="name"><a href="mailto:jonathan.heard@shopify.com">Jonathan Heard</a></div><div class="desc" contenteditable="true">M5+ and C9+ hires with direct reports are auto-enrolled. Jonathan will confirm your coach assignment.</div></div>
-    <div class="guide"><div class="role">HR Business Partner</div><div class="name"><a href="https://vault.shopify.io/search?q=sarah.eagles">Sarah Eagles</a></div><div class="desc" contenteditable="true">Talent support — performance programs, org structure, headcount, internal movement.</div></div>
-    <div class="guide"><div class="role">IT Support</div><div class="name"><a href="https://shopify.slack.com/archives/C030RF71R">#help-IT</a></div><div class="desc" contenteditable="true">Laptop, software access, cell phone setup.</div></div>
-    <div class="guide"><div class="role">Manager</div><div class="name"><a href="https://vault.shopify.io/search?q=nell.thomas">Nell Thomas</a></div><div class="desc" contenteditable="true">VP, Data. Your direct manager.</div></div>
-    <div class="guide"><div class="role">Product Ops / EP</div><div class="name"><a href="https://vault.shopify.io/search?q=jill.hogan">Jill Hogan</a></div><div class="desc" contenteditable="true">Senior Product Operations Manager, Data. Your Ops partner for Corporate Data.</div></div>
+    <div class="guide"><div class="role">Onboarding Coach</div><div class="name" contenteditable="true"><a href="mailto:jonathan.heard@shopify.com">Jonathan Heard</a></div><div class="desc" contenteditable="true">M5+ and C9+ hires with direct reports are auto-enrolled. Jonathan will confirm your coach assignment.</div></div>
+    <div class="guide"><div class="role">HR Business Partner</div><div class="name" contenteditable="true"><a href="https://vault.shopify.io/search?q=sarah.eagles">Sarah Eagles</a></div><div class="desc" contenteditable="true">Talent support — performance programs, org structure, headcount, internal movement.</div></div>
+    <div class="guide"><div class="role">IT Support</div><div class="name" contenteditable="true"><a href="https://shopify.slack.com/archives/C030RF71R">#help-IT</a></div><div class="desc" contenteditable="true">Laptop, software access, cell phone setup.</div></div>
+    <div class="guide"><div class="role">Manager</div><div class="name" contenteditable="true"><a href="https://vault.shopify.io/search?q=nell.thomas">Nell Thomas</a></div><div class="desc" contenteditable="true">VP, Data. Your direct manager.</div></div>
+    <div class="guide"><div class="role">Product Ops / EP</div><div class="name" contenteditable="true"><a href="https://vault.shopify.io/search?q=jill.hogan">Jill Hogan</a></div><div class="desc" contenteditable="true">Senior Product Operations Manager, Data. Your Ops partner for Corporate Data.</div></div>
   </div>
 </div>
 
@@ -188,7 +194,7 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 <div class="section" id="domain">
   <h2><span class="icon" style="background:var(--blue-dim);color:var(--blue)">🗺️</span> Corporate Data</h2>
   <p style="color:var(--text-secondary);font-size:.9rem;margin-bottom:.5rem">Your area spans 5 teams and approximately 34 people. The group's mission: <strong>"We're here to use data to maximize outcomes for Shopify."</strong></p>
-  <p style="margin-bottom:1rem;font-size:.85rem"><a href="https://vault.shopify.io/posts/342798">📖 Nell's Big Rocks for 2026</a> · <a href="https://docs.google.com/presentation/d/10tTK4-HXsO7i9dhPK5kIDA_Swkrm8MZ866kdqlK7dq4/edit">📊 Townhall deck</a></p>
+  <p style="margin-bottom:1rem;font-size:.85rem"><a style="color:var(--text-secondary)" href="https://vault.shopify.io/posts/342798">📖 Nell's Big Rocks for 2026</a> · <a href="https://docs.google.com/presentation/d/10tTK4-HXsO7i9dhPK5kIDA_Swkrm8MZ866kdqlK7dq4/edit">📊 Townhall deck</a></p>
 
   <div class="team-grid">
     <!-- Executive Insights -->
