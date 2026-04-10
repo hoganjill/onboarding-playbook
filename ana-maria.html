@@ -64,9 +64,14 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
     .person .check.done{background:var(--accent);border-color:var(--accent);color:#000}
     .person .pname.met{text-decoration:line-through;color:var(--text-dim)}
     .person .pname.met a{color:var(--text-dim)}
-    .person .drag-handle{cursor:grab;color:var(--text-dim);font-size:.7rem;padding:0 .2rem;flex-shrink:0;opacity:0;transition:opacity .15s;user-select:none}
-    .person:hover .drag-handle{opacity:.5}
-    .person .drag-handle:active{cursor:grabbing}
+    .person .move-menu{position:relative;flex-shrink:0}
+    .person .move-btn{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:.7rem;padding:.2rem .3rem;opacity:0;transition:opacity .15s;border-radius:3px}
+    .person:hover .move-btn{opacity:.6}
+    .person .move-btn:hover{opacity:1;background:rgba(255,255,255,0.05)}
+    .move-dropdown{position:absolute;right:0;top:100%;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:.2rem;z-index:50;box-shadow:0 4px 12px rgba(0,0,0,0.5);min-width:160px;display:none}
+    .move-dropdown.open{display:block}
+    .move-dropdown button{display:block;width:100%;text-align:left;padding:.35rem .6rem;background:none;border:none;color:var(--text);cursor:pointer;font-size:.78rem;border-radius:3px}
+    .move-dropdown button:hover{background:var(--surface-hover)}
 
     .add-week-btn{display:inline-flex;align-items:center;gap:.4rem;margin-top:.75rem;background:none;color:var(--accent);border:1px dashed rgba(150,191,72,0.3);padding:.45rem 1rem;border-radius:var(--radius-sm);cursor:pointer;font-size:.82rem}
     .add-week-btn:hover{background:var(--accent-dim)}
@@ -527,13 +532,7 @@ function addReading() {
   list.appendChild(link);
 }
 
-// ── People drag between sections (handled via drag handles) ──
-
-document.querySelectorAll('.people-list').forEach(list => {
-  list.addEventListener('dragover', e => { if (window._dragPerson) { e.preventDefault(); list.classList.add('drop-hl-list'); }});
-  list.addEventListener('dragleave', () => list.classList.remove('drop-hl-list'));
-  list.addEventListener('drop', e => { e.preventDefault(); list.classList.remove('drop-hl-list'); if (window._dragPerson) list.appendChild(window._dragPerson); });
-});
+// ── People move between sections (via ↕ menu) ──
 
 // ── Init on load ─────────────────────────────────────────────
 function initAll() {
@@ -543,13 +542,6 @@ function initAll() {
 
   // Setup all person rows — checkboxes, drag handles, listeners
   document.querySelectorAll('.person').forEach(setupPerson);
-
-  // Setup people list drop zones
-  document.querySelectorAll('.people-list').forEach(list => {
-    list.addEventListener('dragover', e => { if (window._dragPerson) { e.preventDefault(); list.classList.add('drop-hl-list'); }});
-    list.addEventListener('dragleave', () => list.classList.remove('drop-hl-list'));
-    list.addEventListener('drop', e => { e.preventDefault(); list.classList.remove('drop-hl-list'); if (window._dragPerson) list.appendChild(window._dragPerson); });
-  });
 
   // Add remove buttons
   document.querySelectorAll('.step, .card, .guide, .team-card, .person, .ch').forEach(el => addRemoveBtn(el));
@@ -582,15 +574,16 @@ function initAll() {
   }
 }
 
+const SECTION_LABELS = {};
+
 function setupPerson(p) {
   p.draggable = false;
-  // Remove old handles/checks to avoid duplicates
-  p.querySelectorAll('.check, .drag-handle').forEach(el => el.remove());
+  // Remove old elements to avoid duplicates
+  p.querySelectorAll('.check, .move-menu').forEach(el => el.remove());
   
   // Checkbox
   const check = document.createElement('div');
   check.className = 'check';
-  // Restore checked state from class
   if (p.querySelector('.pname.met')) { check.classList.add('done'); check.textContent = '✓'; }
   check.onclick = () => {
     check.classList.toggle('done');
@@ -599,25 +592,44 @@ function setupPerson(p) {
   };
   p.insertBefore(check, p.firstChild);
 
-  // Drag handle
-  const handle = document.createElement('span');
-  handle.className = 'drag-handle';
-  handle.textContent = '⠿';
-  handle.draggable = true;
-  handle.addEventListener('dragstart', e => {
+  // Move menu
+  const menu = document.createElement('div');
+  menu.className = 'move-menu';
+  const btn = document.createElement('button');
+  btn.className = 'move-btn';
+  btn.textContent = '↕';
+  btn.title = 'Move to another section';
+  btn.onclick = (e) => {
     e.stopPropagation();
-    window._dragPerson = p;
-    p.style.opacity = '.3';
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/plain', '');
+    // Close other open menus
+    document.querySelectorAll('.move-dropdown.open').forEach(d => d.classList.remove('open'));
+    const dropdown = menu.querySelector('.move-dropdown');
+    dropdown.classList.toggle('open');
+  };
+  const dropdown = document.createElement('div');
+  dropdown.className = 'move-dropdown';
+  // Build options from all people-list sections
+  document.querySelectorAll('.people-list').forEach(list => {
+    const heading = list.previousElementSibling;
+    const label = heading?.textContent?.trim() || 'Section';
+    const opt = document.createElement('button');
+    opt.textContent = '→ ' + label;
+    opt.onclick = (e) => {
+      e.stopPropagation();
+      list.appendChild(p);
+      dropdown.classList.remove('open');
+    };
+    dropdown.appendChild(opt);
   });
-  handle.addEventListener('dragend', () => {
-    p.style.opacity = '1';
-    document.querySelectorAll('.drop-hl-list').forEach(l => l.classList.remove('drop-hl-list'));
-    window._dragPerson = null;
-  });
-  p.appendChild(handle);
+  menu.appendChild(btn);
+  menu.appendChild(dropdown);
+  p.appendChild(menu);
 }
+
+// Close move menus on outside click
+document.addEventListener('click', () => {
+  document.querySelectorAll('.move-dropdown.open').forEach(d => d.classList.remove('open'));
+});
 
 window.addEventListener('DOMContentLoaded', () => {
   // Restore saved edits FIRST
