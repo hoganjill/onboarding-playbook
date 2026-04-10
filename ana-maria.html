@@ -59,7 +59,15 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
     .remove-btn{transition:opacity .15s}
     .add-btn{display:inline-flex;align-items:center;gap:.4rem;margin-top:.75rem;background:none;color:var(--accent);border:1px dashed rgba(150,191,72,0.3);padding:.45rem 1rem;border-radius:var(--radius-sm);cursor:pointer;font-size:.82rem}
     .add-btn:hover{background:var(--accent-dim);border-color:var(--accent)}
-    .person{cursor:grab}.person:active{cursor:grabbing}
+    
+    .person .check{width:18px;height:18px;border-radius:4px;border:2px solid var(--border);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.7rem;transition:all .15s}
+    .person .check.done{background:var(--accent);border-color:var(--accent);color:#000}
+    .person .pname.met{text-decoration:line-through;color:var(--text-dim)}
+    .person .pname.met a{color:var(--text-dim)}
+    .person .drag-handle{cursor:grab;color:var(--text-dim);font-size:.7rem;padding:0 .2rem;flex-shrink:0;opacity:0;transition:opacity .15s;user-select:none}
+    .person:hover .drag-handle{opacity:.5}
+    .person .drag-handle:active{cursor:grabbing}
+
     .add-week-btn{display:inline-flex;align-items:center;gap:.4rem;margin-top:.75rem;background:none;color:var(--accent);border:1px dashed rgba(150,191,72,0.3);padding:.45rem 1rem;border-radius:var(--radius-sm);cursor:pointer;font-size:.82rem}
     .add-week-btn:hover{background:var(--accent-dim)}
 
@@ -259,29 +267,29 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 
   <h3 style="font-size:.95rem;margin:1rem 0 .5rem;color:var(--text-dim)">Nell's Leadership Team</h3>
   <div class="people-list">
-    <div class="person"><div class="av">NT</div><div class="info"><div class="pname" contenteditable="true"><a href="https://vault.shopify.io/search?q=nell.thomas">Nell Thomas</a></div><div class="pmeta" contenteditable="true">VP, Data</div></div></div>
-    <div class="person"><div class="av">RB</div><div class="info"><div class="pname" contenteditable="true"><a href="https://vault.shopify.io/search?q=rajpreet.bajwa">Rajpreet Bajwa</a></div><div class="pmeta" contenteditable="true">Director, Engineering, Data Infrastructure</div></div></div>
-    <div class="person"><div class="av">AF</div><div class="info"><div class="pname" contenteditable="true"><a href="https://vault.shopify.io/search?q=auggie.fisher">Auggie Fisher</a></div><div class="pmeta" contenteditable="true">Director, Analytics Engineering</div></div></div>
-    <div class="person"><div class="av">SL</div><div class="info"><div class="pname" contenteditable="true"><a href="https://vault.shopify.io/search?q=spencer.lawrence">Spencer Lawrence</a></div><div class="pmeta" contenteditable="true">Director, Revenue Data</div></div></div>
-    <div class="person"><div class="av">IZ</div><div class="info"><div class="pname" contenteditable="true"><a href="https://vault.shopify.io/search?q=ivan.zimin">Ivan Zimin</a></div><div class="pmeta" contenteditable="true">Director, Product, Data</div></div></div>
-    <div class="person"><div class="av">VM</div><div class="info"><div class="pname" contenteditable="true"><a href="https://vault.shopify.io/search?q=varun.madduri">Varun Madduri</a></div><div class="pmeta" contenteditable="true">Director, Data Insights</div></div></div>
-    <div class="person"><div class="av">DH</div><div class="info"><div class="pname" contenteditable="true"><a href="https://vault.shopify.io/search?q=dave.hedengren">Dave Hedengren</a></div><div class="pmeta" contenteditable="true">Director, Data Insights</div></div></div>
-    <div class="person"><div class="av">RC</div><div class="info"><div class="pname" contenteditable="true"><a href="https://vault.shopify.io/search?q=ratna.chembrolu">Ratna Chembrolu</a></div><div class="pmeta" contenteditable="true">Director, Data Insights</div></div></div>
+    <div class="person"><div class="check" onclick="this.classList.toggle('done');this.textContent=this.classList.contains('done')?'✓':'';this.closest('.person').querySelector('.pname').classList.toggle('met')"></div><div class="av">NT</div><div class="info"><div class="pname" contenteditable="true"><a href="https://vault.shopify.io/search?q=nell.thomas">Nell Thomas</a></div><div class="pmeta" contenteditable="true">VP, Data</div><span class="drag-handle" draggable="true">⠿</span></div></div>
+    <div class="person"><div class="check" onclick="this.classList.toggle('done');this.textContent=this.classList.contains('done')?'✓':'';this.closest('.person').querySelector('.pname').classList.toggle('met')"></div><div class="av">RB</div><div class="info"><div class="pname" contenteditable="true"><a href="https://vault.shopify.io/search?q=rajpreet.bajwa">Rajpreet Bajwa</a></div><div class="pmeta" contenteditable="true">Director, Engineering, Data Infrastructure</div><span class="drag-handle" draggable="true">⠿</span></div></div>
+    <div class="person"><div class="check" onclick="this.classList.toggle('done');this.textContent=this.classList.contains('done')?'✓':'';this.closest('.person').querySelector('.pname').classList.toggle('met')"></div><div class="av">AF</div><div class="info"><div class="pname" contenteditable="true"><a href="https://vault.shopify.io/search?q=auggie.fisher">Auggie Fisher</a></div><div class="pmeta" contenteditable="true">Director, Analytics Engineering</div><span class="drag-handle" draggable="true">⠿</span></div></div>
+    <div class="person"><div class="check" onclick="this.classList.toggle('done');this.textContent=this.classList.contains('done')?'✓':'';this.closest('.person').querySelector('.pname').classList.toggle('met')"></div><div class="av">SL</div><div class="info"><div class="pname" contenteditable="true"><a href="https://vault.shopify.io/search?q=spencer.lawrence">Spencer Lawrence</a></div><div class="pmeta" contenteditable="true">Director, Revenue Data</div><span class="drag-handle" draggable="true">⠿</span></div></div>
+    <div class="person"><div class="check" onclick="this.classList.toggle('done');this.textContent=this.classList.contains('done')?'✓':'';this.closest('.person').querySelector('.pname').classList.toggle('met')"></div><div class="av">IZ</div><div class="info"><div class="pname" contenteditable="true"><a href="https://vault.shopify.io/search?q=ivan.zimin">Ivan Zimin</a></div><div class="pmeta" contenteditable="true">Director, Product, Data</div><span class="drag-handle" draggable="true">⠿</span></div></div>
+    <div class="person"><div class="check" onclick="this.classList.toggle('done');this.textContent=this.classList.contains('done')?'✓':'';this.closest('.person').querySelector('.pname').classList.toggle('met')"></div><div class="av">VM</div><div class="info"><div class="pname" contenteditable="true"><a href="https://vault.shopify.io/search?q=varun.madduri">Varun Madduri</a></div><div class="pmeta" contenteditable="true">Director, Data Insights</div><span class="drag-handle" draggable="true">⠿</span></div></div>
+    <div class="person"><div class="check" onclick="this.classList.toggle('done');this.textContent=this.classList.contains('done')?'✓':'';this.closest('.person').querySelector('.pname').classList.toggle('met')"></div><div class="av">DH</div><div class="info"><div class="pname" contenteditable="true"><a href="https://vault.shopify.io/search?q=dave.hedengren">Dave Hedengren</a></div><div class="pmeta" contenteditable="true">Director, Data Insights</div><span class="drag-handle" draggable="true">⠿</span></div></div>
+    <div class="person"><div class="check" onclick="this.classList.toggle('done');this.textContent=this.classList.contains('done')?'✓':'';this.closest('.person').querySelector('.pname').classList.toggle('met')"></div><div class="av">RC</div><div class="info"><div class="pname" contenteditable="true"><a href="https://vault.shopify.io/search?q=ratna.chembrolu">Ratna Chembrolu</a></div><div class="pmeta" contenteditable="true">Director, Data Insights</div><span class="drag-handle" draggable="true">⠿</span></div></div>
   </div>
 
   <h3 style="font-size:.95rem;margin:1rem 0 .5rem;color:var(--text-dim)">Your Direct Reports</h3>
   <div class="people-list">
-    <div class="person"><div class="av">CM</div><div class="info"><div class="pname" contenteditable="true"><a href="https://vault.shopify.io/people/22719">Connor McCambridge</a></div><div class="pmeta" contenteditable="true">Manager, Executive Insights · 8 people</div></div></div>
-    <div class="person"><div class="av">AB</div><div class="info"><div class="pname" contenteditable="true"><a href="https://vault.shopify.io/people/6284">Anne Branchut</a></div><div class="pmeta" contenteditable="true">Manager, Market Insights · 7 people</div></div></div>
-    <div class="person"><div class="av">AR</div><div class="info"><div class="pname" contenteditable="true"><a href="https://vault.shopify.io/people/10785">Andy Robinson</a></div><div class="pmeta" contenteditable="true">Manager, Finance Data · 8 people</div></div></div>
-    <div class="person"><div class="av">DC</div><div class="info"><div class="pname" contenteditable="true"><a href="https://vault.shopify.io/people/33674">Dan Cohen</a></div><div class="pmeta" contenteditable="true">Manager, Infrastructure Data · 9 people</div></div></div>
+    <div class="person"><div class="check" onclick="this.classList.toggle('done');this.textContent=this.classList.contains('done')?'✓':'';this.closest('.person').querySelector('.pname').classList.toggle('met')"></div><div class="av">CM</div><div class="info"><div class="pname" contenteditable="true"><a href="https://vault.shopify.io/people/22719">Connor McCambridge</a></div><div class="pmeta" contenteditable="true">Manager, Executive Insights · 8 people</div><span class="drag-handle" draggable="true">⠿</span></div></div>
+    <div class="person"><div class="check" onclick="this.classList.toggle('done');this.textContent=this.classList.contains('done')?'✓':'';this.closest('.person').querySelector('.pname').classList.toggle('met')"></div><div class="av">AB</div><div class="info"><div class="pname" contenteditable="true"><a href="https://vault.shopify.io/people/6284">Anne Branchut</a></div><div class="pmeta" contenteditable="true">Manager, Market Insights · 7 people</div><span class="drag-handle" draggable="true">⠿</span></div></div>
+    <div class="person"><div class="check" onclick="this.classList.toggle('done');this.textContent=this.classList.contains('done')?'✓':'';this.closest('.person').querySelector('.pname').classList.toggle('met')"></div><div class="av">AR</div><div class="info"><div class="pname" contenteditable="true"><a href="https://vault.shopify.io/people/10785">Andy Robinson</a></div><div class="pmeta" contenteditable="true">Manager, Finance Data · 8 people</div><span class="drag-handle" draggable="true">⠿</span></div></div>
+    <div class="person"><div class="check" onclick="this.classList.toggle('done');this.textContent=this.classList.contains('done')?'✓':'';this.closest('.person').querySelector('.pname').classList.toggle('met')"></div><div class="av">DC</div><div class="info"><div class="pname" contenteditable="true"><a href="https://vault.shopify.io/people/33674">Dan Cohen</a></div><div class="pmeta" contenteditable="true">Manager, Infrastructure Data · 9 people</div><span class="drag-handle" draggable="true">⠿</span></div></div>
   </div>
 
   <h3 style="font-size:.95rem;margin:1rem 0 .5rem;color:var(--text-dim)">Key Partners</h3>
   <div class="people-list">
-    <div class="person"><div class="av">SW</div><div class="info"><div class="pname" contenteditable="true"><a href="https://vault.shopify.io/users/3879">Steven Wu</a></div><div class="pmeta" contenteditable="true">Manager, Corporate Data Engineering · DEs embedded across your teams</div></div></div>
-    <div class="person"><div class="av">AF</div><div class="info"><div class="pname" contenteditable="true"><a href="https://vault.shopify.io/search?q=auggie.fisher">Auggie Fisher</a></div><div class="pmeta" contenteditable="true">Director, Analytics Engineering · Steven's formal reporting line</div></div></div>
-    <div class="person"><div class="av">JH</div><div class="info"><div class="pname" contenteditable="true"><a href="https://vault.shopify.io/search?q=jill.hogan">Jill Hogan</a></div><div class="pmeta" contenteditable="true">Senior Product Operations Manager · Your Ops partner for Corp Data</div></div></div>
+    <div class="person"><div class="check" onclick="this.classList.toggle('done');this.textContent=this.classList.contains('done')?'✓':'';this.closest('.person').querySelector('.pname').classList.toggle('met')"></div><div class="av">SW</div><div class="info"><div class="pname" contenteditable="true"><a href="https://vault.shopify.io/users/3879">Steven Wu</a></div><div class="pmeta" contenteditable="true">Manager, Corporate Data Engineering · DEs embedded across your teams</div><span class="drag-handle" draggable="true">⠿</span></div></div>
+    <div class="person"><div class="check" onclick="this.classList.toggle('done');this.textContent=this.classList.contains('done')?'✓':'';this.closest('.person').querySelector('.pname').classList.toggle('met')"></div><div class="av">AF</div><div class="info"><div class="pname" contenteditable="true"><a href="https://vault.shopify.io/search?q=auggie.fisher">Auggie Fisher</a></div><div class="pmeta" contenteditable="true">Director, Analytics Engineering · Steven's formal reporting line</div><span class="drag-handle" draggable="true">⠿</span></div></div>
+    <div class="person"><div class="check" onclick="this.classList.toggle('done');this.textContent=this.classList.contains('done')?'✓':'';this.closest('.person').querySelector('.pname').classList.toggle('met')"></div><div class="av">JH</div><div class="info"><div class="pname" contenteditable="true"><a href="https://vault.shopify.io/search?q=jill.hogan">Jill Hogan</a></div><div class="pmeta" contenteditable="true">Senior Product Operations Manager · Your Ops partner for Corp Data</div></div></div>
   </div>
 </div>
 
@@ -519,11 +527,7 @@ function addReading() {
   list.appendChild(link);
 }
 
-// ── People drag between sections ─────────────────────────────
-function setupPersonDrag(person) {
-  person.addEventListener('dragstart', e => { window._dragPerson = person; person.style.opacity = '.3'; });
-  person.addEventListener('dragend', () => { person.style.opacity = '1'; document.querySelectorAll('.drop-hl-list').forEach(l => l.classList.remove('drop-hl-list')); window._dragPerson = null; });
-}
+// ── People drag between sections (handled via drag handles) ──
 
 document.querySelectorAll('.people-list').forEach(list => {
   list.addEventListener('dragover', e => { if (window._dragPerson) { e.preventDefault(); list.classList.add('drop-hl-list'); }});
@@ -541,8 +545,42 @@ window.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.sched .cell:not(.hdr):not(.wk)').forEach(setupCell);
   document.querySelectorAll('.ev').forEach(makeEventDraggable);
 
-  // Setup person dragging
-  document.querySelectorAll('.person').forEach(p => { p.draggable = true; setupPersonDrag(p); });
+  // Add checkboxes and drag handles to all person rows
+  document.querySelectorAll('.person').forEach(p => {
+    // Add checkbox at start if not already there
+    if (!p.querySelector('.check')) {
+      const check = document.createElement('div');
+      check.className = 'check';
+      check.onclick = () => {
+        check.classList.toggle('done');
+        check.textContent = check.classList.contains('done') ? '✓' : '';
+        p.querySelector('.pname')?.classList.toggle('met');
+      };
+      p.insertBefore(check, p.firstChild);
+    }
+    // Add drag handle at end if not already there
+    if (!p.querySelector('.drag-handle')) {
+      const handle = document.createElement('span');
+      handle.className = 'drag-handle';
+      handle.textContent = '⠿';
+      handle.draggable = true;
+      handle.addEventListener('dragstart', e => {
+        e.stopPropagation();
+        window._dragPerson = p;
+        p.style.opacity = '.3';
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', '');
+      });
+      handle.addEventListener('dragend', () => {
+        p.style.opacity = '1';
+        document.querySelectorAll('.drop-hl-list').forEach(l => l.classList.remove('drop-hl-list'));
+        window._dragPerson = null;
+      });
+      p.appendChild(handle);
+    }
+    // Don't make the person row itself draggable — only the handle
+    p.draggable = false;
+  });
 
   // Add remove buttons to all removable items
   document.querySelectorAll('.step, .card, .guide, .team-card, .person, .ch').forEach(el => addRemoveBtn(el));
